@@ -26,26 +26,26 @@ library(ncdf4)
 library(tidyverse)
 
 # Part I Variables To Change ##############################################
-# var <- c('tasmax', 'tasmin', 'pr', 'mrsos')[as.numeric('model_var')] # bash script
-# mNum <- as.numeric('model_num') # bash script
-var <- c('tasmax', 'tasmin', 'pr', 'mrsos')[1]
-mNum <- 1 # Select a model (1-8)
-mFile <- c('_day_CMCC-ESM2_historical_r1i1p1f1_gn_',
-           '_day_EC-Earth3_historical_r1i1p1f1_gr_',
-           '_day_GFDL-ESM4_esm-hist_r1i1p1f1_gr1_',
-           '_day_INM-CM4-8_historical_r1i1p1f1_gr1_',
-           '_day_INM-CM5-0_historical_r1i1p1f1_gr1_',
-           '_day_MPI-ESM1-2-HR_historical_r1i1p1f1_gn_',
-           '_day_MRI-ESM2-0_historical_r1i1p1f1_gn_',
-           '_day_NorESM2-MM_historical_r1i1p1f1_gn_')[mNum]
-# mFile <- c('_day_CMCC-ESM2_ssp126_r1i1p1f1_gn_',
-#            '_day_EC-Earth3_ssp126_r1i1p1f1_gr_',
-#            '_day_GFDL-ESM4_ssp126_r1i1p1f1_gr1_',
-#            '_day_INM-CM4-8_ssp126_r1i1p1f1_gr1_',
-#            '_day_INM-CM5-0_ssp126_r1i1p1f1_gr1_',
-#            '_day_MPI-ESM1-2-HR_ssp126_r1i1p1f1_gn_',
-#            '_day_MRI-ESM2-0_ssp126_r1i1p1f1_gn_',
-#            '_day_NorESM2-MM_ssp126_r1i1p1f1_gn_')[mNum]
+var <- c('tasmax', 'tasmin', 'pr', 'mrsos')[as.numeric('model_var')] # bash script
+mNum <- as.numeric('model_num') # bash script
+# var <- c('tasmax', 'tasmin', 'pr', 'mrsos')[1]
+# mNum <- 1 # Select a model (1-8)
+# mFile <- c('_day_CMCC-ESM2_historical_r1i1p1f1_gn_',
+#            '_day_EC-Earth3_historical_r1i1p1f1_gr_',
+#            '_day_GFDL-ESM4_esm-hist_r1i1p1f1_gr1_',
+#            '_day_INM-CM4-8_historical_r1i1p1f1_gr1_',
+#            '_day_INM-CM5-0_historical_r1i1p1f1_gr1_',
+#            '_day_MPI-ESM1-2-HR_historical_r1i1p1f1_gn_',
+#            '_day_MRI-ESM2-0_historical_r1i1p1f1_gn_',
+#            '_day_NorESM2-MM_historical_r1i1p1f1_gn_')[mNum]
+mFile <- c('_day_CMCC-ESM2_ssp126_r1i1p1f1_gn_',
+           '_day_EC-Earth3_ssp126_r1i1p1f1_gr_',
+           '_day_GFDL-ESM4_ssp126_r1i1p1f1_gr1_',
+           '_day_INM-CM4-8_ssp126_r1i1p1f1_gr1_',
+           '_day_INM-CM5-0_ssp126_r1i1p1f1_gr1_',
+           '_day_MPI-ESM1-2-HR_ssp126_r1i1p1f1_gn_',
+           '_day_MRI-ESM2-0_ssp126_r1i1p1f1_gn_',
+           '_day_NorESM2-MM_ssp126_r1i1p1f1_gn_')[mNum]
 # mFile <- c('_day_CMCC-ESM2_ssp585_r1i1p1f1_gn_',
 #            '_day_EC-Earth3_ssp585_r1i1p1f1_gr_',
 #            '_day_GFDL-ESM4_ssp585_r1i1p1f1_gr1_',
@@ -54,14 +54,14 @@ mFile <- c('_day_CMCC-ESM2_historical_r1i1p1f1_gn_',
 #            '_day_MPI-ESM1-2-HR_ssp585_r1i1p1f1_gn_',
 #            '_day_MRI-ESM2-0_ssp585_r1i1p1f1_gn_',
 #            '_day_NorESM2-MM_ssp585_r1i1p1f1_gn_')[mNum]
-loc1 <- c('CMIP6_historical/','CMIP6_SSP126/','CMIP6_SSP585/')[1]
+loc1 <- c('CMIP6_historical/','CMIP6_SSP126/','CMIP6_SSP585/')[2]
 loc2 <- c('CMCC-ESM2/', 'EC-Earth3/',
           'GFDL-ESM4/', 'INM-CM4-8/',
           'INM-CM5-0/', 'MPI-ESM1-2-HR/',
           'MRI-ESM2-0/', 'NorESM2-MM/')[mNum]
 a <-strsplit(loc2,'/') %>% unlist() 
-startyr <- 1980
-endyr <- 2010
+startyr <- 2040
+endyr <- 2070
 
 print(paste0('Model ',loc2))
 print(paste0('Var ', var))
@@ -381,7 +381,7 @@ if (mNum == 1 & var != 'mrsos'){
     }
     # # Open the second file 2065-2100
     datNC <- ncdf4::nc_open(paste0(fileloc1,loc1,loc2,'regrid360x180_',var,mFile,
-                                   '2065','0101-','2089','1231.nc'))
+                                   '2065','0101-','2100','1231.nc'))
     tNC <- ncdf4::ncvar_get(datNC, 'time')
     time <- c(time, tNC)
     varNC <- ncdf4::ncvar_get(datNC, var)
@@ -680,7 +680,7 @@ if (mNum == 1 & var != 'mrsos'){
         datNC <- ncdf4::nc_open(paste0(fileloc1,loc1,loc2,'regrid360x180_',var,mFile,i,'0101-',(i+9),'1231.nc'))
       }
     } else {
-      datNC <- ncdf4::nc_open(paste0(fileloc1,loc1,loc2,var,model,(i-9),'0101-',i,'1231.nc'))
+      datNC <- ncdf4::nc_open(paste0(fileloc1,loc1,loc2,var,mFile,(i-9),'0101-',i,'1231.nc'))
     }
     tNC <- ncdf4::ncvar_get(datNC, 'time')
     if (i == startyr){
@@ -770,13 +770,17 @@ if (var == 'tasmax'){
     rm(perc, Tmean, Tmedian, Tmax, Tmin, TSd)
   } else {
     # . . 4.1.4 Opening the thresholds ##
-    if (mNum == 1){
-      x <- 'gr'
+    if (mNum == 1 | mNum == 6 | mNum == 7 | mNum == 8){
+      x <- '_historical_r1i1p1f1_gn'
     } else if (mNum == 2){
-      x <- 'gr1'
-    } else { x <- 'gn'}
-    datThresh <- read_csv(paste0(fileloc1,'CMIP6_historical/',loc2,'THRESHOLD_',var,'_day_',a,
-                                  '_historical_r1i1p1f1_',x,'_',1980,'-',2010,'.csv'),
+      x <- '_historical_r1i1p1f1_gr'
+    } else if (mNum == 3){
+      x <- '_esm-hist_r1i1p1f1_gr1'
+    } else if (mNum == 4 | mNum == 5){
+      x <- '_historical_r1i1p1f1_gr1'
+    } else { print(paste0('Model Number ', mNum, ' not reconized.'))}
+    datThresh <- read_csv(paste0(fileloc1,'CMIP6_historical/',loc2,'THRESHOLD_',
+                                 var, '_day_', a, x, '_', 1980,'-',2010,'.csv'),
                            col_names = TRUE, cols(.default = col_double()))
   }
   B <- Sys.time()
@@ -831,13 +835,17 @@ if (var == 'tasmin'){
     rm(perc, Tmean, Tmedian, Tmax, Tmin, TSd)
   } else {
     # . . 5.1.4 Opening the thresholds ##
-    if (mNum == 1){
-      x <- 'gr'
+    if (mNum == 1 | mNum == 6 | mNum == 7 | mNum == 8){
+      x <- '_historical_r1i1p1f1_gn'
     } else if (mNum == 2){
-      x <- 'gr1'
-    } else { x <- 'gn'}
-    datThresh <- read_csv(paste0(fileloc1,'CMIP6_historical/',loc2,'THRESHOLD_',var,'_day_',a,
-                                 '_historical_r1i1p1f1_',x,'_',1980,'-',2010,'.csv'),
+      x <- '_historical_r1i1p1f1_gr'
+    } else if (mNum == 3){
+      x <- '_esm-hist_r1i1p1f1_gr1'
+    } else if (mNum == 4 | mNum == 5){
+      x <- '_historical_r1i1p1f1_gr1'
+    } else { print(paste0('Model Number ', mNum, ' not reconized.'))}
+    datThresh <- read_csv(paste0(fileloc1,'CMIP6_historical/',loc2,'THRESHOLD_',
+                                 var, '_day_', a, x, '_', 1980,'-',2010,'.csv'),
                           col_names = TRUE, cols(.default = col_double()))
   }
   B <- Sys.time()
@@ -888,13 +896,17 @@ if (var == 'pr'){
               row.names = FALSE)
   } else {
     # . . 5.1.4 Opening the thresholds ##
-    if (mNum == 1){
-      x <- 'gr'
+    if (mNum == 1 | mNum == 6 | mNum == 7 | mNum == 8){
+      x <- '_historical_r1i1p1f1_gn'
     } else if (mNum == 2){
-      x <- 'gr1'
-    } else { x <- 'gn'}
-    datThresh <- read_csv(paste0(fileloc1,'CMIP6_historical/',loc2,'THRESHOLD_',var,'_day_',a,
-                                 '_historical_r1i1p1f1_',x,'_',1980,'-',2010,'.csv'),
+      x <- '_historical_r1i1p1f1_gr'
+    } else if (mNum == 3){
+      x <- '_esm-hist_r1i1p1f1_gr1'
+    } else if (mNum == 4 | mNum == 5){
+      x <- '_historical_r1i1p1f1_gr1'
+    } else { print(paste0('Model Number ', mNum, ' not reconized.'))}
+    datThresh <- read_csv(paste0(fileloc1,'CMIP6_historical/',loc2,'THRESHOLD_',
+                                 var, '_day_', a, x, '_', 1980,'-',2010,'.csv'),
                           col_names = TRUE, cols(.default = col_double()))
   }
   B <- Sys.time()
@@ -945,13 +957,17 @@ if (var == 'mrsos'){
               row.names = FALSE)
   } else {
     # . . 7.1.4 Opening the thresholds ##
-    if (mNum == 1){
-      x <- 'gr'
+    if (mNum == 1 | mNum == 6 | mNum == 7 | mNum == 8){
+      x <- '_historical_r1i1p1f1_gn'
     } else if (mNum == 2){
-      x <- 'gr1'
-    } else { x <- 'gn'}
-    datThresh <- read_csv(paste0(fileloc1,'CMIP6_historical/',loc2,'THRESHOLD_',var,'_day_',a,
-                                 '_historical_r1i1p1f1_',x,'_',1980,'-',2010,'.csv'),
+      x <- '_historical_r1i1p1f1_gr'
+    } else if (mNum == 3){
+      x <- '_esm-hist_r1i1p1f1_gr1'
+    } else if (mNum == 4 | mNum == 5){
+      x <- '_historical_r1i1p1f1_gr1'
+    } else { print(paste0('Model Number ', mNum, ' not reconized.'))}
+    datThresh <- read_csv(paste0(fileloc1,'CMIP6_historical/',loc2,'THRESHOLD_',
+                                 var, '_day_', a, x, '_', 1980,'-',2010,'.csv'),
                           col_names = TRUE, cols(.default = col_double()))
   }
   B <- Sys.time()
