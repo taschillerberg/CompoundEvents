@@ -25,7 +25,7 @@ library(tidyverse)
 # Part I Variables To Change ###################################################
 # var <- c('tasmax', 'tasmin', 'mrsos')[as.numeric('model_var')] # Bash script
 # mNum <- as.numeric('model_num') # Bash script
-var <- c('tasmax', 'tasmin','mrsos') [3]
+var <- c('tasmax', 'tasmin','mrsos') [1]
 mNum <- 1 # Select a model (1-4)
 mFile <- c('_day_CMCC-ESM2_historical_r1i1p1f1_gn_',
            '_day_EC-Earth3_historical_r1i1p1f1_gr_',
@@ -65,12 +65,12 @@ print('Rscript: P3_Day_Waves.R')
 print(paste0('Scenario: ', loc1, ' For the time period: ', startyr, '-', endyr))
 
 # Part II Functions ############################################################
-wave <- function(dat){
+day_wave <- function(dat){
   # About: This function will calculate the wave period of exceedance and return 
   #        a time series of the same length composed of 0s and values <1 that 
   #        can be used to determine the length of the wave.
   #
-  # dat, X : array of binary variables
+  # dat: array of binary variables
   
   # Variables ------------------------------------------------------------------
   datW <- array(0,dim = length(dat))
@@ -103,7 +103,7 @@ wave <- function(dat){
   }
   return(datW)
 }
-waveFlash <- function(dat){
+day_wave_flash <- function(dat){
   # About: This function will calculate the occurrence of flash droughts
   #
   # dat, X : array of tri-nary (0,1,2) variables
@@ -176,7 +176,7 @@ days <- colnames(datExceed[,3:ncol(datExceed)])
 if (var == 'tasmax'| var == 'tasmin'){
   B <- Sys.time()
   print(paste0('Starting to calculate the Temperature Wave at: ',B))
-  datWaves <- apply(datExceed[,3:ncol(datExceed)], MARGIN = 1, FUN = wave) %>%
+  datWaves <- apply(datExceed[,3:ncol(datExceed)], MARGIN = 1, FUN = day_wave) %>%
     t()
   datWaves <- cbind(lonlat, datWaves)
   colnames(datWaves) <- c('lon','lat',days)
@@ -189,7 +189,7 @@ if (var == 'tasmax'| var == 'tasmin'){
 if (var == 'mrsos'){
   B <- Sys.time()
   print(paste0('Starting to calculate the Flash Drought Wave at: ',B))
-  datWaves <- apply(datExceed[,3:ncol(datExceed)], MARGIN = 1, FUN = waveFlash) %>%
+  datWaves <- apply(datExceed[,3:ncol(datExceed)], MARGIN = 1, FUN = day_wave_flash) %>%
     t()
   # Pottentionally only look at flash droughts longer than 4 weeks. Still the 
   # question as to when the flash drought officiall starts
@@ -205,4 +205,4 @@ if (var == 'mrsos'){
 # END ##########################################################################
 B <- Sys.time()
 print(paste0('Finished calculating the requested wave for ',
-             var,'. End time: ',B, 'Total time elapsed: ', B-A))
+             var,'. End time: ',B, ' Total time elapsed: ', B-A))

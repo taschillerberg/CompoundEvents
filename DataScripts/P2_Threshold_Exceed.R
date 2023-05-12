@@ -26,10 +26,10 @@ library(ncdf4)
 library(tidyverse)
 
 # Part I Variables To Change ##############################################
-var <- c('tasmax', 'tasmin', 'pr', 'mrsos')[as.numeric('model_var')] # bash script
-mNum <- as.numeric('model_num') # bash script
-# var <- c('tasmax', 'tasmin', 'pr', 'mrsos')[1]
-# mNum <- 1 # Select a model (1-8)
+# var <- c('tasmax', 'tasmin', 'pr', 'mrsos')[as.numeric('model_var')] # bash script
+# mNum <- as.numeric('model_num') # bash script
+var <- c('tasmax', 'tasmin', 'pr', 'mrsos')[1]
+mNum <- 8 # Select a model (1-8)
 # mFile <- c('_day_CMCC-ESM2_historical_r1i1p1f1_gn_',
 #            '_day_EC-Earth3_historical_r1i1p1f1_gr_',
 #            '_day_GFDL-ESM4_esm-hist_r1i1p1f1_gr1_',
@@ -680,7 +680,7 @@ if (mNum == 1 & var != 'mrsos'){
         datNC <- ncdf4::nc_open(paste0(fileloc1,loc1,loc2,'regrid360x180_',var,mFile,i,'0101-',(i+9),'1231.nc'))
       }
     } else {
-      datNC <- ncdf4::nc_open(paste0(fileloc1,loc1,loc2,var,mFile,(i-9),'0101-',i,'1231.nc'))
+      datNC <- ncdf4::nc_open(paste0(fileloc1,loc1,loc2,'regrid360x180_',var,mFile,(i-9),'0101-',i,'1231.nc'))
     }
     tNC <- ncdf4::ncvar_get(datNC, 'time')
     if (i == startyr){
@@ -994,4 +994,3 @@ if (var == 'mrsos'){
 B <- Sys.time()
 print(paste0('Finished calculating all thresholds and exceedance for ',
              var,'. End time: ',B, 'Total time elapsed: ', B-A))
-
