@@ -55,7 +55,7 @@ loc2 <- c('CMCC-ESM2/', 'EC-Earth3/',
           'GFDL-ESM4/', 'INM-CM4-8/',
           'INM-CM5-0/', 'MPI-ESM1-2-HR/',
           'MRI-ESM2-0/', 'NorESM2-MM/')
-var <- c('tasmax', 'tasmin', 'pr', 'mrsos') [1]
+var <- c('tasmax', 'tasmin', 'pr', 'mrsos') [4]
 startyr <- 1980
 endyr <- 2010
 timeSpan <- c('DAY_','WEEK_FD_','WEEK_D_','MONTH_FD_','MONTH_D_')[1]
@@ -178,8 +178,8 @@ sMmu <- summary(datThresh$Mu) %>% round(digits = 4)
 
 sM1 <- rbind(sM1,sM2, sM3, sM4, sM5, sM6, sM7, sM8, sMmu) %>% 
   as_tibble()
-colnames(sM1) <- c('Min.','1st Qu.','Median','Mean','3rd Qu.','Max.')
-# sM1 <- sM1 %>% select(-NAs)
+colnames(sM1) <- c('Min.','1st Qu.','Median','Mean','3rd Qu.','Max.','NAs')
+sM1 <- sM1 %>% select(-NAs)
 
 mMin <- min(sM1$Min.) %>% 
   round(digits = -1)
@@ -364,7 +364,7 @@ F1 <- plot_grid(title,
                 rel_heights = c(.05,.85,.5),
                 nrow = 3)
 
-ggsave(F1, filename = paste(fileloc1,loc1[1],'Results/','THRESHOLD_',var, ".tiff", sep=''),
+ggsave(F1, filename = paste0(fileloc1,loc1[1],'Results/','THRESHOLD_',var, ".tiff"),
        width = 14, height = 10, dpi = 350, bg='white')
 
 
@@ -400,7 +400,7 @@ for (i in 1: length(loc2)){
   if (i == 1){
     datFreqH$lon <- dat$lon
     datFreqH$lat <- dat$lat
-    datFreqH$`CMCC-ESM2` <- as_tibble(Xx)
+    datFreqH[,2+i] <- as_tibble(Xx)
   } else {
     datFreqH[,2+i] <- as_tibble(Xx)
   }
@@ -420,7 +420,7 @@ for (i in 1: length(loc2)){
   if (i == 1){
     datFreq126_4070$lon <- dat$lon
     datFreq126_4070$lat <- dat$lat
-    datFreq126_4070$`CMCC-ESM2` <- as_tibble(Xx)
+    datFreq126_4070[,2+i] <- as_tibble(Xx)
   } else {
     datFreq126_4070[,2+i] <- as_tibble(Xx)
   }
@@ -440,7 +440,7 @@ for (i in 1: length(loc2)){
   if (i == 1){
     datFreq126_7000$lon <- dat$lon
     datFreq126_7000$lat <- dat$lat
-    datFreq126_7000$`CMCC-ESM2` <- as_tibble(Xx)
+    datFreq126_7000[,2+i] <- as_tibble(Xx)
   } else {
     datFreq126_7000[,2+i] <- as_tibble(Xx)
   }
@@ -460,7 +460,7 @@ for (i in 1: length(loc2)){
   if (i == 1){
     datFreq585_4070$lon <- dat$lon
     datFreq585_4070$lat <- dat$lat
-    datFreq585_4070$`CMCC-ESM2` <- as_tibble(Xx)
+    datFreq585_4070[,2+i] <- as_tibble(Xx)
   } else {
     datFreq585_4070[,2+i] <- as_tibble(Xx)
   }
@@ -480,7 +480,7 @@ for (i in 1: length(loc2)){
   if (i == 1){
     datFreq585_7000$lon <- dat$lon
     datFreq585_7000$lat <- dat$lat
-    datFreq585_7000$`CMCC-ESM2` <- as_tibble(Xx)
+    datFreq585_7000[,2+i] <- as_tibble(Xx)
   } else {
     datFreq585_7000[,2+i] <- as_tibble(Xx)
   }
@@ -595,7 +595,7 @@ F1 <- plot_grid(title,
                 # rel_heights = c(0.05,1),
                 nrow = 3)
 
-ggsave(F1, filename = paste(fileloc1,'Results/','EXCEED_', timeSpan ,'AllFrequency_',var, ".tiff", sep=''),
+ggsave(F1, filename = paste0(fileloc1,'Results/','EXCEED_', timeSpan ,'AllFrequency_',var, ".tiff"),
        width = 14, height = 16, dpi = 350, bg='white')
 
 
@@ -603,8 +603,8 @@ ggsave(F1, filename = paste(fileloc1,'Results/','EXCEED_', timeSpan ,'AllFrequen
 # . 5.1 Variables Needed -------------------------------------------------------
 dat <- c(datFreqH, datFreq126_4070, datFreq126_7000, 
          datFreq585_4070, datFreq585_7000)
-dat <- datFreq126_4070
-loc1 <- c('CMIP6_historical/','CMIP6_SSP126/','CMIP6_SSP585/')[1]
+dat <- datFreq585_7000
+loc1 <- c('CMIP6_historical/','CMIP6_SSP126/','CMIP6_SSP585/')[3]
 
 # . 5.2 Creating a table of values ---------------------------------------------
 sM1f <- summary(dat$`CMCC-ESM2`) %>% round(digits=4)
@@ -764,7 +764,7 @@ F1 <- plot_grid(F1A,
                 rel_heights = c(1,.5),
                 nrow = 2)
 
-ggsave(F1, filename = paste(fileloc1,loc1,'Results/','EXCEED_DAY_Frequency_',var, ".tiff", sep=''),
+ggsave(F1, filename = paste0(fileloc1,loc1,'Results/','EXCEED_DAY_Frequency_',var, "_7000.tiff"),
        width = 14, height = 10, dpi = 350, bg='white')
 
 # rm(list=ls()[! ls() %in% c('as_ggplot','get_legend','fileloc1', 'loc1', 'loc2', 'mFile','mNum','var',
