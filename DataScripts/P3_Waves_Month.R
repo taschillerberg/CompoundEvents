@@ -1,9 +1,13 @@
 # P5_Month_Waves.R
 # About: This program will open files for the selected variable and calculate 
 #        the monthly values.
+#        Most recent run of month historical (B) took 2h, 9GB; SSP126 (C & D)
+#        took 2h, 10GB; SSP585(E & F) took 2h, 10GB
 #
-# Inputs: WAVES DAY(tasmax), EXCEED (pr), ORG DAY (mrsos)
-# Outputs: WAVES_MONTHLY
+# Inputs:  WAVES_DAY(tasmax, tasmin, mrsos), EXCEED_DAY (pr), WAVES_DAY (mrsos),
+#          ORG_DAY (mrsos)
+# Outputs: WAVES_MONTH (tasmax, tasmin, pr), WAES_MONTH_FD (mrsos), 
+#          ORG_MONTH (mrsos), WAVES_MONTH_D (MRSOS), THRESHOLD_MONTH_ (mrsos)
 #
 # T. A. Schillerberg
 #               NOV. 2022
@@ -77,7 +81,7 @@ if (startyr == 1980) {
   } else { month <- 2640:3011 }
 }
 
-print(' ')
+print('-----------------------------------------------------------------------')
 print(paste0('Model: ',loc2))
 print(paste0('Variable: ', var))
 print('Rscript: P3_Month_Waves.R')
@@ -449,3 +453,4 @@ if (var == 'mrsos'){
 B <- Sys.time()
 print(paste0('Finished calculating all the monthly values for ',
              var,'. End time: ',B, ' Total time elapsed: ', B-A))
+print('-----------------------------------------------------------------------')

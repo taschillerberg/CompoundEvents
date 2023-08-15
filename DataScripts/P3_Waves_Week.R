@@ -1,9 +1,12 @@
 # P4_Weekly_Waves.R
 # About: This program will open the exceedance file for the selected variable 
 #        and calculate a 'wave' of when the exceedance occurs.
+#        took 3h, 10GB; SSP585(E & F) took 3h, 10GB
 #
-# Inputs: WAVES DAY(tasmax), EXCEED (pr), ORG DAY (mrsos)
-# Outputs: EXCEED_WEEK
+# Inputs:  WAVES_DAY(tasmax, tasmin, mrsos), EXCEED_DAY (pr), WAVES_DAY (mrsos),
+#          ORG_DAY (mrsos)
+# Outputs: EXCEED_WEEK(tasmax, tasmin, pr), WAVES_WEEK (tasmas, tasmin, pr),
+#          WAVES_WEEK_FD, WAVES_WEEK_D, ORG_WEEK (mrsos), THRESHOLD_WEEK (mrsos)
 #
 # T. A. Schillerberg
 #               Jan. 2023
@@ -77,7 +80,6 @@ if (startyr == 1980) {
   } else { week <- 11440:13051 }
 }
 
-print('')
 print(paste0('Model: ',loc2))
 print(paste0('Variable: ', var))
 print('Rscript: P3_Week_Waves.R')
@@ -354,3 +356,4 @@ if (var == 'mrsos'){
 B <- Sys.time()
 print(paste0('Finished calculating all the weekly values for ',
              var,'. End time: ',B, 'Total time elapsed: ', B-A))
+print('-----------------------------------------------------------------------')

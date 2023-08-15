@@ -1,8 +1,10 @@
 # P3_Waves.R
 # About: This program will open the exceed file for the selected 
 #        variable and calculate a 'wave' of when the exceed occurs.
+#        Most recent run of day historical (B) took - hr, -GB; SSP126 (C & D)
+#        took -h, -GB; SSP585(E & F) took 36h, 14GB
 #     
-# Inputs: EXCEED_DAY
+# Inputs:  EXCEED_DAY
 # Outputs: WAVES_DAY
 #
 # T. A. Schillerberg
@@ -206,3 +208,4 @@ if (var == 'mrsos'){
 B <- Sys.time()
 print(paste0('Finished calculating the requested wave for ',
              var,'. End time: ',B, ' Total time elapsed: ', B-A))
+print("-----------------------------------------------------------------------")

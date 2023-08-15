@@ -9,7 +9,7 @@
 #
 # T. A. Schillerberg
 #               Oct. 2022
-#      Updated: Apr. 2023
+#      Updated: Jun. 2023
 
 # Mac
 
@@ -21,31 +21,32 @@
 fileloc1 <- '~/CompoundEvents/Data/'
 
 options(show.error.locations = TRUE)
-# Libraries ###############################################################
+# Libraries ####################################################################
 library(ncdf4)
 library(tidyverse)
+library(zoo)
 
 # Part I Variables To Change ##############################################
 # var <- c('tasmax', 'tasmin', 'pr', 'mrsos')[as.numeric('model_var')] # bash script
 # mNum <- as.numeric('model_num') # bash script
-var <- c('tasmax', 'tasmin', 'pr', 'mrsos')[1]
-mNum <- 8 # Select a model (1-8)
-# mFile <- c('_day_CMCC-ESM2_historical_r1i1p1f1_gn_',
-#            '_day_EC-Earth3_historical_r1i1p1f1_gr_',
-#            '_day_GFDL-ESM4_esm-hist_r1i1p1f1_gr1_',
-#            '_day_INM-CM4-8_historical_r1i1p1f1_gr1_',
-#            '_day_INM-CM5-0_historical_r1i1p1f1_gr1_',
-#            '_day_MPI-ESM1-2-HR_historical_r1i1p1f1_gn_',
-#            '_day_MRI-ESM2-0_historical_r1i1p1f1_gn_',
-#            '_day_NorESM2-MM_historical_r1i1p1f1_gn_')[mNum]
-mFile <- c('_day_CMCC-ESM2_ssp126_r1i1p1f1_gn_',
-           '_day_EC-Earth3_ssp126_r1i1p1f1_gr_',
-           '_day_GFDL-ESM4_ssp126_r1i1p1f1_gr1_',
-           '_day_INM-CM4-8_ssp126_r1i1p1f1_gr1_',
-           '_day_INM-CM5-0_ssp126_r1i1p1f1_gr1_',
-           '_day_MPI-ESM1-2-HR_ssp126_r1i1p1f1_gn_',
-           '_day_MRI-ESM2-0_ssp126_r1i1p1f1_gn_',
-           '_day_NorESM2-MM_ssp126_r1i1p1f1_gn_')[mNum]
+var <- c('tasmax', 'tasmin', 'pr', 'mrsos')[4]
+mNum <- 1 # Select a model (1-8)
+mFile <- c('_day_CMCC-ESM2_historical_r1i1p1f1_gn_',
+           '_day_EC-Earth3_historical_r1i1p1f1_gr_',
+           '_day_GFDL-ESM4_esm-hist_r1i1p1f1_gr1_',
+           '_day_INM-CM4-8_historical_r1i1p1f1_gr1_',
+           '_day_INM-CM5-0_historical_r1i1p1f1_gr1_',
+           '_day_MPI-ESM1-2-HR_historical_r1i1p1f1_gn_',
+           '_day_MRI-ESM2-0_historical_r1i1p1f1_gn_',
+           '_day_NorESM2-MM_historical_r1i1p1f1_gn_')[mNum]
+# mFile <- c('_day_CMCC-ESM2_ssp126_r1i1p1f1_gn_',
+#            '_day_EC-Earth3_ssp126_r1i1p1f1_gr_',
+#            '_day_GFDL-ESM4_ssp126_r1i1p1f1_gr1_',
+#            '_day_INM-CM4-8_ssp126_r1i1p1f1_gr1_',
+#            '_day_INM-CM5-0_ssp126_r1i1p1f1_gr1_',
+#            '_day_MPI-ESM1-2-HR_ssp126_r1i1p1f1_gn_',
+#            '_day_MRI-ESM2-0_ssp126_r1i1p1f1_gn_',
+#            '_day_NorESM2-MM_ssp126_r1i1p1f1_gn_')[mNum]
 # mFile <- c('_day_CMCC-ESM2_ssp585_r1i1p1f1_gn_',
 #            '_day_EC-Earth3_ssp585_r1i1p1f1_gr_',
 #            '_day_GFDL-ESM4_ssp585_r1i1p1f1_gr1_',
@@ -54,14 +55,14 @@ mFile <- c('_day_CMCC-ESM2_ssp126_r1i1p1f1_gn_',
 #            '_day_MPI-ESM1-2-HR_ssp585_r1i1p1f1_gn_',
 #            '_day_MRI-ESM2-0_ssp585_r1i1p1f1_gn_',
 #            '_day_NorESM2-MM_ssp585_r1i1p1f1_gn_')[mNum]
-loc1 <- c('CMIP6_historical/','CMIP6_SSP126/','CMIP6_SSP585/')[2]
+loc1 <- c('CMIP6_historical/','CMIP6_SSP126/','CMIP6_SSP585/')[1]
 loc2 <- c('CMCC-ESM2/', 'EC-Earth3/',
           'GFDL-ESM4/', 'INM-CM4-8/',
           'INM-CM5-0/', 'MPI-ESM1-2-HR/',
           'MRI-ESM2-0/', 'NorESM2-MM/')[mNum]
 a <-strsplit(loc2,'/') %>% unlist() 
-startyr <- 2040
-endyr <- 2070
+startyr <- 1980
+endyr <- 2010
 
 print(paste0('Model ',loc2))
 print(paste0('Var ', var))
@@ -300,7 +301,7 @@ if (mNum == 1 & var != 'mrsos'){
     }
     
     colnames(datVar) <- c('lon','lat',time)
-    datVar <- datVar[,c('lon','lat',as.character(seq(80300.5,91514.5, by=1)))]
+    datVar <- datVar[,c('lon','lat',as.character(seq(80300.5,91614.5, by=1)))]
   } else {
     print('Start year not reconized')
   }
@@ -404,7 +405,7 @@ if (mNum == 1 & var != 'mrsos'){
     if (startyr == 2040) {
       datVar <- datVar[,c('lon','lat',as.character(seq(69350.5,80664.5, by=1)))]
     } else if (startyr == 2070){
-      datVar <- datVar[,c('lon','lat',as.character(seq(80300.5,91514.5, by=1)))]
+      datVar <- datVar[,c('lon','lat',as.character(seq(80300.5,91614.5, by=1)))]
     } else { print('Start year not reconized') }
   } else { print('Start year not reconized') } 
 } else if (mNum == 2){
@@ -728,11 +729,9 @@ print(paste0('Finished opening the nc files at: ',B,
 # . 3.2 Opening the mask & modifying lon ---------------------------------------
 mask <- read_csv(paste0(fileloc1,'CMIP6_historical/','MASK_FULL.csv'),
                  col_names = TRUE, cols(.default = col_double()))
-mask <- cbind(mask$lon2, mask[,(3+mNum)])
-colnames(mask) <- c('lon2','model')
 datVar <- cbind(mask$lon2, datVar$lat,
-                datVar[,3:dim(datVar)[2]] * mask$model) 
-datVar <- na.omit(datVar);
+                datVar[,3:dim(datVar)[2]] * mask$FullMask) 
+datVar <- na.omit(datVar)
 
 B <- Sys.time()
 print(paste0('Finished Part I at: ',B,' time elapsed: ', B-A))
@@ -764,8 +763,9 @@ if (var == 'tasmax'){
     datThresh$PMax[datThresh$PMax == -Inf] <- NA
     datThresh$PMin[datThresh$PMin == Inf] <- NA
     # . . 4.1.3 Writing the Thresholds ##
-    write.csv(datThresh, file=paste0(fileloc1,'CMIP6_historical/',loc2,'THRESHOLD_',var,
-                                      mFile,startyr,'-',endyr,'.csv'),
+    write.csv(datThresh, file=paste0(fileloc1, 'CMIP6_historical/', loc2,
+                                     'THRESHOLD_', var, mFile, startyr, '-', 
+                                     endyr, '.csv'),
               row.names = FALSE)
     rm(perc, Tmean, Tmedian, Tmax, Tmin, TSd)
   } else {
@@ -779,25 +779,28 @@ if (var == 'tasmax'){
     } else if (mNum == 4 | mNum == 5){
       x <- '_historical_r1i1p1f1_gr1'
     } else { print(paste0('Model Number ', mNum, ' not reconized.'))}
-    datThresh <- read_csv(paste0(fileloc1,'CMIP6_historical/',loc2,'THRESHOLD_',
-                                 var, '_day_', a, x, '_', 1980,'-',2010,'.csv'),
+    datThresh <- read_csv(paste0(fileloc1, 'CMIP6_historical/', loc2, 
+                                 'THRESHOLD_', var, '_day_', a, x, '_', 
+                                 1980,'-',2010,'.csv'),
                            col_names = TRUE, cols(.default = col_double()))
   }
+  print(dim(datThresh))
   B <- Sys.time()
   print(paste0('Finished calculating or opening the thresholds at: ', B))
   # . 4.2 Temperature Exceed ---------------------------------------------------
   B <- Sys.time()
   print(paste0('Starting to calculate the exceedance at: ', B))
   lonlat <- datVar[,1:2]
-  days <- colnames(datVar[,3:ncol(datVar)])
-  datVar <- cbind(datThresh$P95, datVar[,3:ncol(datVar)])
-  exceed <- apply(X = datVar, MARGIN=1, FUN=threshold_exceed, opp=1) %>%
+  days <- colnames(datVar[ , 3:ncol(datVar)])
+  datVar <- cbind(datThresh$P95, datVar[ , 3:ncol(datVar)])
+  exceed <- apply(X = datVar, MARGIN = 1, FUN = threshold_exceed, opp = 1) %>%
     t()
   exceed <- cbind(lonlat, exceed)
   colnames(exceed) <- c('lon','lat',days)
   write.csv(exceed, file=
               paste0(fileloc1,loc1,loc2,'EXCEED_DAY_',var,mFile,startyr,'-',endyr,'.csv'), 
             row.names = FALSE)
+  print(dim(exceed))
   B <- Sys.time()
   print(paste0('Finished calculating the exceedance at: ', B))
 }
@@ -829,8 +832,9 @@ if (var == 'tasmin'){
     datThresh$PMax[datThresh$PMax == -Inf] <- NA
     datThresh$PMin[datThresh$PMin == Inf] <- NA
     # . . 5.1.3 Writing the Thresholds ##
-    write.csv(datThresh, file=paste0(fileloc1,'CMIP6_historical/',loc2,'THRESHOLD_',var,
-                                     mFile,startyr,'-',endyr,'.csv'),
+    write.csv(datThresh, file=paste0(fileloc1, 'CMIP6_historical/', loc2,
+                                     'THRESHOLD_', var, mFile, startyr, '-', 
+                                     endyr, '.csv'),
               row.names = FALSE)
     rm(perc, Tmean, Tmedian, Tmax, Tmin, TSd)
   } else {
@@ -844,10 +848,12 @@ if (var == 'tasmin'){
     } else if (mNum == 4 | mNum == 5){
       x <- '_historical_r1i1p1f1_gr1'
     } else { print(paste0('Model Number ', mNum, ' not reconized.'))}
-    datThresh <- read_csv(paste0(fileloc1,'CMIP6_historical/',loc2,'THRESHOLD_',
-                                 var, '_day_', a, x, '_', 1980,'-',2010,'.csv'),
+    datThresh <- read_csv(paste0(fileloc1, 'CMIP6_historical/', loc2, 
+                                 'THRESHOLD_', var, '_day_', a, x, '_', 
+                                 1980,'-',2010,'.csv'),
                           col_names = TRUE, cols(.default = col_double()))
   }
+  print(dim(datThresh))
   B <- Sys.time()
   print(paste0('Finished calculating or opening the thresholds at: ', B))
   # . 5.2 Temperature Exceed ---------------------------------------------------
@@ -863,6 +869,7 @@ if (var == 'tasmin'){
   write.csv(exceed, file=
               paste0(fileloc1,loc1,loc2,'EXCEED_DAY_',var,mFile,startyr,'-',endyr,'.csv'), 
             row.names = FALSE)
+  print(dim(exceed))
   B <- Sys.time()
   print(paste0('Finished calculating the exceedance at: ', B))
 }
@@ -891,8 +898,9 @@ if (var == 'pr'){
     datThresh$PMin[datThresh$PMin == Inf] <- NA
     # . . 5.1.3 Writing the Thresholds ##
     
-    write.csv(datThresh, file=paste0(fileloc1,'CMIP6_historical/',loc2,'THRESHOLD_',var,
-                                     mFile,startyr,'-',endyr,'.csv'),
+    write.csv(datThresh, file=paste0(fileloc1, 'CMIP6_historical/', loc2,
+                                     'THRESHOLD_', var, mFile, startyr, '-', 
+                                     endyr, '.csv'),
               row.names = FALSE)
   } else {
     # . . 5.1.4 Opening the thresholds ##
@@ -905,10 +913,12 @@ if (var == 'pr'){
     } else if (mNum == 4 | mNum == 5){
       x <- '_historical_r1i1p1f1_gr1'
     } else { print(paste0('Model Number ', mNum, ' not reconized.'))}
-    datThresh <- read_csv(paste0(fileloc1,'CMIP6_historical/',loc2,'THRESHOLD_',
-                                 var, '_day_', a, x, '_', 1980,'-',2010,'.csv'),
+    datThresh <- read_csv(paste0(fileloc1, 'CMIP6_historical/', loc2, 
+                                 'THRESHOLD_', var, '_day_', a, x, '_', 
+                                 1980,'-',2010,'.csv'),
                           col_names = TRUE, cols(.default = col_double()))
   }
+  print(dim(datThresh))
   B <- Sys.time()
   print(paste0('Finished calculating or opening the thresholds at: ', B))
   
@@ -926,6 +936,7 @@ if (var == 'pr'){
   write.csv(exceed, file=
               paste0(fileloc1,loc1,loc2,'EXCEED_DAY_',var,mFile,startyr,'-',endyr,'.csv'), 
             row.names = FALSE)
+  print(dim(exceed))
   B <- Sys.time()
   print(paste0('Finished calculating the exceedance at: ', B))
 }
@@ -937,26 +948,33 @@ if (var == 'mrsos'){
   write.csv(datVar, file = paste0(fileloc1,loc1,loc2,'ORG_DAY_',
                                   var,mFile,startyr,'-',endyr,'.csv'), 
             row.names = FALSE)
+  lonlat <- datVar[,1:2]
   print(paste0('Starting to calculate or opening the Mrsos thresholds at: ',B))
   if (loc1 == 'CMIP6_historical/'){
-    # . . 7.1.1 Calculating the thresholds ##
-    datThresh <- apply(datVar[,3:ncol(datVar)], 
-                       MARGIN = 1, FUN = mrsos_thresholds) %>%
+    # . . 7.1.1 Calculating the moving average ##
+    datVar <- apply(datVar[,3:ncol(datVar)], MARGIN = 1, FUN = zoo::rollmean,
+                    k = 5, align = 'center', fill = NA) %>%
       t() %>%
       as_tibble()
-    # . . 7.1.2 Formating the data ##
-    datThresh <- cbind(datVar[,1:2], datThresh)
+    # . . 7.1.2 Calculating the thresholds ##
+    datThresh <- apply(datVar, MARGIN = 1, FUN = mrsos_thresholds) %>%
+      t() %>%
+      as_tibble()
+    # . . 7.1.3 Formating the data ##
+    datThresh <- cbind(lonlat, datThresh)
     colnames(datThresh) <- c('lon', 'lat', 'P10','P20','P40', 
                              'PMean', 'PMedian', 'PMax', 'PMin', 'PSd')
     datThresh$PMean[is.nan(datThresh$PMean)] <- NA
     datThresh$PMax[datThresh$PMax == -Inf] <- NA
     datThresh$PMin[datThresh$PMin == Inf] <- NA
-    # . . 7.1.3 Writing the Thresholds ##
-    write.csv(datThresh, file=paste0(fileloc1,'CMIP6_historical/',loc2,'THRESHOLD_',var,
-                                     mFile,startyr,'-',endyr,'.csv'),
+    # . . 7.1.4 Writing the Thresholds ##
+    write.csv(datThresh, file=paste0(fileloc1, 'CMIP6_historical/', loc2,
+                                     'THRESHOLD_', var, mFile, startyr, '-', 
+                                     endyr, '.csv'),
               row.names = FALSE)
+    datVar <- cbind(NA, NA, datVar)
   } else {
-    # . . 7.1.4 Opening the thresholds ##
+    # . . 7.1.5 Opening the thresholds ##
     if (mNum == 1 | mNum == 6 | mNum == 7 | mNum == 8){
       x <- '_historical_r1i1p1f1_gn'
     } else if (mNum == 2){
@@ -966,17 +984,18 @@ if (var == 'mrsos'){
     } else if (mNum == 4 | mNum == 5){
       x <- '_historical_r1i1p1f1_gr1'
     } else { print(paste0('Model Number ', mNum, ' not reconized.'))}
-    datThresh <- read_csv(paste0(fileloc1,'CMIP6_historical/',loc2,'THRESHOLD_',
-                                 var, '_day_', a, x, '_', 1980,'-',2010,'.csv'),
+    datThresh <- read_csv(paste0(fileloc1, 'CMIP6_historical/', loc2, 
+                                 'THRESHOLD_', var, '_day_', a, x, '_', 
+                                 1980,'-',2010,'.csv'),
                           col_names = TRUE, cols(.default = col_double()))
   }
+  print(dim(datThresh))
   B <- Sys.time()
   print(paste0('Finished calculating or opening the thresholds at: ', B))
   
   # . 7.2 SoilMoisture Exceed Day ----------------------------------------------
   B <- Sys.time()
   print(paste0('Starting to calculate the exceedance at: ', B))
-  lonlat <- datVar[,1:2]
   days <- colnames(datVar[,3:ncol(datVar)])
   datVar <- cbind(datThresh$P40, datThresh$P10, datVar[,3:ncol(datVar)])
   exceed <- apply(X = datVar, MARGIN=1,
@@ -987,10 +1006,12 @@ if (var == 'mrsos'){
   write.csv(exceed, file=
               paste0(fileloc1,loc1,loc2,'EXCEED_DAY_',var,mFile,startyr,'-',endyr,'.csv'), 
             row.names = FALSE)
+  print(dim(exceed))
   B <- Sys.time()
   print(paste0('Finished calculating the exceedance at: ', B))
 }
 # END ##########################################################################
 B <- Sys.time()
 print(paste0('Finished calculating all thresholds and exceedance for ',
-             var,'. End time: ',B, 'Total time elapsed: ', B-A))
+             var,'. End time: ',B, ' Total time elapsed: ', B-A))
+print("-----------------------------------------------------------------------")

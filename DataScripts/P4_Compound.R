@@ -1,6 +1,12 @@
 # P6_Compound_Day.R
 # About: This program will open the exceedance file for the selected 
 #       variable and calculate a 'wave' of when the exceedance occurs.
+#       Most recent run of day historical (B) took 30 hr, 13GB; SSP126 (C & D)
+#       took 32h, 13GB; SSP585(E & F) took h, 14GB 
+#       Most recent run of week historical (B) took -h, -GB; SSP126 (C & D)
+#       took -h, -GB; SSP585(E & F) took -h, -GB
+#       Most recent run of month historical (B) took 2h, 1GB; SSP126 (C & D)
+#       took 2h, 1GB; SSP585(E & F) took 2h, 1GB
 #
 # Inputs: EXCEED & WAVES
 # Outputs: COMPOUND
@@ -12,11 +18,11 @@
 # Mac
 
 # Office Computer
-setwd("C:/Users/tas0053/OneDrive - Auburn University/Research/FEMAResearch/Code2")
-fileloc1 <- 'C:/Users/tas0053/OneDrive - Auburn University/Research/FEMAResearch/Data/'
+# setwd("C:/Users/tas0053/OneDrive - Auburn University/Research/FEMAResearch/Code2")
+# fileloc1 <- 'C:/Users/tas0053/OneDrive - Auburn University/Research/FEMAResearch/Data/'
 
 # HPC
-# fileloc1 <- '~/CompoundEvents/Data/'
+fileloc1 <- '~/CompoundEvents/Data/'
 
 options(show.error.locations = TRUE)
 # Libraries ###############################################################
@@ -24,10 +30,12 @@ library(tidyverse)
 library(CoinCalc)
 
 # Part I Variables To Change ##############################################
-# mNum <- as.numeric('model_num') # Bash script
+mNum <- as.numeric('model_num') # Bash script
 # wavesTime <- c('WAVES_DAY','WAVES_WEEK','WAVES_MONTH')[as.numeric('waves_time')]
-mNum <- 1 # Select a model (1-4)
-wavesTime <- c('WAVES_DAY_','WAVES_WEEK_','WAVES_MONTH_')[1]
+# mNum <- 1 # Select a model (1-4)
+wavesTime <- c('WAVES_DAY_','WAVES_WEEK_','WAVES_MONTH_')[2]
+wavesTime2 <- c('WAVES_DAY_','WAVES_WEEK_FD_','WAVES_WEEK_D_',
+               'WAVES_MONTH_FD_','WAVES_MONTH_D_')[2]
 mFile <- c('_day_CMCC-ESM2_historical_r1i1p1f1_gn_',
            '_day_EC-Earth3_historical_r1i1p1f1_gr_',
            '_day_GFDL-ESM4_esm-hist_r1i1p1f1_gr1_',
@@ -505,9 +513,15 @@ series3[series3 > 0] <- 1     # Needs to be converted to binary (0,1)
 series3 <- as.matrix(series3)
 
 # mrsos
-series4 <- read_csv(paste0(fileloc1, loc1, loc2, wavesTime, var[4],
-                           mFile, startyr,'-',endyr,'.csv'),
-                    col_names = TRUE, cols(.default = col_double()))
+if (wavesTime == 'WAVES_DAY_'){
+  series4 <- read_csv(paste0(fileloc1, loc1, loc2, wavesTime, var[4],
+                             mFile, startyr,'-',endyr,'.csv'),
+                      col_names = TRUE, cols(.default = col_double()))
+} else {
+  series4 <- read_csv(paste0(fileloc1, loc1, loc2, wavesTime2, var[4],
+                             mFile, startyr,'-',endyr,'.csv'),
+                      col_names = TRUE, cols(.default = col_double()))
+}
 series4 <- series4[,3:ncol(series4)]
 series4[series4 > 0] <- 1     # Needs to be converted to binary (0,1)
 series4 <- as.matrix(series4)
@@ -517,13 +531,13 @@ if (wavesTime == 'WAVES_DAY_'){
   a <- a[2]
   seqTime <- 7
 } else if (wavesTime == 'WAVES_WEEK_'){
-  a <-strsplit(wavesTime,'_') %>% unlist()
-  a <- a[2]
-  seqTime <- 7
+  a <-strsplit(wavesTime2,'_') %>% unlist()
+  a <- paste0(a[2],'_',a[3])
+  seqTime <- 1
 } else if (wavesTime == 'WAVES_MONTH_'){
-  a <-strsplit(wavesTime,'_') %>% unlist()
-  a <- a[2]
-  seqTime <- 7
+  a <-strsplit(wavesTime2,'_') %>% unlist()
+  a <- paste0(a[2],'_',a[3])
+  seqTime <- 1
 }else {
   print( 'Variable wavesTime not reconized.')
 }
@@ -534,8 +548,8 @@ B <- Sys.time()
 print(paste0('Starting to calculate the simultanious Heatwave & Drought at: ',B))
 
 if (dim(series1)[1] == dim(series4)[1] | dim(series1)[2] == dim(series4)[2]){
-  # seriesC <- cbind(series1, series4)
-  seriesC <- cbind(ID, series1, series4)
+  seriesC <- cbind(series1, series4)
+  # seriesC <- cbind(ID, series1, series4)
   seriesC <- apply(X=seriesC, MARGIN = 1, FUN=lineCC, days = 0) %>%
     t() 
   seriesC<- cbind(lonlat, seriesC)
@@ -574,7 +588,7 @@ if (dim(series1)[1] == dim(series4)[1] | dim(series1)[2] == dim(series4)[2]){
 B <- Sys.time()
 print(paste0('Finished calculating the sequential Heatwave & Drought at: ',B))
 
-# . 3.2 Seq. Drought & Heatwave ------------------------------------------------
+# . 3.3 Seq. Drought & Heatwave ------------------------------------------------
 B <- Sys.time()
 print(paste0('Starting to calculate the sequential Drought & Heatwave at: ',B))
 
@@ -589,7 +603,7 @@ if (dim(series4)[1] == dim(series1)[1] | dim(series4)[2] == dim(series1)[2]){
                          'Prec_Events','SeriesA_Events', 
                          'Hypo_trig',  'Pvalue_trig', 'Trig_Coin_Rate',
                          'Trig_Events','SeriesB_Events','Correlation')
-  write.csv(seriesC,file=paste0(fileloc1,loc1,loc2,'COMP_MONTH',a,'_SEQ41',
+  write.csv(seriesC,file=paste0(fileloc1,loc1,loc2,'COMP_',a,'_SEQ41',
                                 mFile,startyr,'-',endyr,'.csv'), 
             row.names = FALSE)
 }
