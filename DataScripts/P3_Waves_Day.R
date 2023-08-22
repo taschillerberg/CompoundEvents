@@ -9,9 +9,11 @@
 #
 # T. A. Schillerberg
 #               Oct. 2022
-#      Updated: May. 2023
+#      Updated: Aug. 2023
 
 # Mac
+# setwd("~/Library/CloudStorage/OneDrive-AuburnUniversity/Research/FEMAResearch/Code2")
+# fileloc1 <- '~/Library/CloudStorage/OneDrive-AuburnUniversity/Research/FEMAResearch/Data/'
 
 # Office Computer
 # setwd("C:/Users/tas0053/OneDrive - Auburn University/Research/FEMAResearch/Code2")
@@ -25,10 +27,10 @@ options(show.error.locations = TRUE)
 library(tidyverse)
 
 # Part I Variables To Change ###################################################
-# var <- c('tasmax', 'tasmin', 'mrsos')[as.numeric('model_var')] # Bash script
-# mNum <- as.numeric('model_num') # Bash script
-var <- c('tasmax', 'tasmin','mrsos') [1]
-mNum <- 1 # Select a model (1-4)
+var <- c('tasmax', 'tasmin', 'mrsos')[as.numeric('model_var')] # Bash script
+mNum <- as.numeric('model_num') # Bash script
+# var <- c('tasmax', 'tasmin','mrsos') [3]
+# mNum <- 7 # Select a model (1-8)
 mFile <- c('_day_CMCC-ESM2_historical_r1i1p1f1_gn_',
            '_day_EC-Earth3_historical_r1i1p1f1_gr_',
            '_day_GFDL-ESM4_esm-hist_r1i1p1f1_gr1_',
@@ -60,6 +62,7 @@ loc2 <- c('CMCC-ESM2/', 'EC-Earth3/',
           'MRI-ESM2-0/', 'NorESM2-MM/') [mNum]
 startyr <- 1980
 endyr <- 2010
+freqCalc <- TRUE
 
 print(paste0('Model: ',loc2))
 print(paste0('Variable: ', var))
@@ -112,9 +115,21 @@ day_wave_flash <- function(dat){
   
   # Variables ------------------------------------------------------------------
   datW <- array(0,dim = length(dat))
-  st1 <- c(0,1); st2 <- c(0,2)
+  st0<- c(2,1,2); st1 <- c(0,1); st2 <- c(0,2)
   
   # Calculations ---------------------------------------------------------------
+  # correct any cases of 2,1,2 
+  # --- shouldn't have to worry about since first occurrence of 0
+  # m <- which(dat == st0[1])
+  # if (length(m) != 0){
+  #   # Removing m at the end where the sequence would not be possible
+  #   if(m[length(m)] == length(dat))  {m <- m[-c(length(m))]}
+  #   if(m[length(m)] == (length(dat)-1))  {m <- m[-c(length(m))] }
+  #   # Finding where the sequence exists
+  #   n <- m[sapply(m, function(i) all(dat[i:(i+(length(st0)-1))] == st0))]
+  #   dat[n + 1] <- 2
+  # } 
+  
   # Find the occurrences of 0,1 aka potential starts of flash drought
   m <- which(dat == st1[1])
   if (length(m) != 0){
@@ -122,8 +137,8 @@ day_wave_flash <- function(dat){
     if(m[length(m)] == length(dat)){m <- m[-c(length(m))]}
     # Finding where a wave exists
     n <- m[sapply(m, function(i) all(dat[i:(i+(length(st1)-1))] == st1))]
-    # Test the potential lengths of flash drought. If longer than 14 days convert 
-    # to 0,2 to indicate the start of the flash drought
+    # Test the potential lengths of flash drought. If not longer than 14 days
+    # convert to 0,2 to indicate the start of the flash drought
     i <- 1
     repeat{
       if (i == length(n) | is.na(n[i])){  break  }
@@ -131,7 +146,11 @@ day_wave_flash <- function(dat){
       if (length(m) == 0) {
         i <- i + 1
       } else {
+        # o <- dat[n[i] + m[1] - 1] # This is where the first 2 is located
+        o <- m[1] - 2
         dat[n[i]+m[1]-2] <- 0
+        dat[n[i]+m[1]-3] <- o
+        # datW[(n[i]+m[length(m)]-i-1):(n[i]+m[1]-2)] <- 1
         i <- i + 1
       }
     }
@@ -156,7 +175,9 @@ day_wave_flash <- function(dat){
       }
       if (length(m) != 0){
         o <- length(dat[(n[i]+1):(n[i] + m[1] -1)])
-        datW[(n[i]+1):(n[i]+m[1]-1)] <- 1/o
+        p <- dat[n[i]-1]
+        if (length(p) == 0) {p <- 0}
+        datW[(n[i]+1):(n[i]+m[1]-1)] <- 1/(o + p)
       }
       i <- i +1
     }
@@ -165,6 +186,7 @@ day_wave_flash <- function(dat){
   # datW <- array(data=datW, dim = length(dat))
   return(datW)
 }
+
 # Part III Opening Files #######################################################
 A <- Sys.time()
 print(paste0('Starting to open the exceed file at: ',A))
@@ -178,7 +200,8 @@ days <- colnames(datExceed[,3:ncol(datExceed)])
 if (var == 'tasmax'| var == 'tasmin'){
   B <- Sys.time()
   print(paste0('Starting to calculate the Temperature Wave at: ',B))
-  datWaves <- apply(datExceed[,3:ncol(datExceed)], MARGIN = 1, FUN = day_wave) %>%
+  datWaves <- apply(datExceed[,3:ncol(datExceed)], 
+                    MARGIN = 1, FUN = day_wave) %>%
     t()
   datWaves <- cbind(lonlat, datWaves)
   colnames(datWaves) <- c('lon','lat',days)
@@ -191,14 +214,15 @@ if (var == 'tasmax'| var == 'tasmin'){
 if (var == 'mrsos'){
   B <- Sys.time()
   print(paste0('Starting to calculate the Flash Drought Wave at: ',B))
-  datWaves <- apply(datExceed[,3:ncol(datExceed)], MARGIN = 1, FUN = day_wave_flash) %>%
+  datWaves <- apply(datExceed[,3:ncol(datExceed)], 
+                    MARGIN = 1, FUN = day_wave_flash) %>%
     t()
   # Pottentionally only look at flash droughts longer than 4 weeks. Still the 
   # question as to when the flash drought officiall starts
   # dat2 <- apply(dat, MARGIN=1, FUN(i) x<= 1/28 T=1, else= 0)
   
   datWaves <- cbind(lonlat, datWaves)
-  colnames(datWaves) <- c('lon','lat',days)
+  colnames(datWaves) <- c('lon', 'lat', days)
   write.csv(datWaves, file=paste0(fileloc1, loc1, loc2, 'WAVES_DAY_', var,
                                   mFile, startyr,'-',endyr,'.csv'), 
             row.names = FALSE)
@@ -206,6 +230,6 @@ if (var == 'mrsos'){
 
 # END ##########################################################################
 B <- Sys.time()
-print(paste0('Finished calculating the requested wave for ',
+print(paste0('Finished calculating the WAVE requested for ',
              var,'. End time: ',B, ' Total time elapsed: ', B-A))
 print("-----------------------------------------------------------------------")
