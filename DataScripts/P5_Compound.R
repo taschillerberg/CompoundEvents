@@ -3,8 +3,8 @@
 #       variable and calculate a 'wave' of when the exceedance occurs.
 #       Most recent run of day historical (B) took 30 hr, 13GB; SSP126 (C & D)
 #       took 32h, 13GB; SSP585(E & F) took h, 14GB 
-#       Most recent run of week historical (B) took -h, -GB; SSP126 (C & D)
-#       took -h, -GB; SSP585(E & F) took -h, -GB
+#       Most recent run of week historical (B) took 5h, 3GB; SSP126 (C & D)
+#       took 6h, 3GB; SSP585(E & F) took 7h, 3GB
 #       Most recent run of month historical (B) took 2h, 1GB; SSP126 (C & D)
 #       took 2h, 1GB; SSP585(E & F) took 2h, 1GB
 #
@@ -13,7 +13,7 @@
 #
 # T. A. Schillerberg
 #               Oct. 2022
-#      Updated: May. 2023
+#      Updated: Jun. 2023
 
 # Mac
 
@@ -33,9 +33,9 @@ library(CoinCalc)
 mNum <- as.numeric('model_num') # Bash script
 # wavesTime <- c('WAVES_DAY','WAVES_WEEK','WAVES_MONTH')[as.numeric('waves_time')]
 # mNum <- 1 # Select a model (1-4)
-wavesTime <- c('WAVES_DAY_','WAVES_WEEK_','WAVES_MONTH_')[2]
+wavesTime <- c('WAVES_DAY_','WAVES_WEEK_','WAVES_MONTH_')[1]
 wavesTime2 <- c('WAVES_DAY_','WAVES_WEEK_FD_','WAVES_WEEK_D_',
-               'WAVES_MONTH_FD_','WAVES_MONTH_D_')[2]
+               'WAVES_MONTH_FD_','WAVES_MONTH_D_')[1]
 mFile <- c('_day_CMCC-ESM2_historical_r1i1p1f1_gn_',
            '_day_EC-Earth3_historical_r1i1p1f1_gr_',
            '_day_GFDL-ESM4_esm-hist_r1i1p1f1_gr1_',
@@ -523,6 +523,7 @@ if (wavesTime == 'WAVES_DAY_'){
                       col_names = TRUE, cols(.default = col_double()))
 }
 series4 <- series4[,3:ncol(series4)]
+series4[series4 > 0.0357] <- 0 # 28 days exceeded 0.0357
 series4[series4 > 0] <- 1     # Needs to be converted to binary (0,1)
 series4 <- as.matrix(series4)
 
@@ -573,15 +574,15 @@ if (dim(series1)[1] == dim(series4)[1] | dim(series1)[2] == dim(series4)[2]){
   seriesC <- cbind(series1, series4)
   # seriesC <- cbind(ID, series1, series4)
   seriesC <- apply(X=seriesC, MARGIN = 1, FUN=lineCC, days = seqTime) %>%
-    t() 
+    t()
   seriesC<- cbind(lonlat, seriesC)
   colnames(seriesC) <- c('lon','lat',
                          'Hypo_precur','Pvalue_precur','Prec_Coin_Rate',
-                         'Prec_Events','SeriesA_Events', 
+                         'Prec_Events','SeriesA_Events',
                          'Hypo_trig',  'Pvalue_trig', 'Trig_Coin_Rate',
                          'Trig_Events','SeriesB_Events','Correlation')
   write.csv(seriesC,file=paste0(fileloc1,loc1,loc2,'COMP_',a,'_SEQ14',
-                                mFile,startyr,'-',endyr,'.csv'), 
+                                mFile,startyr,'-',endyr,'.csv'),
             row.names = FALSE)
 }
 
@@ -596,15 +597,15 @@ if (dim(series4)[1] == dim(series1)[1] | dim(series4)[2] == dim(series1)[2]){
   seriesC <- cbind(series4, series1)
   # seriesC <- cbind(ID, series4, series1)
   seriesC <- apply(X=seriesC, MARGIN = 1, FUN=lineCC, days = seqTime) %>%
-    t() 
+    t()
   seriesC<- cbind(lonlat, seriesC)
   colnames(seriesC) <- c('lon','lat',
                          'Hypo_precur','Pvalue_precur','Prec_Coin_Rate',
-                         'Prec_Events','SeriesA_Events', 
+                         'Prec_Events','SeriesA_Events',
                          'Hypo_trig',  'Pvalue_trig', 'Trig_Coin_Rate',
                          'Trig_Events','SeriesB_Events','Correlation')
   write.csv(seriesC,file=paste0(fileloc1,loc1,loc2,'COMP_',a,'_SEQ41',
-                                mFile,startyr,'-',endyr,'.csv'), 
+                                mFile,startyr,'-',endyr,'.csv'),
             row.names = FALSE)
 }
 B <- Sys.time()
@@ -619,15 +620,15 @@ if (dim(series1)[1] == dim(series3)[1] | dim(series1)[2] == dim(series3)[2]){
   seriesC <- cbind(series1, series3)
   # seriesC <- cbind(ID, series1, series3)
   seriesC <- apply(X=seriesC, MARGIN = 1, FUN=lineCC, days = 0) %>%
-    t() 
+    t()
   seriesC<- cbind(lonlat, seriesC)
   colnames(seriesC) <- c('lon','lat',
                          'Hypo_precur','Pvalue_precur','Prec_Coin_Rate',
-                         'Prec_Events','SeriesA_Events', 
+                         'Prec_Events','SeriesA_Events',
                          'Hypo_trig',  'Pvalue_trig', 'Trig_Coin_Rate',
                          'Trig_Events','SeriesB_Events','Correlation')
   write.csv(seriesC,file=paste0(fileloc1,loc1,loc2,'COMP_',a,'_SIM13',
-                                mFile,startyr,'-',endyr,'.csv'), 
+                                mFile,startyr,'-',endyr,'.csv'),
             row.names = FALSE)
 }
 
@@ -642,15 +643,15 @@ if (dim(series1)[1] == dim(series3)[1] | dim(series1)[2] == dim(series3)[2]){
   seriesC <- cbind(series1, series3)
   # seriesC <- cbind(ID, series1, series3)
   seriesC <- apply(X=seriesC, MARGIN = 1, FUN=lineCC, days = seqTime) %>%
-    t() 
+    t()
   seriesC<- cbind(lonlat, seriesC)
   colnames(seriesC) <- c('lon','lat',
                          'Hypo_precur','Pvalue_precur','Prec_Coin_Rate',
-                         'Prec_Events','SeriesA_Events', 
+                         'Prec_Events','SeriesA_Events',
                          'Hypo_trig',  'Pvalue_trig', 'Trig_Coin_Rate',
                          'Trig_Events','SeriesB_Events','Correlation')
   write.csv(seriesC,file=paste0(fileloc1,loc1,loc2,'COMP_',a,'_SEQ13',
-                                mFile,startyr,'-',endyr,'.csv'), 
+                                mFile,startyr,'-',endyr,'.csv'),
             row.names = FALSE)
 }
 
@@ -665,15 +666,15 @@ if (dim(series3)[1] == dim(series1)[1] | dim(series3)[2] == dim(series1)[2]){
   seriesC <- cbind(series3, series1)
   # seriesC <- cbind(ID, series3, series1)
   seriesC <- apply(X=seriesC, MARGIN = 1, FUN=lineCC, days = seqTime) %>%
-    t() 
+    t()
   seriesC<- cbind(lonlat, seriesC)
   colnames(seriesC) <- c('lon','lat',
                          'Hypo_precur','Pvalue_precur','Prec_Coin_Rate',
-                         'Prec_Events','SeriesA_Events', 
+                         'Prec_Events','SeriesA_Events',
                          'Hypo_trig',  'Pvalue_trig', 'Trig_Coin_Rate',
                          'Trig_Events','SeriesB_Events','Correlation')
   write.csv(seriesC,file=paste0(fileloc1,loc1,loc2,'COMP_',a,'_SEQ31',
-                                mFile,startyr,'-',endyr,'.csv'), 
+                                mFile,startyr,'-',endyr,'.csv'),
             row.names = FALSE)
 }
 
@@ -688,15 +689,15 @@ if (dim(series3)[1] == dim(series4)[1] | dim(series3)[2] == dim(series4)[2]){
   seriesC <- cbind(series3, series4)
   # seriesC <- cbind(ID, series3, series4)
   seriesC <- apply(X=seriesC, MARGIN = 1, FUN=lineCC, days = seqTime) %>%
-    t() 
+    t()
   seriesC<- cbind(lonlat, seriesC)
   colnames(seriesC) <- c('lon','lat',
                          'Hypo_precur','Pvalue_precur','Prec_Coin_Rate',
-                         'Prec_Events','SeriesA_Events', 
+                         'Prec_Events','SeriesA_Events',
                          'Hypo_trig',  'Pvalue_trig', 'Trig_Coin_Rate',
                          'Trig_Events','SeriesB_Events','Correlation')
   write.csv(seriesC,file=paste0(fileloc1,loc1,loc2,'COMP_',a,'_SEQ34',
-                                mFile,startyr,'-',endyr,'.csv'), 
+                                mFile,startyr,'-',endyr,'.csv'),
             row.names = FALSE)
 }
 
@@ -711,15 +712,15 @@ if (dim(series4)[1] == dim(series3)[1] | dim(series4)[2] == dim(series3)[2]){
   seriesC <- cbind(series4, series3)
   # seriesC <- cbind(ID, series4, series3)
   seriesC <- apply(X=seriesC, MARGIN = 1, FUN=lineCC, days = seqTime) %>%
-    t() 
+    t()
   seriesC<- cbind(lonlat, seriesC)
   colnames(seriesC) <- c('lon','lat',
                          'Hypo_precur','Pvalue_precur','Prec_Coin_Rate',
-                         'Prec_Events','SeriesA_Events', 
+                         'Prec_Events','SeriesA_Events',
                          'Hypo_trig',  'Pvalue_trig', 'Trig_Coin_Rate',
                          'Trig_Events','SeriesB_Events','Correlation')
   write.csv(seriesC,file=paste0(fileloc1,loc1,loc2,'COMP_',a,'_SEQ43',
-                                mFile,startyr,'-',endyr,'.csv'), 
+                                mFile,startyr,'-',endyr,'.csv'),
             row.names = FALSE)
 }
 
@@ -730,3 +731,4 @@ print(paste0('Finsihed calculating the sequential Drought & Ex. Precip. at: ',B)
 B <- Sys.time()
 print(paste0('Finished calculating the compound events.',
              'End time: ',B, 'Total time elapsed: ', B-A))
+print("-----------------------------------------------------------------------")
