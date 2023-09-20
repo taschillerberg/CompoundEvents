@@ -1,10 +1,10 @@
 # P2_Threshold_Exceed.R
-# About: This section will calculate threshold values for climate events, 
+# About: This program will calculate threshold values for climate events, 
 #        concerning temperature, precipitation, and soil moisture. The overall 
 #        structure is open historical data, calculate the thresholds, and the 
 #        exceedance with respect to the climate variable.
 # 
-# Inputs: CMIP6 Historical
+# Inputs: CMIP6 Historical, SSP126, SSP585
 # Outputs: THRESHOLD & EXCEED, ORG (mrsos only)
 #
 # T. A. Schillerberg
@@ -26,7 +26,7 @@ library(ncdf4)
 library(tidyverse)
 library(zoo)
 
-# Part I Variables To Change ##############################################
+# Part I Variables To Change ###################################################
 var <- c('tasmax', 'tasmin', 'pr', 'mrsos')[as.numeric('model_var')] # bash script
 mNum <- as.numeric('model_num') # bash script
 # var <- c('tasmax', 'tasmin', 'pr', 'mrsos')[4]
@@ -700,6 +700,26 @@ if (mNum == 1 & var != 'mrsos'){
     }
     # # Open the second file 2035-2054
     datNC <- ncdf4::nc_open(paste0(fileloc1,loc1[2],loc2,'regrid360x180_',var,
+                                   mFile[[1]][2],'2015','0101-','2034','1231.nc'))
+    tNC <- ncdf4::ncvar_get(datNC, 'time')
+    time <- c(time, tNC)
+    varNC <- ncdf4::ncvar_get(datNC, var)
+    fillvalue <- ncdf4::ncatt_get(datNC, var, '_FillValue')
+    varNC[varNC == fillvalue$value] <- NA
+    ncdf4::nc_close(datNC)
+    # # Making into long format
+    j <- 1
+    repeat{
+      dat <- as_tibble(matrix(varNC[,,j], ncol=1, byrow=TRUE),
+                       .name_repair = 'minimal')
+      if (var == 'tasmax' | var == 'tasmin'){ dat <- dat - 273.15} # Conversion to C
+      if (var == 'pr'){ dat <- dat * 86400 } # Conversion to mm/day
+      datVar <- cbind(datVar,dat)
+      if(j == dim(varNC)[3]){break}
+      j <- j + 1
+    }
+    # # Open the third file 2035-2054
+    datNC <- ncdf4::nc_open(paste0(fileloc1,loc1[2],loc2,'regrid360x180_',var,
                                    mFile[[1]][2],'2035','0101-','2054','1231.nc'))
     tNC <- ncdf4::ncvar_get(datNC, 'time')
     time <- c(time, tNC)
@@ -720,7 +740,7 @@ if (mNum == 1 & var != 'mrsos'){
     }
     
     colnames(datVar) <- c('lon','lat',time)
-    datVar <- datVar[,c('lon','lat',as.character(seq(58700.5,69714.5, by=1)))]
+    datVar <- datVar[,c('lon','lat',as.character(seq(58400.5,69714.5, by=1)))]
   } else if (startyr == 2040){
     # # Open the first file 2035-2054
     datNC <- ncdf4::nc_open(paste0(fileloc1,loc1,loc2,'regrid360x180_',var,mFile,
@@ -1037,7 +1057,7 @@ if (var == 'tasmax'){
   B <- Sys.time()
   print(paste0('Starting to calculate the exceedance at: ', B))
   lonlat <- datVar[,1:2]
-  days <- colnames(datVar[ , 3:ncol(datVar)])
+  days <- colnames(datVar[ ,3:ncol(datVar)])
   datVar <- cbind(datThresh$P95, datVar[ , 3:ncol(datVar)])
   exceed <- apply(X = datVar, MARGIN = 1, FUN = threshold_exceed, opp = 1) %>%
     t()
@@ -1193,13 +1213,15 @@ if (var == 'mrsos'){
                                   var,mFile,startyr,'-',endyr,'.csv'), 
             row.names = FALSE)
   lonlat <- datVar[,1:2]
+  # . . 7.1.1 Calculating the moving average ##
+  datVar <- apply(datVar[,3:ncol(datVar)], MARGIN = 1, FUN = zoo::rollmean,
+                  k = 5, align = 'center', fill = NA) %>%
+    t() %>%
+    as_tibble()
+  datVar <- cbind(NA, NA, datVar)
+  
   print(paste0('Starting to calculate or opening the Mrsos thresholds at: ',B))
   if (loc1 == 'CMIP6_historical/'){
-    # . . 7.1.1 Calculating the moving average ##
-    datVar <- apply(datVar[,3:ncol(datVar)], MARGIN = 1, FUN = zoo::rollmean,
-                    k = 5, align = 'center', fill = NA) %>%
-      t() %>%
-      as_tibble()
     # . . 7.1.2 Calculating the thresholds ##
     datThresh <- apply(datVar, MARGIN = 1, FUN = mrsos_thresholds) %>%
       t() %>%
@@ -1216,7 +1238,6 @@ if (var == 'mrsos'){
                                      'THRESHOLD_', var, mFile, startyr, '-', 
                                      endyr, '.csv'),
               row.names = FALSE)
-    datVar <- cbind(NA, NA, datVar)
   } else {
     # . . 7.1.5 Opening the thresholds ##
     if (mNum == 1 | mNum == 6 | mNum == 7 | mNum == 8){
@@ -1233,14 +1254,13 @@ if (var == 'mrsos'){
                                  1980,'-',2010,'.csv'),
                           col_names = TRUE, cols(.default = col_double()))
   }
-  
   B <- Sys.time()
   print(paste0('Finished calculating or opening the thresholds at: ', B))
   
   # . 7.2 SoilMoisture Exceed Day ----------------------------------------------
   B <- Sys.time()
   print(paste0('Starting to calculate the exceedance at: ', B))
-  days <- colnames(datVar[,3:ncol(datVar)])
+  days <- colnames(datVar[ ,3:ncol(datVar)])
   datVar <- cbind(datThresh$P40, datThresh$P10, datVar[,3:ncol(datVar)])
   exceed <- apply(X = datVar, MARGIN=1,
                   FUN=threshold_exceed, opp=3) %>%
