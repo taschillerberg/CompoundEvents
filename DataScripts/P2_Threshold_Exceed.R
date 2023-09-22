@@ -3,6 +3,7 @@
 #        concerning temperature, precipitation, and soil moisture. The overall 
 #        structure is open historical data, calculate the thresholds, and the 
 #        exceedance with respect to the climate variable.
+#        Time: 2.5hr for 1 variable - 8 Models
 # 
 # Inputs: CMIP6 Historical, SSP126, SSP585
 # Outputs: THRESHOLD & EXCEED, ORG (mrsos only)

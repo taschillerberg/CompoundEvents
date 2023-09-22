@@ -1,15 +1,17 @@
-# P6_Exposure.R
+# P7_Exposure.R
 # About: This program will change the land use and population data into a 
-#        useable format to determine exposure.
+#        usable format to determine exposure.
 # 
 # Inputs: LUH2, popdynamics
 # Outputs: 
 #
 # T. A. Schillerberg
 #               Jun. 2023
-#      Updated: Jun. 2023
+#      Updated: Aug. 2023
 
 # Mac
+# setwd("~/Library/CloudStorage/OneDrive-AuburnUniversity/Research/FEMAResearch/Code2")
+# fileloc1 <- "~/Library/CloudStorage/OneDrive-AuburnUniversity/Research/FEMAResearch/Data/"
 
 # Office Computer
 setwd("C:/Users/tas0053/OneDrive - Auburn University/Research/FEMAResearch/Code2")
@@ -67,6 +69,7 @@ compTitle <- c('Simultanious Heat & Drought','Sequential Heat & Drought',
 
 baseData <- map_data('world')
 print('Rscript: P6_Exposure.R')
+print(paste0('Compound Event: ', comp))
 # Part II Functions ############################################################
 apMean <- function(X){
   X <- sum(X, na.rm = TRUE)/length(na.omit(X))
@@ -104,14 +107,22 @@ datPopF <- read_csv(paste0(fileloc1,loc1[1],'future_',
 datPop <- cbind('lon' = datPopH$lon, 
                 'lat' = datPopH$lat,
                 'Historic' = apply(datPopH[,3:5], MARGIN = 1, FUN = apMean) %>% floor(),
-                'SSP126_4070' = apply(cbind(datPopF$SSP126_40, datPopF$SSP126_50, datPopF$SSP126_60, datPopF$SSP126_70), MARGIN = 1, FUN = apMean) %>% floor(),
-                'SSP126_7000' = apply(cbind(datPopF$SSP126_70, datPopF$SSP126_80, datPopF$SSP126_90, datPopF$SSP126_00), MARGIN = 1, FUN = apMean) %>% floor(),
-                'SSP585_4070' = apply(cbind(datPopF$SSP585_40, datPopF$SSP585_50, datPopF$SSP585_60, datPopF$SSP585_70), MARGIN = 1, FUN = apMean) %>% floor(),
-                'SSP585_7000' = apply(cbind(datPopF$SSP585_70, datPopF$SSP585_90, datPopF$SSP585_90, datPopF$SSP585_00), MARGIN = 1, FUN = apMean) %>% floor()) %>%
+                'SSP126_4070' = apply(cbind(datPopF$SSP126_40, datPopF$SSP126_50, 
+                                            datPopF$SSP126_60, datPopF$SSP126_70), 
+                                      MARGIN = 1, FUN = apMean) %>% floor(),
+                'SSP126_7000' = apply(cbind(datPopF$SSP126_70, datPopF$SSP126_80, 
+                                            datPopF$SSP126_90, datPopF$SSP126_00), 
+                                      MARGIN = 1, FUN = apMean) %>% floor(),
+                'SSP585_4070' = apply(cbind(datPopF$SSP585_40, datPopF$SSP585_50, 
+                                            datPopF$SSP585_60, datPopF$SSP585_70), 
+                                      MARGIN = 1, FUN = apMean) %>% floor(),
+                'SSP585_7000' = apply(cbind(datPopF$SSP585_70, datPopF$SSP585_90, 
+                                            datPopF$SSP585_90, datPopF$SSP585_00), 
+                                      MARGIN = 1, FUN = apMean) %>% floor()) %>%
   as_tibble()
 
 # . . 3.2.2 Compound Event ####
-datComp <- read_csv(paste0(fileloc1,'Results/','MU_CHANG_',comp,'.csv'),
+datComp <- read_csv(paste0(fileloc1,'Results/','MU_CHANG_COMP_',comp,'.csv'),
                        col_names = TRUE, cols(.default = col_double()))
 
 # . 3.3 Calculating Exposure ---------------------------------------------------
@@ -163,7 +174,8 @@ a <- 'Historical'
 p1 <- ggplot(data = exposurePopulation, aes(x=lon, y=lat, fill=Historic_mu)) +
   theme_bw() +
   geom_tile() +
-  scale_fill_viridis_c(limits = c(sFmin,sFmax), option = "rocket", na.value = 'lightblue',
+  scale_fill_viridis_c(limits = c(sFmin,sFmax), option = "rocket", 
+                       na.value = 'lightblue',
                        direction = -1, name = 'Exposure to Compound Events') +
   geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
                colour="black", fill="NA", linewidth=0.5) +
@@ -177,7 +189,8 @@ a <- 'SSP126 Mid-Century'
 p2 <- ggplot(data = exposurePopulation, aes(x=lon, y=lat, fill=SSP126_4070_mu)) +
   theme_bw() +
   geom_tile() +
-  scale_fill_viridis_c(limits = c(sFmin,sFmax), option = "rocket", na.value = 'lightblue',
+  scale_fill_viridis_c(limits = c(sFmin,sFmax), option = "rocket", 
+                       na.value = 'lightblue',
                        direction = -1) +
   geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
                colour="black", fill="NA", linewidth=0.5) +
@@ -191,7 +204,8 @@ a <- 'SSP126 Late-Century'
 p3 <- ggplot(data = exposurePopulation, aes(x=lon, y=lat, fill=SSP126_7000_mu)) +
   theme_bw() +
   geom_tile() +
-  scale_fill_viridis_c(limits = c(sFmin,sFmax), option = "rocket", na.value = 'lightblue',
+  scale_fill_viridis_c(limits = c(sFmin,sFmax), option = "rocket", 
+                       na.value = 'lightblue',
                        direction = -1) +
   geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
                colour="black", fill="NA", linewidth=0.5) +
@@ -205,7 +219,8 @@ a <- 'SSP585 Mid-Century'
 p4 <- ggplot(data = exposurePopulation, aes(x=lon, y=lat, fill=SSP585_4070_mu)) +
   theme_bw() +
   geom_tile() +
-  scale_fill_viridis_c(limits = c(sFmin,sFmax), option = "rocket", na.value = 'lightblue',
+  scale_fill_viridis_c(limits = c(sFmin,sFmax), option = "rocket",
+                       na.value = 'lightblue',
                        direction = -1) +
   geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
                colour="black", fill="NA", linewidth=0.5) +
@@ -219,7 +234,8 @@ a <- 'SSP585 Late-Century'
 p5 <- ggplot(data = exposurePopulation, aes(x=lon, y=lat, fill=SSP585_7000_mu)) +
   theme_bw() +
   geom_tile() +
-  scale_fill_viridis_c(limits = c(sFmin,sFmax), option = "rocket", na.value = 'lightblue',
+  scale_fill_viridis_c(limits = c(sFmin,sFmax), option = "rocket", 
+                       na.value = 'lightblue',
                        direction = -1) +
   geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
                colour="black", fill="NA", linewidth=0.5) +
@@ -257,16 +273,20 @@ write.csv(exposurePopulation,file=paste0(fileloc1,'Results/','EXPPOP_',comp,'.cs
 datLUHH <- read_csv(paste0(fileloc1,loc1[2],'LUH2_historical_regrid360x180_mod_states',
                            '.csv'),
                     col_names = TRUE, cols(.default = col_double()))
-datLUH126_4070 <- read_csv(paste0(fileloc1,loc1[2],'LUH2_SSP126_2040-2070_regrid360x180_mod_states',
+datLUH126_4070 <- read_csv(paste0(fileloc1,loc1[2],
+                                  'LUH2_SSP126_2040-2070_regrid360x180_mod_states',
                                 '.csv'),
                          col_names = TRUE, cols(.default = col_double()))
-datLUH126_7000 <- read_csv(paste0(fileloc1,loc1[2],'LUH2_SSP126_2070-2100_regrid360x180_mod_states',
+datLUH126_7000 <- read_csv(paste0(fileloc1,loc1[2],
+                                  'LUH2_SSP126_2070-2100_regrid360x180_mod_states',
                                 '.csv'),
                          col_names = TRUE, cols(.default = col_double()))
-datLUH585_4070 <- read_csv(paste0(fileloc1,loc1[2],'LUH2_SSP585_2040-2070_regrid360x180_mod_states',
+datLUH585_4070 <- read_csv(paste0(fileloc1,loc1[2],
+                                  'LUH2_SSP585_2040-2070_regrid360x180_mod_states',
                                 '.csv'),
                          col_names = TRUE, cols(.default = col_double()))
-datLUH585_7000 <- read_csv(paste0(fileloc1,loc1[2],'LUH2_SSP585_2070-2100_regrid360x180_mod_states',
+datLUH585_7000 <- read_csv(paste0(fileloc1,loc1[2],
+                                  'LUH2_SSP585_2070-2100_regrid360x180_mod_states',
                                 '.csv'),
                          col_names = TRUE, cols(.default = col_double()))
 
@@ -373,12 +393,13 @@ colnames(sE) <- c('Freq Min.','Freq 1st Qu.','Freq Median','Freq Mean',
 sFmin <- min(sE$'Freq Min.')
 sFmax <- max(sE$'Freq Max.')
 
-# . 4.5 Plotting AG ---------------------------------------------------------------
+# . 4.5 Plotting AG ------------------------------------------------------------
 a <- 'Historical'
 p1 <- ggplot(data = exposureAg, aes(x=lon, y=lat, fill=Historic_mu)) +
   theme_bw() +
   geom_tile() +
-  scale_fill_viridis_c(limits = c(sAmin,sAmax), option = "rocket", na.value = 'lightblue',
+  scale_fill_viridis_c(limits = c(sAmin,sAmax), option = "rocket", 
+                       na.value = 'lightblue',
                        direction = -1, name = 'Exposure to Compound Events') +
   geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
                colour="black", fill="NA", linewidth=0.5) +
@@ -392,7 +413,8 @@ a <- 'SSP126 Mid-Century'
 p2 <- ggplot(data = exposureAg, aes(x=lon, y=lat, fill=SSP126_4070_mu)) +
   theme_bw() +
   geom_tile() +
-  scale_fill_viridis_c(limits = c(sAmin,sAmax), option = "rocket", na.value = 'lightblue',
+  scale_fill_viridis_c(limits = c(sAmin,sAmax), option = "rocket", 
+                       na.value = 'lightblue',
                        direction = -1) +
   geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
                colour="black", fill="NA", linewidth=0.5) +
@@ -406,7 +428,8 @@ a <- 'SSP126 Late-Century'
 p3 <- ggplot(data = exposureAg, aes(x=lon, y=lat, fill=SSP126_7000_mu)) +
   theme_bw() +
   geom_tile() +
-  scale_fill_viridis_c(limits = c(sAmin,sAmax), option = "rocket", na.value = 'lightblue',
+  scale_fill_viridis_c(limits = c(sAmin,sAmax), option = "rocket",
+                       na.value = 'lightblue',
                        direction = -1) +
   geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
                colour="black", fill="NA", linewidth=0.5) +
@@ -420,7 +443,8 @@ a <- 'SSP585 Mid-Century'
 p4 <- ggplot(data = exposureAg, aes(x=lon, y=lat, fill=SSP585_4070_mu)) +
   theme_bw() +
   geom_tile() +
-  scale_fill_viridis_c(limits = c(sAmin,sAmax), option = "rocket", na.value = 'lightblue',
+  scale_fill_viridis_c(limits = c(sAmin,sAmax), option = "rocket",
+                       na.value = 'lightblue',
                        direction = -1) +
   geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
                colour="black", fill="NA", linewidth=0.5) +
@@ -434,7 +458,8 @@ a <- 'SSP585 Late-Century'
 p5 <- ggplot(data = exposureAg, aes(x=lon, y=lat, fill=SSP585_7000_mu)) +
   theme_bw() +
   geom_tile() +
-  scale_fill_viridis_c(limits = c(sAmin,sAmax), option = "rocket", na.value = 'lightblue',
+  scale_fill_viridis_c(limits = c(sAmin,sAmax), option = "rocket",
+                       na.value = 'lightblue',
                        direction = -1) +
   geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
                colour="black", fill="NA", linewidth=0.5) +
@@ -454,7 +479,8 @@ F1A <- plot_grid(p1, myLegend,
                  nrow = 3,
                  # labels = c('A','B','C','D'),
                  rel_widths = c(1,1))
-title <- ggdraw() + draw_label(paste0("Ag. Exposure to ", compTitle), fontface='bold')
+title <- ggdraw() + draw_label(paste0("Ag. Exposure to ", compTitle),
+                               fontface='bold')
 F1 <- plot_grid(title,
                 F1A,
                 rel_heights = c(.05,1),
@@ -465,12 +491,13 @@ ggsave(F1, filename = paste0(fileloc1,'Results/','EXPAG_', comp, ".tiff"),
 write.csv(exposureAg,file=paste0(fileloc1,'Results/','EXPAG_',comp,'.csv'),
           row.names = FALSE)
 
-# . 3.5 Plotting FOR ---------------------------------------------------------------
+# . 3.5 Plotting FOR -----------------------------------------------------------
 a <- 'Historical'
 p1 <- ggplot(data = exposureFOR, aes(x=lon, y=lat, fill=Historic_mu)) +
   theme_bw() +
   geom_tile() +
-  scale_fill_viridis_c(limits = c(sFmin,sFmax), option = "rocket", na.value = 'lightblue',
+  scale_fill_viridis_c(limits = c(sFmin,sFmax), option = "rocket", 
+                       na.value = 'lightblue',
                        direction = -1, name = 'Exposure to Compound Events') +
   geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
                colour="black", fill="NA", linewidth=0.5) +
@@ -484,7 +511,8 @@ a <- 'SSP126 Mid-Century'
 p2 <- ggplot(data = exposureFOR, aes(x=lon, y=lat, fill=SSP126_4070_mu)) +
   theme_bw() +
   geom_tile() +
-  scale_fill_viridis_c(limits = c(sFmin,sFmax), option = "rocket", na.value = 'lightblue',
+  scale_fill_viridis_c(limits = c(sFmin,sFmax), option = "rocket", 
+                       na.value = 'lightblue',
                        direction = -1) +
   geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
                colour="black", fill="NA", linewidth=0.5) +
@@ -498,7 +526,8 @@ a <- 'SSP126 Late-Century'
 p3 <- ggplot(data = exposureFOR, aes(x=lon, y=lat, fill=SSP126_7000_mu)) +
   theme_bw() +
   geom_tile() +
-  scale_fill_viridis_c(limits = c(sFmin,sFmax), option = "rocket", na.value = 'lightblue',
+  scale_fill_viridis_c(limits = c(sFmin,sFmax), option = "rocket", 
+                       na.value = 'lightblue',
                        direction = -1) +
   geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
                colour="black", fill="NA", linewidth=0.5) +
@@ -512,7 +541,8 @@ a <- 'SSP585 Mid-Century'
 p4 <- ggplot(data = exposureFOR, aes(x=lon, y=lat, fill=SSP585_4070_mu)) +
   theme_bw() +
   geom_tile() +
-  scale_fill_viridis_c(limits = c(sFmin,sFmax), option = "rocket", na.value = 'lightblue',
+  scale_fill_viridis_c(limits = c(sFmin,sFmax), option = "rocket", 
+                       na.value = 'lightblue',
                        direction = -1) +
   geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
                colour="black", fill="NA", linewidth=0.5) +
@@ -526,7 +556,8 @@ a <- 'SSP585 Late-Century'
 p5 <- ggplot(data = exposureFOR, aes(x=lon, y=lat, fill=SSP585_7000_mu)) +
   theme_bw() +
   geom_tile() +
-  scale_fill_viridis_c(limits = c(sFmin,sFmax), option = "rocket", na.value = 'lightblue',
+  scale_fill_viridis_c(limits = c(sFmin,sFmax), option = "rocket",
+                       na.value = 'lightblue',
                        direction = -1) +
   geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
                colour="black", fill="NA", linewidth=0.5) +
@@ -546,7 +577,8 @@ F1A <- plot_grid(p1, myLegend,
                  nrow = 3,
                  # labels = c('A','B','C','D'),
                  rel_widths = c(1,1))
-title <- ggdraw() + draw_label(paste0("Forestry Exposure to ", compTitle), fontface='bold')
+title <- ggdraw() + draw_label(paste0("Forestry Exposure to ", compTitle), 
+                               fontface='bold')
 F1 <- plot_grid(title,
                 F1A,
                 rel_heights = c(.05,1),

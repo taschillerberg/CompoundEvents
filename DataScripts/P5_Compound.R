@@ -1,19 +1,16 @@
-# P6_Compound_Day.R
+# P5_Compound.R
 # About: This program will open the exceedance file for the selected 
 #       variable and calculate a 'wave' of when the exceedance occurs.
 #       Most recent run of day historical (B) took 30 hr, 13GB; SSP126 (C & D)
 #       took 32h, 13GB; SSP585(E & F) took h, 14GB 
-#       Most recent run of week historical (B) took 5h, 3GB; SSP126 (C & D)
-#       took 6h, 3GB; SSP585(E & F) took 7h, 3GB
-#       Most recent run of month historical (B) took 2h, 1GB; SSP126 (C & D)
-#       took 2h, 1GB; SSP585(E & F) took 2h, 1GB
+#       Time: -hr for 1 variable - 8 Models
 #
-# Inputs: EXCEED & WAVES
-# Outputs: COMPOUND
+# Inputs: EXCEED_DAY & WAVES_DAY
+# Outputs: COMP_DAY_comp
 #
 # T. A. Schillerberg
 #               Oct. 2022
-#      Updated: Jun. 2023
+#      Updated: Aug. 2023
 
 # Mac
 
@@ -31,8 +28,8 @@ library(CoinCalc)
 
 # Part I Variables To Change ##############################################
 mNum <- as.numeric('model_num') # Bash script
-# wavesTime <- c('WAVES_DAY','WAVES_WEEK','WAVES_MONTH')[as.numeric('waves_time')]
 # mNum <- 1 # Select a model (1-4)
+# wavesTime <- c('WAVES_DAY','WAVES_WEEK','WAVES_MONTH')[as.numeric('waves_time')]
 wavesTime <- c('WAVES_DAY_','WAVES_WEEK_','WAVES_MONTH_')[1]
 wavesTime2 <- c('WAVES_DAY_','WAVES_WEEK_FD_','WAVES_WEEK_D_',
                'WAVES_MONTH_FD_','WAVES_MONTH_D_')[1]
@@ -71,7 +68,7 @@ endyr <- 2010
 
 print(paste0('Model: ',loc2))
 print(paste0('Temporal Resolution: ', wavesTime))
-print('Rscript: P4_Compound.R')
+print('Rscript: P5_Compound.R')
 print(paste0('Scenario: ', loc1, ' For the time period: ', startyr, '-', endyr))
 # Functions ####################################################################
 CC.eca.ts2 <- function (seriesA, seriesB, alpha = 0.05, delT = 0, sym = FALSE, 

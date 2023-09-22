@@ -1,8 +1,7 @@
 # P3_Waves.R
 # About: This program will open the exceed file for the selected 
 #        variable and calculate a 'wave' of when the exceed occurs.
-#        Most recent run of day historical (B) took - hr, -GB; SSP126 (C & D)
-#        took -h, -GB; SSP585(E & F) took 36h, 14GB
+#        Time: 2hr for 1 variable - 8 Models
 #     
 # Inputs:  EXCEED_DAY
 # Outputs: WAVES_DAY
@@ -62,11 +61,10 @@ loc2 <- c('CMCC-ESM2/', 'EC-Earth3/',
           'MRI-ESM2-0/', 'NorESM2-MM/') [mNum]
 startyr <- 1980
 endyr <- 2010
-freqCalc <- TRUE
 
 print(paste0('Model: ',loc2))
 print(paste0('Variable: ', var))
-print('Rscript: P3_Day_Waves.R')
+print('Rscript: P3_Waves.R')
 print(paste0('Scenario: ', loc1, ' For the time period: ', startyr, '-', endyr))
 
 # Part II Functions ############################################################
@@ -217,7 +215,7 @@ if (var == 'mrsos'){
   datWaves <- apply(datExceed[,3:ncol(datExceed)], 
                     MARGIN = 1, FUN = day_wave_flash) %>%
     t()
-  # Pottentionally only look at flash droughts longer than 4 weeks. Still the 
+  # Potentially only look at flash droughts longer than 4 weeks. Still the 
   # question as to when the flash drought officiall starts
   # dat2 <- apply(dat, MARGIN=1, FUN(i) x<= 1/28 T=1, else= 0)
   
