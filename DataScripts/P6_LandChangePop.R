@@ -1,13 +1,13 @@
 # P5_LandChangePop.R
 # About: This program will change the land use and population data into a 
-#        useable format to determine exposure.
+#        usable format to determine exposure.
 # 
 # Inputs: MASK, LUH2, popdynamics
 # Outputs: LUH2_hist/SSP_regrid360x180_mod_states'
 #
 # T. A. Schillerberg
 #               Jun. 2023
-#      Updated: Jun. 2023
+#      Updated: Oct. 2023
 
 # Mac
 
@@ -161,21 +161,21 @@ for (i in 1:3){
   print('Applying Mask')
   dat1[is.na(dat1)] <- 0
   dat1 <- cbind(mask$lon2, datVar$lat,
-                dat1[,3:ncol(dat1)] * mask$FullMask)
+                dat1[,3:ncol(dat1)] * mask$FullMask, mask$LandAreakm2)
   dat1 <- na.omit(dat1)
-  colnames(dat1) <- c('lon','lat', var[1:12])
+  colnames(dat1) <- c('lon','lat', var[1:12], 'LandAreakm2')
   if (is.null(datVar2) == FALSE){
     dat2[is.na(dat2)] <- 0
     dat2 <-cbind(mask$lon2, datVar$lat,
-                 dat2[,3:ncol(dat2)] * mask$FullMask)
+                 dat2[,3:ncol(dat2)] * mask$FullMask, mask$LandAreakm2)
     dat2 <- na.omit(dat2)
-    colnames(dat2) <- c('lon','lat', var[1:12])
+    colnames(dat2) <- c('lon','lat', var[1:12], 'LandAreakm2')
     # dat3
     dat3[is.na(dat3)] <- 0
     dat3 <-cbind(mask$lon2, datVar$lat,
-                 dat3[,3:ncol(dat3)] * mask$FullMask)
+                 dat3[,3:ncol(dat3)] * mask$FullMask, mask$LandAreakm2)
     dat3 <- na.omit(dat3)
-    colnames(dat3) <- c('lon','lat', var[1:12])
+    colnames(dat3) <- c('lon','lat', var[1:12], 'LandAreakm2')
   }
   
   if (i == 1){
@@ -199,7 +199,7 @@ for (i in 1:3){
     write.csv(dat1, file = paste0(fileloc1,loc1[1],'LUH2_SSP585_2010-2040_regrid360x180_',
                                   'mod_states','.csv'), 
               row.names = FALSE)
-    write.csv(dat2, file = paste0(fileloc1,loc1[1],'LUH2_SSP585_2070-2070_regrid360x180_',
+    write.csv(dat2, file = paste0(fileloc1,loc1[1],'LUH2_SSP585_2040-2070_regrid360x180_',
                                   'mod_states','.csv'), 
               row.names = FALSE)
     write.csv(dat3, file = paste0(fileloc1,loc1[1],'LUH2_SSP585_2070-2100_regrid360x180_',
@@ -235,7 +235,8 @@ dat585_7000 <- read_csv(paste0(fileloc1,loc1[1],'LUH2_SSP585_2070-2100_',
                         col_names = TRUE, cols(.default = col_double()))
 # . . 3.3.2 Pre-processing ####
 var <- c('primf','primn','secdf','secdn','pastr','range','urban',
-         'c3ann','c3per','c4ann','c4per','c3nfx', 'Forest', 'nonForest', 'Crop')
+         'c3ann','c3per','c4ann','c4per','c3nfx', 'LandAreakm2', 'Forest',
+         'nonForest', 'Crop')
 datH$Forest <- datH$primf + datH$secdf
 datH$nonForest <- datH$primn + datH$secdn
 datH$Crop <- datH$c3ann + datH$c3nfx + datH$c3per + datH$c4ann + datH$c4per
@@ -271,18 +272,19 @@ dat585_7000$Crop <- dat585_7000$c3ann + dat585_7000$c3nfx + dat585_7000$c3per +
   dat585_7000$c4ann + dat585_7000$c4per
 
 # . . 3.3.3 Plotting ####
-for (x in 3:17){
-  datH$obs <- datH[,x] %>% unlist() %>% as.numeric()
-  dat126_1040$obs <- dat126_1040[,x] %>% unlist() %>% as.numeric()
-  dat126_4070$obs <- dat126_4070[,x] %>% unlist() %>% as.numeric()
-  dat126_7000$obs <- dat126_7000[,x] %>% unlist() %>% as.numeric()
-  dat585_1040$obs <- dat585_1040[,x] %>% unlist() %>% as.numeric()
-  dat585_4070$obs <- dat585_4070[,x] %>% unlist() %>% as.numeric()
-  dat585_7000$obs <- dat585_7000[,x] %>% unlist() %>% as.numeric()
+for (i in 3:18){
+  if (i == 15){next}
+  datH$obs <- datH[,i] %>% unlist() %>% as.numeric()
+  dat126_1040$obs <- dat126_1040[,i] %>% unlist() %>% as.numeric()
+  dat126_4070$obs <- dat126_4070[,i] %>% unlist() %>% as.numeric()
+  dat126_7000$obs <- dat126_7000[,i] %>% unlist() %>% as.numeric()
+  dat585_1040$obs <- dat585_1040[,i] %>% unlist() %>% as.numeric()
+  dat585_4070$obs <- dat585_4070[,i] %>% unlist() %>% as.numeric()
+  dat585_7000$obs <- dat585_7000[,i] %>% unlist() %>% as.numeric()
   legendTitle <- c('','','primf','primn','secdf','secdn','pastr','range','urban',
-                   'c3ann','c3per','c4ann','c4per','c3nfx', 'Forest', 
-                   'nonForest', 'Crop') [x]
-  print(x)
+                   'c3ann','c3per','c4ann','c4per','c3nfx','Area', 'Forest', 
+                   'nonForest', 'Crop') [i]
+  print(i)
   print(legendTitle)
   
   p1 <- ggplot(data = datH, aes(x=lon, y=lat, fill=obs)) +
@@ -394,7 +396,8 @@ for (x in 3:17){
                    # labels = c('A','B','C','D'),
                    rel_widths = c(1,1))
   
-  title <- ggdraw() + draw_label(paste0("Land Use Land Change of ", legendTitle), fontface='bold')
+  title <- ggdraw() + draw_label(paste0("Land Use Land Change of ", legendTitle,
+                                        ' (% of gridcell)'), fontface='bold')
   F1 <- plot_grid(title,
                   F1A,
                   rel_heights = c(.05,1),
