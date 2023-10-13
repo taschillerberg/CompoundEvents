@@ -8,7 +8,7 @@
 #
 # T. A. Schillerberg
 #               Oct. 2022
-#      Updated: Aug. 2023
+#      Updated: Oct. 2023
 
 # Mac
 # setwd("~/Library/CloudStorage/OneDrive-AuburnUniversity/Research/FEMAResearch/Code2")
@@ -29,8 +29,8 @@ library(tidyverse)
 var <- c('tasmax', 'tasmin', 'mrsos')[as.numeric('model_var')] # Bash script
 mNum <- as.numeric('model_num') # Bash script
 # var <- c('tasmax', 'tasmin','mrsos') [3]
-# mNum <- 7 # Select a model (1-8)
-mFile <- c('_day_CMCC-ESM2_historical_r1i1p1f1_gn_',
+# mNum <- 1 # Select a model (1-8)
+mFileH <- c('_day_CMCC-ESM2_historical_r1i1p1f1_gn_',
            '_day_EC-Earth3_historical_r1i1p1f1_gr_',
            '_day_GFDL-ESM4_esm-hist_r1i1p1f1_gr1_',
            '_day_INM-CM4-8_historical_r1i1p1f1_gr1_',
@@ -38,14 +38,14 @@ mFile <- c('_day_CMCC-ESM2_historical_r1i1p1f1_gn_',
            '_day_MPI-ESM1-2-HR_historical_r1i1p1f1_gn_',
            '_day_MRI-ESM2-0_historical_r1i1p1f1_gn_',
            '_day_NorESM2-MM_historical_r1i1p1f1_gn_') [mNum]
-# mFile <- c('_day_CMCC-ESM2_ssp126_r1i1p1f1_gn_',
-#            '_day_EC-Earth3_ssp126_r1i1p1f1_gr_',
-#            '_day_GFDL-ESM4_ssp126_r1i1p1f1_gr1_',
-#            '_day_INM-CM4-8_ssp126_r1i1p1f1_gr1_',
-#            '_day_INM-CM5-0_ssp126_r1i1p1f1_gr1_',
-#            '_day_MPI-ESM1-2-HR_ssp126_r1i1p1f1_gn_',
-#            '_day_MRI-ESM2-0_ssp126_r1i1p1f1_gn_',
-#            '_day_NorESM2-MM_ssp126_r1i1p1f1_gn_')[mNum]
+mFile <- c('_day_CMCC-ESM2_ssp126_r1i1p1f1_gn_',
+           '_day_EC-Earth3_ssp126_r1i1p1f1_gr_',
+           '_day_GFDL-ESM4_ssp126_r1i1p1f1_gr1_',
+           '_day_INM-CM4-8_ssp126_r1i1p1f1_gr1_',
+           '_day_INM-CM5-0_ssp126_r1i1p1f1_gr1_',
+           '_day_MPI-ESM1-2-HR_ssp126_r1i1p1f1_gn_',
+           '_day_MRI-ESM2-0_ssp126_r1i1p1f1_gn_',
+           '_day_NorESM2-MM_ssp126_r1i1p1f1_gn_')[mNum]
 # mFile <- c('_day_CMCC-ESM2_ssp585_r1i1p1f1_gn_',
 #            '_day_EC-Earth3_ssp585_r1i1p1f1_gr_',
 #            '_day_GFDL-ESM4_ssp585_r1i1p1f1_gr1_',
@@ -54,18 +54,19 @@ mFile <- c('_day_CMCC-ESM2_historical_r1i1p1f1_gn_',
 #            '_day_MPI-ESM1-2-HR_ssp585_r1i1p1f1_gn_',
 #            '_day_MRI-ESM2-0_ssp585_r1i1p1f1_gn_',
 #            '_day_NorESM2-MM_ssp585_r1i1p1f1_gn_')[mNum]
-loc1 <- c('CMIP6_historical/','CMIP6_SSP126/','CMIP6_SSP585/')[1]
+loc1 <- c('CMIP6_historical/','CMIP6_SSP126/','CMIP6_SSP585/')
 loc2 <- c('CMCC-ESM2/', 'EC-Earth3/',
           'GFDL-ESM4/', 'INM-CM4-8/',
           'INM-CM5-0/', 'MPI-ESM1-2-HR/',
           'MRI-ESM2-0/', 'NorESM2-MM/') [mNum]
-startyr <- 1980
-endyr <- 2010
+startyr <- 2010
+endyr <- 2040
+scenario <- 2 #1:3
 
 print(paste0('Model: ',loc2))
 print(paste0('Variable: ', var))
 print('Rscript: P3_Waves.R')
-print(paste0('Scenario: ', loc1, ' For the time period: ', startyr, '-', endyr))
+print(paste0('Scenario: ', scenario, ' For the time period: ', startyr, '-', endyr))
 
 # Part II Functions ############################################################
 day_wave <- function(dat){
@@ -188,11 +189,42 @@ day_wave_flash <- function(dat){
 # Part III Opening Files #######################################################
 A <- Sys.time()
 print(paste0('Starting to open the exceed file at: ',A))
-datExceed <- read_csv(paste0(fileloc1, loc1, loc2, 'EXCEED_DAY_', var, mFile,
-                             startyr,'-',endyr,'.csv'),
+if (var == 'tasmax'| var == 'tasmin'){
+  if(scenario == 1){ mFile <- mFileH }
+  loc1 <- loc1[scenario]
+  datExceed <- read_csv(paste0(fileloc1, loc1, loc2, 'EXCEED_DAY_', var, mFile,
+                               startyr,'-',endyr,'.csv'),
+                        col_names = TRUE, cols(.default = col_double()))
+  lonlat <- datExceed[,1:2]
+  days <- colnames(datExceed[,3:ncol(datExceed)])
+} else if (var == 'mrsos' & startyr == 2010) {
+  datH <- read_csv(paste0(fileloc1, loc1[1], loc2, 'EXCEED_DAY_', var, mFileH,
+                          '1980','-','2010','.csv'),
+                   col_names = TRUE, cols(.default = col_double()))
+  lonlat <- datH[,1:2]
+  daysH <- colnames(datH[,3:ncol(datH)])
+  dat1040 <- read_csv(paste0(fileloc1, loc1[scenario], loc2, 'EXCEED_DAY_', var, mFile,
+                          startyr,'-',endyr,'.csv'),
+                   col_names = TRUE, cols(.default = col_double()))
+  days1040 <- colnames(dat1040[,3:ncol(dat1040)])
+  dat4070 <- read_csv(paste0(fileloc1, loc1[scenario], loc2, 'EXCEED_DAY_', var, mFile,
+                             '2040','-','2070','.csv'),
                       col_names = TRUE, cols(.default = col_double()))
-lonlat <- datExceed[,1:2]
-days <- colnames(datExceed[,3:ncol(datExceed)])
+  days4070 <- colnames(dat4070[,3:ncol(dat4070)])
+  dat7000 <- read_csv(paste0(fileloc1, loc1[scenario], loc2, 'EXCEED_DAY_', var, mFile,
+                             '2070','-','2100','.csv'),
+                      col_names = TRUE, cols(.default = col_double()))
+  days7000 <- colnames(dat7000[,3:ncol(dat7000)])
+  
+  days <- c('lon','lat', daysH, days1040, days4070, days7000)
+  days <- unique(days)
+  datExceed <- cbind(datH, dat1040, dat4070, dat7000)
+  datExceed <- datExceed %>%
+    select(all_of(days))
+} else {
+  var <- NA
+}
+
 
 # Part IV Temperature Waves ####################################################
 if (var == 'tasmax'| var == 'tasmin'){
@@ -209,20 +241,37 @@ if (var == 'tasmax'| var == 'tasmin'){
 }
 
 # Part V Soil Moisture Waves ###################################################
-if (var == 'mrsos'){
+if (var == 'mrsos'& startyr == 2010){
   B <- Sys.time()
   print(paste0('Starting to calculate the Flash Drought Wave at: ',B))
   datWaves <- apply(datExceed[,3:ncol(datExceed)], 
                     MARGIN = 1, FUN = day_wave_flash) %>%
     t()
-  # Potentially only look at flash droughts longer than 4 weeks. Still the 
-  # question as to when the flash drought officiall starts
-  # dat2 <- apply(dat, MARGIN=1, FUN(i) x<= 1/28 T=1, else= 0)
-  
   datWaves <- cbind(lonlat, datWaves)
-  colnames(datWaves) <- c('lon', 'lat', days)
-  write.csv(datWaves, file=paste0(fileloc1, loc1, loc2, 'WAVES_DAY_', var,
+  colnames(datWaves) <- c(days)
+  dat <- datWaves %>%
+    select(all_of(daysH))
+  dat <- cbind(lonlat, dat)
+  write.csv(dat, file=paste0(fileloc1, loc1[1], loc2, 'WAVES_DAY_', var,
+                                  mFileH, '1980','-','2010','.csv'), 
+            row.names = FALSE)
+  dat <- datWaves %>%
+    select(all_of(days1040))
+  dat <- cbind(lonlat, dat)
+  write.csv(dat, file=paste0(fileloc1, loc1[scenario], loc2, 'WAVES_DAY_', var,
                                   mFile, startyr,'-',endyr,'.csv'), 
+            row.names = FALSE)
+  dat <- datWaves %>%
+    select(all_of(days4070))
+  dat <- cbind(lonlat, dat)
+  write.csv(dat, file=paste0(fileloc1, loc1[scenario], loc2, 'WAVES_DAY_', var,
+                             mFile, '2040','-','2070','.csv'), 
+            row.names = FALSE)
+  dat <- datWaves %>%
+    select(all_of(days7000))
+  dat <- cbind(lonlat, dat)
+  write.csv(dat, file=paste0(fileloc1, loc1[scenario], loc2, 'WAVES_DAY_', var,
+                             mFile, '2070','-','2100','.csv'), 
             row.names = FALSE)
 }
 
