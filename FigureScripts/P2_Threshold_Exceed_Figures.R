@@ -55,7 +55,7 @@ loc2 <- c('CMCC-ESM2/', 'EC-Earth3/',
           'GFDL-ESM4/', 'INM-CM4-8/',
           'INM-CM5-0/', 'MPI-ESM1-2-HR/',
           'MRI-ESM2-0/', 'NorESM2-MM/')
-var <- c('tasmax', 'tasmin', 'pr', 'mrsos') [4]
+var <- c('tasmax', 'tasmin', 'pr', 'mrsos') [1]
 startyr <- 1980
 endyr <- 2010
 timeSpan <- c('DAY_','WEEK_FD_','WEEK_D_','MONTH_FD_','MONTH_D_')[1]
@@ -179,7 +179,7 @@ sMmu <- summary(datThresh$Mu) %>% round(digits = 4)
 sM1 <- rbind(sM1,sM2, sM3, sM4, sM5, sM6, sM7, sM8, sMmu) %>% 
   as_tibble()
 colnames(sM1) <- c('Min.','1st Qu.','Median','Mean','3rd Qu.','Max.','NAs')
-sM1 <- sM1 %>% select(-NAs)
+# sM1 <- sM1 %>% select(-NAs)
 
 mMin <- min(sM1$Min.) %>% 
   round(digits = -1)
