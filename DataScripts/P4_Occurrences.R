@@ -2,7 +2,7 @@
 # About: This program will open the wave and/or exceed file for the selected 
 #        variable and calculate the 'wave' occurance for the time 
 #        period, yearly, and monthly.
-#        Time: -hr for 1 variable - 8 Models
+#        Time: 26hr for 1 variable - 8 Models
 #     
 # Inputs:  EXCEED_DAY, WAVES_DAY
 # Outputs: OCC, OCCYr, OCCMo
@@ -62,32 +62,6 @@ loc2 <- c('CMCC-ESM2/', 'EC-Earth3/',
 startYr <- 1980
 endYr <- 2010
 leapM <- c(FALSE, TRUE, FALSE, FALSE, FALSE, TRUE, TRUE, FALSE)
-
-if (startYr == 1980){ 
-  timePeriod <- '8010'
-  a <- 'Hist'
-} else if (startYr == 2010){ 
-  timePeriod <- '1040'
-  a <- strsplit(loc1,'/') %>%
-    unlist() %>%
-    strsplit('_') %>%
-    unlist()
-  a <- a[2]
-} else if (startYr == 2040){ 
-  timePeriod <- '4070'
-  a <- strsplit(loc1,'/') %>%
-    unlist() %>%
-    strsplit('_') %>%
-    unlist()
-  a <- a[2]
-} else if (startYr == 2070){ 
-  timePeriod <- '7000'
-  a <- strsplit(loc1,'/') %>%
-    unlist() %>%
-    strsplit('_') %>%
-    unlist()
-  a <- a[2]
-} else { print0("Start Year not reconized")}
 
 print(paste0('Variable: ', var))
 print('Rscript: P4_Occurances.R')
@@ -366,6 +340,33 @@ for (i in 1: length(loc2)){
 # . 3.2 Averages ---------------------------------------------------------------
 B <- Sys.time()
 print(paste0('Starting to calculate the average occurances at: ',B))
+
+if (startYr == 1980){ 
+  timePeriod <- '8010'
+  a <- 'Hist'
+} else if (startYr == 2010){ 
+  timePeriod <- '1040'
+  a <- strsplit(loc1,'/') %>%
+    unlist() %>%
+    strsplit('_') %>%
+    unlist()
+  a <- a[2]
+} else if (startYr == 2040){ 
+  timePeriod <- '4070'
+  a <- strsplit(loc1,'/') %>%
+    unlist() %>%
+    strsplit('_') %>%
+    unlist()
+  a <- a[2]
+} else if (startYr == 2070){ 
+  timePeriod <- '7000'
+  a <- strsplit(loc1,'/') %>%
+    unlist() %>%
+    strsplit('_') %>%
+    unlist()
+  a <- a[2]
+} else { print0("Start Year not reconized")}
+
 ### Sequence Mean
 datOcc$Mu <- apply(datOcc[,3:10], MARGIN = 1, function(x){
   sum(x, na.rm = TRUE)/length(x[!is.na(x)])
@@ -383,7 +384,7 @@ datOccYr <- cbind(datOccYr[,1], datOccYr[,2],
 colnames(datOccYr) <- c('lon','lat', paste0(startYr:endYr))
 
 ### Monthly Mean
-write.csv(datOccYr,file=paste0(fileloc1, loc1, 'Results/','OCCMo_DAY_', 
+write.csv(datOccMo,file=paste0(fileloc1, loc1, 'Results/','OCCMo_DAY_', 
                                var,'_', a, '_', timePeriod, 'full.csv'),
           row.names = FALSE)
 datOccMo <- cbind(datOccMo[,1], datOccMo[,2],
