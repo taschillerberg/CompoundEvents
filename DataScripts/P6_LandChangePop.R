@@ -437,13 +437,13 @@ datLUH585_7000 <- read_csv(paste0(fileloc1,loc1[1],'LUH2_SSP585_2070-2100_',
 # . . 3.4.2 Formatting ---
 datLUH_AG <- cbind('lon' = datLUHH$lon, 
                    'lat' = datLUHH$lat,
-                   'Historic' = apply(datLUHH[,10:14], MARGIN = 1, FUN = apMean),
-                   'SSP126_1040' = apply(datLUH126_1040[,10:14], MARGIN = 1, FUN = apMean) ,
-                   'SSP126_4070' = apply(datLUH126_4070[,10:14], MARGIN = 1, FUN = apMean) ,
-                   'SSP126_7000' = apply(datLUH126_7000[,10:14], MARGIN = 1, FUN = apMean) ,
-                   'SSP585_1040' = apply(datLUH585_1040[,10:14], MARGIN = 1, FUN = apMean) ,
-                   'SSP585_4070' = apply(datLUH585_4070[,10:14], MARGIN = 1, FUN = apMean) ,
-                   'SSP585_7000' = apply(datLUH585_7000[,10:14], MARGIN = 1, FUN = apMean)) %>% 
+                   'Historic' = apply(datLUHH[,10:14], MARGIN = 1, FUN = sum),
+                   'SSP126_1040' = apply(datLUH126_1040[,10:14], MARGIN = 1, FUN = sum) ,
+                   'SSP126_4070' = apply(datLUH126_4070[,10:14], MARGIN = 1, FUN = sum) ,
+                   'SSP126_7000' = apply(datLUH126_7000[,10:14], MARGIN = 1, FUN = sum) ,
+                   'SSP585_1040' = apply(datLUH585_1040[,10:14], MARGIN = 1, FUN = sum) ,
+                   'SSP585_4070' = apply(datLUH585_4070[,10:14], MARGIN = 1, FUN = sum) ,
+                   'SSP585_7000' = apply(datLUH585_7000[,10:14], MARGIN = 1, FUN = sum)) %>% 
   as_tibble()
 print('Change in Ag summary')
 c((datLUH_AG$SSP126_1040 - datLUH_AG$Historic), (datLUH_AG$SSP585_1040 - datLUH_AG$Historic),
@@ -453,13 +453,13 @@ c((datLUH_AG$SSP126_1040 - datLUH_AG$Historic), (datLUH_AG$SSP585_1040 - datLUH_
 
 datLUH_FOR <- cbind('lon' = datLUHH$lon, 
                     'lat' = datLUHH$lat,
-                    'Historic' = apply(datLUHH[,c(3,5)], MARGIN = 1, FUN = apMean),
-                    'SSP126_1040' = apply(datLUH126_1040[,c(3,5)], MARGIN = 1, FUN = apMean) ,
-                    'SSP126_4070' = apply(datLUH126_4070[,c(3,5)], MARGIN = 1, FUN = apMean) ,
-                    'SSP126_7000' = apply(datLUH126_7000[,c(3,5)], MARGIN = 1, FUN = apMean) ,
-                    'SSP585_1040' = apply(datLUH585_1040[,c(3,5)], MARGIN = 1, FUN = apMean) ,
-                    'SSP585_4070' = apply(datLUH585_4070[,c(3,5)], MARGIN = 1, FUN = apMean) ,
-                    'SSP585_7000' = apply(datLUH585_7000[,c(3,5)], MARGIN = 1, FUN = apMean)) %>% 
+                    'Historic' = apply(datLUHH[,c(3,5)], MARGIN = 1, FUN = sum),
+                    'SSP126_1040' = apply(datLUH126_1040[,c(3,5)], MARGIN = 1, FUN = sum) ,
+                    'SSP126_4070' = apply(datLUH126_4070[,c(3,5)], MARGIN = 1, FUN = sum) ,
+                    'SSP126_7000' = apply(datLUH126_7000[,c(3,5)], MARGIN = 1, FUN = sum) ,
+                    'SSP585_1040' = apply(datLUH585_1040[,c(3,5)], MARGIN = 1, FUN = sum) ,
+                    'SSP585_4070' = apply(datLUH585_4070[,c(3,5)], MARGIN = 1, FUN = sum) ,
+                    'SSP585_7000' = apply(datLUH585_7000[,c(3,5)], MARGIN = 1, FUN = sum)) %>% 
   as_tibble()
 print('Change in Forestry summary')
 c((datLUH_FOR$SSP126_1040 - datLUH_FOR$Historic), (datLUH_FOR$SSP585_1040 - datLUH_FOR$Historic),
