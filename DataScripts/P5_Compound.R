@@ -3,7 +3,7 @@
 #       variable and calculate a 'wave' of when the exceedance occurs.
 #       Most recent run of day historical (B) took 30 hr, 13GB; SSP126 (C & D)
 #       took 32h, 13GB; SSP585(E & F) took h, 14GB 
-#       Time: -hr for 1 variable - 8 Models
+#       Time: 30-35hr for 1 variable - 8 Models
 #
 # Inputs: EXCEED_DAY & WAVES_DAY
 # Outputs: COMP_DAY_comp
