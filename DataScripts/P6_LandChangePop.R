@@ -7,7 +7,7 @@
 #
 # T. A. Schillerberg
 #               Jun. 2023
-#      Updated: Oct. 2023
+#      Updated: Nov. 2023
 
 # Mac
 
@@ -75,7 +75,7 @@ for (i in 1:3){
     time <- 850:2015
     datNCH <- NULL
     timeH <- NULL
-  } else if (i ==2){
+  } else if (i == 2){
     datNCH <- ncdf4::nc_open(paste0(fileloc1,loc1[1],
                                    'regrid360x180_mod_states.nc'))
     timeH <- 850:2015

@@ -10,8 +10,8 @@
 #      Updated: Oct. 2023
 
 # Mac
-setwd("~/Library/CloudStorage/OneDrive-AuburnUniversity/Research/FEMAResearch/Code2")
-fileloc1 <- "~/Library/CloudStorage/OneDrive-AuburnUniversity/Research/FEMAResearch/Data/"
+# setwd("~/Library/CloudStorage/OneDrive-AuburnUniversity/Research/FEMAResearch/Code2")
+# fileloc1 <- "~/Library/CloudStorage/OneDrive-AuburnUniversity/Research/FEMAResearch/Data/"
 
 # Office Computer
 setwd("C:/Users/tas0053/OneDrive - Auburn University/Research/FEMAResearch/Code2")
@@ -155,8 +155,10 @@ exposurePopulation$Historic_mu <- datPop$Historic * datComp$Historical_mu
 exposurePopulation$SSP126_1040_mu <- datPop$SSP126_1040 * datComp$SSP126_1040_mu
 exposurePopulation$SSP126_4070_mu <- datPop$SSP126_4070 * datComp$SSP126_4070_mu
 exposurePopulation$SSP126_7000_mu <- datPop$SSP126_7000 * datComp$SSP126_7000_mu
+exposurePopulation$SSP585_1040_mu <- datPop$SSP585_1040 * datComp$SSP585_1040_mu
 exposurePopulation$SSP585_4070_mu <- datPop$SSP585_4070 * datComp$SSP585_4070_mu
 exposurePopulation$SSP585_7000_mu <- datPop$SSP585_7000 * datComp$SSP585_7000_mu
+
 
 exposurePopulation$SSP126_1040_delta <- 
   exposurePopulation$SSP126_1040_mu - exposurePopulation$Historic_mu
