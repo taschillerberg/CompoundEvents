@@ -1,50 +1,46 @@
-# P4_Occurrences.R
+# P5_Occurrences.R
 # About: This program will open the wave and/or exceed file for the selected 
 #        variable and calculate the 'wave' occurance for the time 
 #        period, yearly, and monthly.
 #        Time: 26hr for 1 variable - 8 Models
 #     
-# Inputs:  EXCEED_DAY, WAVES_DAY
+# Inputs:  EXCEED_DAY, WAVES_DAY, COMP
 # Outputs: OCC, OCCYr, OCCMo
 #
 # T. A. Schillerberg
 #               Aug. 2023
-#      Updated: Sep. 2023
+#      Updated: Jan. 2024
 
-# Mac
-# setwd("~/Library/CloudStorage/OneDrive-AuburnUniversity/Research/FEMAResearch/Code2")
-# fileloc1 <- '~/Library/CloudStorage/OneDrive-AuburnUniversity/Research/FEMAResearch/Data/'
-
-# Office Computer
-# setwd("C:/Users/tas0053/OneDrive - Auburn University/Research/FEMAResearch/Code2")
-# fileloc1 <- 'C:/Users/tas0053/OneDrive - Auburn University/Research/FEMAResearch/Data/'
+fileloc1 <- 'C:/Research/Data/'
 
 # HPC
-fileloc1 <- '~/CompoundEvents/Data/'
+# fileloc1 <- '~/CompoundEvents/Data/'
 
 options(show.error.locations = TRUE)
 # Libraries ####################################################################
 library(tidyverse)
 
 # Part I Variables To Change ###################################################
-# var <- c('tasmax', 'tasmin', 'pr', 'mrsos')[as.numeric('model_var')] # Bash script
-var <- c('tasmax', 'tasmin','pr', 'mrsos') [4]
-mFile <- c('_day_CMCC-ESM2_historical_r1i1p1f1_gn_',
-           '_day_EC-Earth3_historical_r1i1p1f1_gr_',
-           '_day_GFDL-ESM4_esm-hist_r1i1p1f1_gr1_',
-           '_day_INM-CM4-8_historical_r1i1p1f1_gr1_',
-           '_day_INM-CM5-0_historical_r1i1p1f1_gr1_',
-           '_day_MPI-ESM1-2-HR_historical_r1i1p1f1_gn_',
-           '_day_MRI-ESM2-0_historical_r1i1p1f1_gn_',
-           '_day_NorESM2-MM_historical_r1i1p1f1_gn_')
-# mFile <- c('_day_CMCC-ESM2_ssp126_r1i1p1f1_gn_',
-#            '_day_EC-Earth3_ssp126_r1i1p1f1_gr_',
-#            '_day_GFDL-ESM4_ssp126_r1i1p1f1_gr1_',
-#            '_day_INM-CM4-8_ssp126_r1i1p1f1_gr1_',
-#            '_day_INM-CM5-0_ssp126_r1i1p1f1_gr1_',
-#            '_day_MPI-ESM1-2-HR_ssp126_r1i1p1f1_gn_',
-#            '_day_MRI-ESM2-0_ssp126_r1i1p1f1_gn_',
-#            '_day_NorESM2-MM_ssp126_r1i1p1f1_gn_')
+# varNum <- as.numeric('model_var') # Bash script
+varNum <- 6 # 1:4 Climate Variables # 4:12 Compound Events
+varX <- c('tasmax','tasmin','pr','mrsos','SIM14','SEQ14','SEQ41','SIM13','SEQ13',
+            'SEQ31','SEQ34','SEQ43')[varNum]
+# mFile <- c('_day_CMCC-ESM2_historical_r1i1p1f1_gn_',
+#            '_day_EC-Earth3_historical_r1i1p1f1_gr_',
+#            '_day_GFDL-ESM4_esm-hist_r1i1p1f1_gr1_',
+#            '_day_INM-CM4-8_historical_r1i1p1f1_gr1_',
+#            '_day_INM-CM5-0_historical_r1i1p1f1_gr1_',
+#            '_day_MPI-ESM1-2-HR_historical_r1i1p1f1_gn_',
+#            '_day_MRI-ESM2-0_historical_r1i1p1f1_gn_',
+#            '_day_NorESM2-MM_historical_r1i1p1f1_gn_')
+mFile <- c('_day_CMCC-ESM2_ssp126_r1i1p1f1_gn_',
+           '_day_EC-Earth3_ssp126_r1i1p1f1_gr_',
+           '_day_GFDL-ESM4_ssp126_r1i1p1f1_gr1_',
+           '_day_INM-CM4-8_ssp126_r1i1p1f1_gr1_',
+           '_day_INM-CM5-0_ssp126_r1i1p1f1_gr1_',
+           '_day_MPI-ESM1-2-HR_ssp126_r1i1p1f1_gn_',
+           '_day_MRI-ESM2-0_ssp126_r1i1p1f1_gn_',
+           '_day_NorESM2-MM_ssp126_r1i1p1f1_gn_')
 # mFile <- c('_day_CMCC-ESM2_ssp585_r1i1p1f1_gn_',
 #            '_day_EC-Earth3_ssp585_r1i1p1f1_gr_',
 #            '_day_GFDL-ESM4_ssp585_r1i1p1f1_gr1_',
@@ -53,17 +49,16 @@ mFile <- c('_day_CMCC-ESM2_historical_r1i1p1f1_gn_',
 #            '_day_MPI-ESM1-2-HR_ssp585_r1i1p1f1_gn_',
 #            '_day_MRI-ESM2-0_ssp585_r1i1p1f1_gn_',
 #            '_day_NorESM2-MM_ssp585_r1i1p1f1_gn_')
-loc1 <- c('CMIP6_historical/','CMIP6_SSP126/','CMIP6_SSP585/')[1]
+loc1 <- c('CMIP6_historical/','CMIP6_SSP126/','CMIP6_SSP585/')[2]
 loc2 <- c('CMCC-ESM2/', 'EC-Earth3/',
           'GFDL-ESM4/', 'INM-CM4-8/',
           'INM-CM5-0/', 'MPI-ESM1-2-HR/',
           'MRI-ESM2-0/', 'NorESM2-MM/')
-
-startYr <- 1980
-endYr <- 2010
+startYr <- 2070
+endYr <- 2100
 leapM <- c(FALSE, TRUE, FALSE, FALSE, FALSE, TRUE, TRUE, FALSE)
 
-print(paste0('Variable: ', var))
+print(paste0('Variable: ', varX))
 print('Rscript: P4_Occurances.R')
 print(paste0('Scenario: ', loc1, ' For the time period: ', startYr, '-', endYr))
 
@@ -259,6 +254,7 @@ datOcc <- tibble(
   'NorESM2-MM'  = numeric(length = 12476),
   'Mu' = numeric(length = 12476)
 )
+datOccL <- datOcc
 
 # . 3.2 Calculating for variable -----------------------------------------------
 A <- Sys.time()
@@ -266,17 +262,22 @@ print(paste0('Starting to calculate the occurance at: ',A))
 
 for (i in 1: length(loc2)){
   print(loc2[i])
-  if (var == 'pr'){
-    dat <- read_csv(paste0(fileloc1,loc1,loc2[i],'EXCEED_DAY_', var,
+  if (varX == 'pr'){
+    dat <- read_csv(paste0(fileloc1,loc1,loc2[i],'EXCEED_DAY_', varX,
+                           mFile[i],startYr,'-',endYr,'.csv'),
+                    col_names = TRUE, cols(.default = col_double()))
+  } else if (varX == 'tasmax' | varX == 'mrsos') {
+    dat <- read_csv(paste0(fileloc1,loc1,loc2[i],'WAVES_DAY_', varX,
                            mFile[i],startYr,'-',endYr,'.csv'),
                     col_names = TRUE, cols(.default = col_double()))
   } else {
-    dat <- read_csv(paste0(fileloc1,loc1,loc2[i],'WAVES_DAY_', var,
+    dat <- read_csv(paste0(fileloc1,loc1[1],loc2[i],'COMP_DAY_',varX,
                            mFile[i],startYr,'-',endYr,'.csv'),
                     col_names = TRUE, cols(.default = col_double()))
+    dat <- dat[,-c(3:8)]
   }
-  # Flash Drought longer than 28 days exceeded 1/28 = 0.0357
-  if (var == 'mrsos'){
+  # Flash Drought must exceed 28 days -> 1/28 = 0.0357
+  if (varX == 'mrsos'){
     lonlat <- dat[,1:2]
     dat <- dat[3:ncol(dat)]
     dat[dat > 0.0357] <- 0
@@ -286,16 +287,27 @@ for (i in 1: length(loc2)){
   Xx <- apply(X = dat[,3:ncol(dat)], MARGIN = 1,
               FUN = sum, na.rm=TRUE)    #Number of total occurrences
   # Xx <- Xx/(ncol(dat)-2) * ((ncol(dat)-2)/31) # Frequency
+  
+  # Time period Length of events
+  XxL <- dat[,3:ncol(dat)] 
+  XxL[XxL == 0] <- NA
+  XxL <- apply(X = XxL, MARGIN = 1, FUN = function(x) mean(x, na.rm = TRUE))
+  # XxL <- apply(X = XxL, MARGIN = 1, FUN = function(x) length(x[!is.na(x)]))
+  
   if (i == 1){
     datOcc$lon <- dat$lon
     datOcc$lat <- dat$lat
     datOcc[,2+i] <- as.matrix(Xx)
+    datOccL$lon <- dat$lon
+    datOccL$lat <- dat$lat
+    datOccL[,2+i] <- as.matrix(XxL)
   } else {
     datOcc[,2+i] <- as.matrix(Xx)
+    datOccL[,2+i] <- as.matrix(XxL)
   }
   
-  ###  Annual number of occurrences
-  print("Annual number of occurances")
+  ###  Yearly number of occurrences ----
+  print("Yearly number of occurances")
   if (i == 1){
     datYr <- apply(X = dat[,3:ncol(dat)], MARGIN = 1, FUN = annual_occ,
                    yrSt = startYr, leap = leapM[i]) %>%
@@ -304,7 +316,7 @@ for (i in 1: length(loc2)){
     datOccYr <- cbind(dat$lon, dat$lat, datYr)
     a <- strsplit(loc2[i],'/') %>% unlist()
     colnames(datOccYr) <- c('lon','lat', paste0(a, "_", startYr:endYr))
-  } else {
+  } else if (i == 2| i == 3| i == 4) {
     names <- colnames(datOccYr)
     datYr <- apply(X = dat[,3:ncol(dat)], MARGIN = 1, FUN = annual_occ,
                    yrSt = startYr, leap = leapM[i]) %>%
@@ -313,9 +325,11 @@ for (i in 1: length(loc2)){
     datOccYr <- cbind(datOccYr, datYr)
     a <- strsplit(loc2[i],'/') %>% unlist()
     colnames(datOccYr) <- c(names, paste0(a, "_", startYr:endYr))
+  } else {
+
   }
-  
-  ### Monthly number of occurrences
+
+  ### Monthly number of occurrences ----
   print("Monthly occurances")
   if (i == 1){
     datMo <- apply(X = dat[,3:ncol(dat)], MARGIN = 1, FUN = month_occ,
@@ -325,7 +339,7 @@ for (i in 1: length(loc2)){
     datOccMo <- cbind(dat$lon, dat$lat, datMo)
     a <- strsplit(loc2[i],'/') %>% unlist()
     colnames(datOccMo) <- c('lon','lat', paste0(a, "_", 1:12))
-  } else {
+  } else if (i == 2| i == 3| i == 4){
     names <- colnames(datOccMo)
     datMo <- apply(X = dat[,3:ncol(dat)], MARGIN = 1, FUN = month_occ,
                    yrSt = startYr, leap = leapM[i]) %>%
@@ -334,10 +348,13 @@ for (i in 1: length(loc2)){
     datOccMo <- cbind(datOccMo, datMo)
     a <- strsplit(loc2[i],'/') %>% unlist()
     colnames(datOccMo) <- c(names, paste0(a, "_", 1:12))
+  }  else {
+    next
   }
 } 
 
-# . 3.2 Averages ---------------------------------------------------------------
+# . 3.3 Averages ---------------------------------------------------------------
+# . . 3.3.1 Variables needed ---- 
 B <- Sys.time()
 print(paste0('Starting to calculate the average occurances at: ',B))
 
@@ -367,14 +384,25 @@ if (startYr == 1980){
   a <- a[2]
 } else { print0("Start Year not reconized")}
 
-### Sequence Mean
-datOcc$Mu <- apply(datOcc[,3:10], MARGIN = 1, function(x){
-  sum(x, na.rm = TRUE)/length(x[!is.na(x)])
-})
+# . . 3.3.2 Occurrence Length ----
+datOccL$`CMCC-ESM2` <- 1/datOccL$`CMCC-ESM2`
+datOccL$`EC-Earth3` <- 1/datOccL$`EC-Earth3`
+datOccL$`GFDL-ESM4` <- 1/datOccL$`GFDL-ESM4`
+datOccL$`INM-CM4-8` <- 1/datOccL$`INM-CM4-8`
+datOccL$`INM-CM5-0` <- 1/datOccL$`INM-CM5-0`
+datOccL$`MPI-ESM1-2-HR` <- 1/datOccL$`MPI-ESM1-2-HR`
+datOccL$`MRI-ESM2-0` <- 1/datOccL$`MRI-ESM2-0`
+datOccL$`NorESM2-MM` <- 1/datOccL$`NorESM2-MM`
+datOccL$Mu <- apply(datOccL[,3:10], MARGIN = 1, FUN = mean, na.rm = TRUE)
 
-### Annual Mean
+write.csv(datOccL,file = paste0(fileloc1, loc1, 'Results/','OCC_DAY_', 
+                               varX,'_', a, '_', timePeriod, '_length.csv'),
+          row.names = FALSE)
+
+
+# . . 3.3.3 Yearly Mean ----
 write.csv(datOccYr,file=paste0(fileloc1, loc1, 'Results/','OCCYr_DAY_', 
-                               var,'_', a, '_', timePeriod, 'full.csv'),
+                               varX,'_', a, '_', timePeriod, '_full.csv'),
           row.names = FALSE)
 datOccYr <- cbind(datOccYr[,1], datOccYr[,2],
                   apply(X = datOccYr[,3:ncol(datOccYr)], MARGIN = 1,
@@ -383,9 +411,45 @@ datOccYr <- cbind(datOccYr[,1], datOccYr[,2],
                     matrix(ncol = length(startYr:endYr), byrow = TRUE))
 colnames(datOccYr) <- c('lon','lat', paste0(startYr:endYr))
 
-### Monthly Mean
+# . . 3.3.4 Sequence Mean ----
+if (varX == 'mrsos'){
+  dat <- read_csv(paste0(fileloc1, loc1, 'Results/','OCCYr_DAY_', 
+                         varX,'_', a, '_', timePeriod, '_full.csv'),
+                  col_names = TRUE, cols(.default = col_double()))
+  datOcc <- tibble(
+    'lon' = dat$lon,
+    'lat' = dat$lat,
+    'CMCC-ESM2'  = numeric(length = 12476), 
+    'EC-Earth3'  = numeric(length = 12476),
+    'GFDL-ESM4' = numeric(length = 12476),
+    'INM-CM4-8' = numeric(length = 12476),
+    'INM-CM5-0' = numeric(length = 12476),
+    'MPI-ESM1-2-HR' = numeric(length = 12476),
+    'MRI-ESM2-0' = numeric(length = 12476), 
+    'NorESM2-MM'  = numeric(length = 12476),
+    'Mu' = numeric(length = 12476),
+    'Median' = numeric(length = 12476)
+  )
+  datOcc$`CMCC-ESM2` <- apply(X = dat[,3:33], MARGIN = 1, FUN = sum)
+  datOcc$`EC-Earth3` <- apply(X = dat[,34:64], MARGIN = 1, FUN = sum)
+  datOcc$`GFDL-ESM4` <- apply(X = dat[,65:95], MARGIN = 1, FUN = sum)
+  datOcc$`INM-CM4-8` <- apply(X = dat[,96:126], MARGIN = 1, FUN = sum)
+  datOcc$`INM-CM5-0` <- apply(X = dat[,127:157], MARGIN = 1, FUN = sum)
+  datOcc$`MPI-ESM1-2-HR` <- apply(X = dat[,158:188], MARGIN = 1, FUN = sum)
+  datOcc$`MRI-ESM2-0` <- apply(X = dat[,189:219], MARGIN = 1, FUN = sum)
+  datOcc$`NorESM2-MM` <- apply(X = dat[,220:250], MARGIN = 1, FUN = sum)
+  datOcc$Mu <- apply(X = datOcc[,3:10], MARGIN = 1, FUN = mean)
+  datOcc$Median <- apply(X = datOcc[,3:10], MARGIN = 1, FUN = mean)
+  
+} else {
+  datOcc$Mu <- apply(datOcc[,3:10], MARGIN = 1, function(x){
+    sum(x, na.rm = TRUE)/length(x[!is.na(x)])
+  })
+}
+
+# 3.3.4 Monthly Mean ----
 write.csv(datOccMo,file=paste0(fileloc1, loc1, 'Results/','OCCMo_DAY_', 
-                               var,'_', a, '_', timePeriod, 'full.csv'),
+                               varX,'_', a, '_', timePeriod, '_full.csv'),
           row.names = FALSE)
 datOccMo <- cbind(datOccMo[,1], datOccMo[,2],
                   apply(X = datOccMo[,3:ncol(datOccMo)], MARGIN = 1,
@@ -395,18 +459,18 @@ datOccMo <- cbind(datOccMo[,1], datOccMo[,2],
 colnames(datOccMo) <- c('lon','lat', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
                         'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec')
 
-# . 3.3 Writing the files ------------------------------------------------------
+# . 3.4 Writing the files ------------------------------------------------------
 write.csv(datOcc,file=paste0(fileloc1, loc1, 'Results/',
-                             'OCC_DAY_', var, '_', a, '_', timePeriod, '.csv'),
+                             'OCC_DAY_', varX, '_', a, '_', timePeriod, '.csv'),
           row.names = FALSE)
 write.csv(datOccYr,file=paste0(fileloc1, loc1, 'Results/',
-                               'OCCYr_DAY_', var,'_', a, '_', timePeriod, '.csv'),
+                               'OCCYr_DAY_', varX,'_', a, '_', timePeriod, '.csv'),
           row.names = FALSE)
 write.csv(datOccMo,file=paste0(fileloc1, loc1, 'Results/',
-                               'OCCMo_DAY_', var,'_', a, '_', timePeriod, '.csv'),
+                               'OCCMo_DAY_', varX,'_', a, '_', timePeriod, '.csv'),
           row.names = FALSE)
 # END ##########################################################################
 B <- Sys.time()
 print(paste0('Finished calculating the OCCURANCE requested for ',
-             var,'. End time: ',B, ' Total time elapsed: ', B-A))
+             varX,'. End time: ',B, ' Total time elapsed: ', B-A))
 print("-----------------------------------------------------------------------")

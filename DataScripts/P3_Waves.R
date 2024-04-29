@@ -10,13 +10,7 @@
 #               Oct. 2022
 #      Updated: Oct. 2023
 
-# Mac
-# setwd("~/Library/CloudStorage/OneDrive-AuburnUniversity/Research/FEMAResearch/Code2")
-# fileloc1 <- '~/Library/CloudStorage/OneDrive-AuburnUniversity/Research/FEMAResearch/Data/'
-
-# Office Computer
-# setwd("C:/Users/tas0053/OneDrive - Auburn University/Research/FEMAResearch/Code2")
-# fileloc1 <- 'C:/Users/tas0053/OneDrive - Auburn University/Research/FEMAResearch/Data/'
+# fileloc1 <- 'C:/Research/Data/'
 
 # HPC
 fileloc1 <- '~/CompoundEvents/Data/'
@@ -224,7 +218,6 @@ if (var == 'tasmax'| var == 'tasmin'){
 } else {
   var <- NA
 }
-
 
 # Part IV Temperature Waves ####################################################
 if (var == 'tasmax'| var == 'tasmin'){

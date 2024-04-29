@@ -10,13 +10,9 @@
 #
 # T. A. Schillerberg
 #               Oct. 2022
-#      Updated: Jan. 2024
+#      Updated: Feb. 2024
 
-# Mac
-
-# Office Computer
-# setwd("C:/Users/tas0053/OneDrive - Auburn University/Research/FEMAResearch/Code2")
-# fileloc1 <- 'C:/Users/tas0053/OneDrive - Auburn University/Research/FEMAResearch/Data/'
+# fileloc1 <- 'C:/Research/Data/'
 
 # HPC
 fileloc1 <- '~/CompoundEvents/Data/'
@@ -72,6 +68,7 @@ print(paste0('Scenario: ', loc1, ' For the time period: ', startyr, '-', endyr))
 # Functions ####################################################################
 daily_Comp_Event <- function (seriesA, seriesB, delta = 0, tau = 0, 
                               repNa = TRUE, ending = TRUE){
+  # repNa = TRUE, ending = TRUE, ID){
   # About: This function will calculate daily compound events using data that 
   #        contains waves of data. IE heatwave, drought period.
   
@@ -83,6 +80,8 @@ daily_Comp_Event <- function (seriesA, seriesB, delta = 0, tau = 0,
   # tau     : Non-negative integer to specify the time lag
   # repNa   : Should any NA's in the time series be replaced with 0. If FALSE 
   #           and the series contains NA's an error will be given.
+  
+  # print(ID) #
   
   # 1 Test the variables -------------------------------------------------------
   if (length(which(seriesA > 1)) > 0) {
@@ -139,10 +138,29 @@ daily_Comp_Event <- function (seriesA, seriesB, delta = 0, tau = 0,
   
   # Return Variable
   returnDat <- matrix(0, nrow = 1, ncol = (6 + lenSer))
-  
   bindDat = matrix(0, nrow = 3, ncol = lenSer)
-  bindDat[1, ] = seriesA
-  bindDat[2, ] = seriesB
+  
+  # Test the average length of the climate events
+  dat <- as.numeric(seriesA)
+  dat[dat == 0] <- NA
+  sAL <- 1/mean(dat, na.rm = TRUE)
+  if (is.na(sAL)){ return(returnDat) }
+  dat <- as.numeric(seriesB)
+  dat[dat == 0] <- NA
+  sBL <- 1/mean(dat, na.rm = TRUE)
+  if (is.na(sBL)){ return(returnDat) }
+  
+  if (delta == 0 && sBL > sAL){
+    bindDat[1, ] = seriesB
+    bindDat[2, ] = seriesA
+    # For the way the current program is written the longer time series should 
+    # be the first series (bindDat[1,]). This works for this script because of 
+    # the climate extremes heatwaves, precip, and flash drought have 
+    # different time scales.
+  } else {
+    bindDat[1, ] = seriesA
+    bindDat[2, ] = seriesB
+  }
   
   # 3 Calculations -------------------------------------------------------------
   # . 3.1 How many events in the series? ----
@@ -160,10 +178,8 @@ daily_Comp_Event <- function (seriesA, seriesB, delta = 0, tau = 0,
   # . 3.3 Calculating the compound events ----
   for (i in 1:lenSer){ 
     if (is.na(bindDat[1, i])) { next }
-    if (modI == i){ 
+    if (modI == i){ #should this be =<?
       if (bindDat[2, i] > 0 ){
-        # Only changes for sequential events. 
-        # Requirements for the start (seriesA event end) and end (seriesB)
         start <- i - tau - delta
         end <- i - tau
         if (start < 1 && end < 1) { next } 
@@ -172,65 +188,47 @@ daily_Comp_Event <- function (seriesA, seriesB, delta = 0, tau = 0,
         if (end > lenSer) { end <- lenSer }
         m <- which(bindDat[1, start:end] > 0)
         if (length(m) >= 1){
-          if (delta == 0){   # Simultanious Events
-            day = 0;
-            for (j in i:lenSer){
-              if (bindDat[1,j] != 0 && bindDat[2,j] != 0) {
-                day <- day + 1
-                bindDat[3, (i:j)] <- 1/day
-                modI <- j + 1
-              } else {
-                # bindDat[3, (i:j-1)] <- 1/day
-                # modI <- j + 1
-                break
-              }
+          startA <- NA;  endA <- NA
+          startB <- i ;  endB <- NA
+          for (j in i:1){
+            if (j == 1 & bindDat[1,j] != 0){
+              startA <- 1 }
+            if (bindDat[1,j] != 0){ next }
+            if (bindDat[1,j] == 0) {
+              startA <- j + 1
+              break
             }
-          } # End Simultanious Events
-          if (delta != 0 && ending == TRUE){   # Sequential Events
-            len <- start:end
-            daySt <- NA; dayEd <- NA; modJ <- FALSE
-            for (j in len[m[length(m)]]:1){
-              if (bindDat[2,j] == 0 && bindDat[1,j] > 0 | j == 1){
-                daySt <- j 
-              } else { break }
+          }
+          for (j in i:lenSer) {
+            if (is.na(endA) & bindDat[1,j] == 0){
+              endA <- j - 1
             }
-            if (is.na(daySt)) { next }
-            for (j in i:lenSer){
-              if (bindDat[2,j] == 0 && bindDat[1,j] == 0 && modJ == TRUE) { break } 
-              if (bindDat[2,j] > 0 && bindDat[1,j] == 0 | j == lenSer){
-                dayEd <- j # Want to end on the last day of eventB
-                modI <- j + 1    # this may need help 
-                modJ <- TRUE
-                # break
-              } else {
-                dayEd <- NA
-                break
-              }
+            if (is.na(endB) & bindDat[2,j] == 0){
+              endB <- j - 1
             }
-            if (bindDat[1,i] > 0 & bindDat[2,i] > 0) { next } # remove  Simultanious events
-            if (is.na(dayEd)) { next }
-            bindDat[3, daySt:dayEd] <- 1/length(daySt:dayEd)
-          } # End Sequential Events Calc from sA ending
-          if (delta != 0 && ending == FALSE){   # Sequential Events
-            len <- start:end
-            daySt <- NA; dayEd <- NA; modJ <- FALSE
-            for (j in len[m[length(m)]]:1){
-              if (len[m[length(m)]] == bindDat[1,i]) { next }
-              if ( bindDat[1,j] > 0 | j == 1){
-                daySt <- j 
-              } else { break }
+            if (!is.na(endA) & !is.na(endB)){ break }
+            if (is.na(endA) & j == lenSer) {
+              endA <- j
             }
-            if (is.na(daySt)) { next }
-            for (j in i:lenSer){
-              if (bindDat[2,j] > 0 | j == lenSer){
-                dayEd <- j # Want to end on the last day of eventB
-                modI <- j + 1  # this may need help 
-                # break
-              } else { break }
+            if (is.na(endB) & j == lenSer) {
+              endB <- j
             }
-            if (is.na(dayEd)) { next }
-            bindDat[3, daySt:dayEd] <- 1/length(daySt:dayEd)
-          }  # End Sequential Events from sB start
+          }
+          if (delta == 0){
+            # Simultanious events
+            if (startA <= startB & endA >= endB){
+              bindDat[3,startA:endA] <- 1/length(startA:endA)
+              moodI <- endA + 1
+            }
+          } else if (delta != 0){
+            # Sequential events
+            if (startA < startB & endA < endB){
+              bindDat[3,startA:endB] <- 1/length(startA:endB)
+              modI <- endB + 1
+            }
+          } else {
+            modI <- endB + 1  # Go to the next occurrence of series B
+          }
         } else { 
           # modI <- i + 1
           modI <- i + round(1 / bindDat[2, i], digits = 0)
@@ -261,6 +259,7 @@ daily_Comp_Event <- function (seriesA, seriesB, delta = 0, tau = 0,
                            'N_SeriesCE', 'Length_SeriesCE',
                            1:lenSer)
   return(returnDat)
+  
 }
 
 lineCC <- function(dat, days, tau = 0, ending){
@@ -275,7 +274,8 @@ lineCC <- function(dat, days, tau = 0, ending){
 
   # Variables ------------------------------------------------------------------
   # print(dat[1])
-  # dat <- dat[2:length(dat)]
+  # ID <- dat[1] #
+  # dat <- dat[2:length(dat)] %>% as.numeric() #
   dat <- dat[1:length(dat)]
   seriesA <- dat[1:(length(dat)/2)]
   seriesB <- dat[(length(dat)/2 + 1): length(dat)]
@@ -287,7 +287,8 @@ lineCC <- function(dat, days, tau = 0, ending){
   if (length(seriesA) == length(seriesB)){
     #  Correlation
     result <- daily_Comp_Event(seriesA = seriesA, seriesB = seriesB, 
-                                delta = days, tau = tau, ending = ending)
+                               delta = days, tau = tau, ending = ending)
+                               # delta = days, tau = tau, ending = ending, ID = ID)
   } else {
     result <- c(vector('ERROR',length = 6 + length(seriesA)))
   }
@@ -302,7 +303,6 @@ series1 <- read_csv(paste0(fileloc1, loc1, loc2, wavesTime, var[1],
                            mFile, startyr,'-',endyr,'.csv'),
                     col_names = TRUE, cols(.default = col_double()))
 lonlat <- series1[,1:2]
-ID <- rowid_to_column(series1); ID <- ID[,1]; ID <- as.matrix(ID) # For testing
 series1 <- series1[,3:ncol(series1)]
 series1[series1 > 0] <- 1     # Needs to be converted to binary (0,1)
 series1 <- as.matrix(series1)
@@ -358,7 +358,9 @@ colSerA <- colnames(series1)
 B <- Sys.time()
 print(paste0('Starting to calculate the simultanious Heatwave & Drought at: ',B))
 
-if (dim(series1)[1] == dim(series4)[1] | dim(series1)[2] == dim(series4)[2]){
+if (dim(series1)[1] == dim(series4)[1] && dim(series1)[2] == dim(series4)[2]){
+  # ID <- paste0(lonlat$lon,'_', lonlat$lat) #
+  # seriesC <- cbind(ID,series1, series4) # 
   seriesC <- cbind(series1, series4)
   seriesC <- apply(X=seriesC, MARGIN = 1, FUN=lineCC, days = 0) %>%
     t() 
@@ -377,22 +379,9 @@ print(paste0('Finished calculated the simultanious Heatwave & Drought at: ',B))
 # . 3.2 Seq. Heatwave & Drought ------------------------------------------------
 B <- Sys.time()
 print(paste0('Starting to calculate the sequential Heatwave & Drought at: ',B))
-
-if (dim(series1)[1] == dim(series4)[1] | dim(series1)[2] == dim(series4)[2]){
-  seriesC <- cbind(series1, series4)
-  seriesC <- apply(X=seriesC, MARGIN = 1, FUN=lineCC, 
-                   days = seqTime, ending = TRUE) %>%
-    t()
-  seriesC<- cbind(lonlat, seriesC)
-  colnames(seriesC) <- c('lon', 'lat','N_SeriesA', 'Length_SeriesA',
-                         'N_SeriesB', 'Length_SeriesB',
-                         'N_SeriesCE', 'Length_SeriesCE',
-                         colSerA)
-  write.csv(seriesC,file=paste0(fileloc1,loc1,loc2,'COMP_',a,'_SEQ14_EndsA',
-                                mFile,startyr,'-',endyr,'.csv'),
-            row.names = FALSE)
-}
-if (dim(series1)[1] == dim(series4)[1] | dim(series1)[2] == dim(series4)[2]){
+if (dim(series1)[1] == dim(series4)[1] && dim(series1)[2] == dim(series4)[2]){
+  # ID <- paste0(lonlat$lon,'_', lonlat$lat) #
+  # seriesC <- cbind(ID, series1, series4)
   seriesC <- cbind(series1, series4)
   seriesC <- apply(X=seriesC, MARGIN = 1, FUN=lineCC, 
                    days = seqTime, ending = FALSE) %>%
@@ -408,27 +397,63 @@ if (dim(series1)[1] == dim(series4)[1] | dim(series1)[2] == dim(series4)[2]){
 }
 
 B <- Sys.time()
+print(paste0('Starting to test the sequential Heatwave & Drought at: ',B))
+if (dim(series1)[1] == dim(series4)[1] && dim(series1)[2] == dim(series4)[2]){
+  seriesC7 <- seriesC[,7:8]
+  colnames(seriesC7) <- c('N_SeriesCE_7d', 'Length_SeriesCE_7d')
+  
+  print('Starting 3 day')
+  seriesC <- cbind(series1, series4)
+  seriesC <- apply(X=seriesC, MARGIN = 1, FUN=lineCC, 
+                   days = 3, ending = FALSE) %>%
+    t()
+  seriesC3<- cbind(lonlat, seriesC[,1:8])
+  colnames(seriesC3) <- c('lon', 'lat','N_SeriesA', 'Length_SeriesA',
+                         'N_SeriesB', 'Length_SeriesB',
+                         'N_SeriesCE_3d', 'Length_SeriesCE_3d')
+  print('Starting 5 day')
+  seriesC <- cbind(series1, series4)
+  seriesC <- apply(X=seriesC, MARGIN = 1, FUN=lineCC, 
+                   days = 5, ending = FALSE) %>%
+    t()
+  seriesC3<- cbind(lonlat, seriesC[,1:8])
+  colnames(seriesC3) <- c('lon', 'lat','N_SeriesA', 'Length_SeriesA',
+                          'N_SeriesB', 'Length_SeriesB',
+                          'N_SeriesCE_3d', 'Length_SeriesCE_3d')
+  print('Starting 9 day')
+  seriesC <- cbind(series1, series4)
+  seriesC <- apply(X=seriesC, MARGIN = 1, FUN=lineCC, 
+                   days = 9, ending = FALSE) %>%
+    t()
+  seriesC3<- cbind(lonlat, seriesC[,1:8])
+  colnames(seriesC3) <- c('lon', 'lat','N_SeriesA', 'Length_SeriesA',
+                          'N_SeriesB', 'Length_SeriesB',
+                          'N_SeriesCE_3d', 'Length_SeriesCE_3d')
+  print('Starting 11 day')
+  seriesC <- cbind(series1, series4)
+  seriesC <- apply(X=seriesC, MARGIN = 1, FUN=lineCC, 
+                   days = 11, ending = FALSE) %>%
+    t()
+  seriesC3<- cbind(lonlat, seriesC[,1:8])
+  colnames(seriesC3) <- c('lon', 'lat','N_SeriesA', 'Length_SeriesA',
+                          'N_SeriesB', 'Length_SeriesB',
+                          'N_SeriesCE_3d', 'Length_SeriesCE_3d')
+  
+  seriesC <- cbind(seriesC3, seriesC5$N_SeriesCE_5d, seriesC5$Length_SeriesCE_3d,
+                   seriesC7, seriesC9$N_SeriesCE_9d, seriesC9$Length_SeriesCE_9d,
+                   seriesC11$N_SeriesCE_11d, seriesC11$Length_SeriesCE_11d)
+  write.csv(seriesC,file=paste0(fileloc1,loc1,loc2,'COMP_',a,'_SEQ14_days',
+                                mFile,startyr,'-',endyr,'.csv'),
+            row.names = FALSE)
+}
+
+B <- Sys.time()
 print(paste0('Finished calculating the sequential Heatwave & Drought at: ',B))
 
 # . 3.3 Seq. Drought & Heatwave ------------------------------------------------
 B <- Sys.time()
 print(paste0('Starting to calculate the sequential Drought & Heatwave at: ',B))
-
-if (dim(series4)[1] == dim(series1)[1] | dim(series4)[2] == dim(series1)[2]){
-  seriesC <- cbind(series4, series1)
-  seriesC <- apply(X=seriesC, MARGIN = 1, FUN=lineCC, 
-                   days = seqTime, ending = TRUE) %>%
-    t()
-  seriesC<- cbind(lonlat, seriesC)
-  colnames(seriesC) <- c('lon', 'lat','N_SeriesA', 'Length_SeriesA',
-                         'N_SeriesB', 'Length_SeriesB',
-                         'N_SeriesCE', 'Length_SeriesCE',
-                         colSerA)
-  write.csv(seriesC,file=paste0(fileloc1,loc1,loc2,'COMP_',a,'_SEQ41_EndsA',
-                                mFile,startyr,'-',endyr,'.csv'),
-            row.names = FALSE)
-}
-if (dim(series4)[1] == dim(series1)[1] | dim(series4)[2] == dim(series1)[2]){
+if (dim(series4)[1] == dim(series1)[1] && dim(series4)[2] == dim(series1)[2]){
   seriesC <- cbind(series4, series1)
   seriesC <- apply(X=seriesC, MARGIN = 1, FUN=lineCC, 
                    days = seqTime, ending = FALSE) %>%
@@ -444,14 +469,62 @@ if (dim(series4)[1] == dim(series1)[1] | dim(series4)[2] == dim(series1)[2]){
 }
 
 B <- Sys.time()
+print(paste0('Starting to test sequential Drought & Heatwave at: ',B))
+if (dim(series4)[1] == dim(series1)[1] && dim(series4)[2] == dim(series1)[2]){
+  seriesC7 <- seriesC[,7:8]
+  colnames(seriesC7) <- c('N_SeriesCE_7d', 'Length_SeriesCE_7d')
+  print('Starting 3 day')
+  seriesC <- cbind(series4, series1)
+  seriesC <- apply(X=seriesC, MARGIN = 1, FUN=lineCC, 
+                   days = 3, ending = FALSE) %>%
+    t()
+  seriesC3<- cbind(lonlat, seriesC[,1:8])
+  colnames(seriesC3) <- c('lon', 'lat','N_SeriesA', 'Length_SeriesA',
+                          'N_SeriesB', 'Length_SeriesB',
+                          'N_SeriesCE_3d', 'Length_SeriesCE_3d')
+  print('Starting 5 day')
+  seriesC <- cbind(series4, series1)
+  seriesC <- apply(X=seriesC, MARGIN = 1, FUN=lineCC, 
+                   days = 5, ending = FALSE) %>%
+    t()
+  seriesC5<- cbind(lonlat, seriesC[,1:8])
+  colnames(seriesC5) <- c('lon', 'lat','N_SeriesA', 'Length_SeriesA',
+                          'N_SeriesB', 'Length_SeriesB',
+                          'N_SeriesCE_5d', 'Length_SeriesCE_5d')
+  print('Starting 9 day')
+  seriesC <- cbind(series4, series1)
+  seriesC <- apply(X=seriesC, MARGIN = 1, FUN=lineCC, 
+                   days = 9, ending = FALSE) %>%
+    t()
+  seriesC9<- cbind(lonlat, seriesC[,1:8])
+  colnames(seriesC9) <- c('lon', 'lat','N_SeriesA', 'Length_SeriesA',
+                          'N_SeriesB', 'Length_SeriesB',
+                          'N_SeriesCE_9d', 'Length_SeriesCE_9d')
+  print('Starting 11 day')
+  seriesC <- cbind(series4, series1)
+  seriesC <- apply(X=seriesC, MARGIN = 1, FUN=lineCC, 
+                   days = 11, ending = FALSE) %>%
+    t()
+  seriesC11<- cbind(lonlat, seriesC[,1:8])
+  colnames(seriesC11) <- c('lon', 'lat','N_SeriesA', 'Length_SeriesA',
+                          'N_SeriesB', 'Length_SeriesB',
+                          'N_SeriesCE_11d', 'Length_SeriesCE_11d')
+  seriesC <- cbind(seriesC3, seriesC5$N_SeriesCE_5d, seriesC5$Length_SeriesCE_3d,
+                   seriesC7, seriesC9$N_SeriesCE_9d, seriesC9$Length_SeriesCE_9d,
+                   seriesC11$N_SeriesCE_11d, seriesC11$Length_SeriesCE_11d)
+  write.csv(seriesC,file=paste0(fileloc1,loc1,loc2,'COMP_',a,'_SEQ41_days',
+                                mFile,startyr,'-',endyr,'.csv'),
+            row.names = FALSE)
+}
+
+B <- Sys.time()
 print(paste0('Finished calculating the sequential Drought & Heatwave at: ',B))
 
 # Part IV Extreme Precip. & Heatwave ###########################################
 # . 4.1 Sim. Extreme Precip. & Heatwave ----------------------------------------
 B <- Sys.time()
 print(paste0('Starting to calculate the simultanious Heatwave & Ex. Precip. at: ',B))
-
-if (dim(series1)[1] == dim(series3)[1] | dim(series1)[2] == dim(series3)[2]){
+if (dim(series1)[1] == dim(series3)[1] && dim(series1)[2] == dim(series3)[2]){
   seriesC <- cbind(series1, series3)
   seriesC <- apply(X=seriesC, MARGIN = 1, FUN=lineCC, days = 0) %>%
     t()
@@ -471,25 +544,8 @@ print(paste0('Finished calculating the simultanious Heatwave & Ex. Precip. at: '
 # . 4.2 Seq. Heatwave -> Extreme Precip. ---------------------------------------
 B <- Sys.time()
 print(paste0('Starting to calculate the sequential Heatwave & Ex. Precip. at: ',B))
-
-if (dim(series1)[1] == dim(series3)[1] | dim(series1)[2] == dim(series3)[2]){
+if (dim(series1)[1] == dim(series3)[1] && dim(series1)[2] == dim(series3)[2]){
   seriesC <- cbind(series1, series3)
-  # seriesC <- cbind(ID, series1, series3)
-  seriesC <- apply(X=seriesC, MARGIN = 1, FUN=lineCC, 
-                   days = seqTime, ending = TRUE) %>%
-    t()
-  seriesC<- cbind(lonlat, seriesC)
-  colnames(seriesC) <- c('lon', 'lat','N_SeriesA', 'Length_SeriesA',
-                         'N_SeriesB', 'Length_SeriesB',
-                         'N_SeriesCE', 'Length_SeriesCE',
-                         colSerA)
-  write.csv(seriesC,file=paste0(fileloc1,loc1,loc2,'COMP_',a,'_SEQ13_EndsA',
-                                mFile,startyr,'-',endyr,'.csv'),
-            row.names = FALSE)
-}
-if (dim(series1)[1] == dim(series3)[1] | dim(series1)[2] == dim(series3)[2]){
-  seriesC <- cbind(series1, series3)
-  # seriesC <- cbind(ID, series1, series3)
   seriesC <- apply(X=seriesC, MARGIN = 1, FUN=lineCC, 
                    days = seqTime, ending = FALSE) %>%
     t()
@@ -509,22 +565,7 @@ print(paste0('Finished calculating the sequential Heatwave & Ex. Precip. at: ',B
 # . 4.3 Seq. Extreme Precip -> Heatwave ----------------------------------------
 B <- Sys.time()
 print(paste0('Starting to calculate the simultanious Ex. Precip. & Heatwave at: ',B))
-
-if (dim(series3)[1] == dim(series1)[1] | dim(series3)[2] == dim(series1)[2]){
-  seriesC <- cbind(series3, series1)
-  seriesC <- apply(X=seriesC, MARGIN = 1, FUN=lineCC, 
-                   days = seqTime, ending = TRUE) %>%
-    t()
-  seriesC<- cbind(lonlat, seriesC)
-  colnames(seriesC) <- c('lon', 'lat','N_SeriesA', 'Length_SeriesA',
-                         'N_SeriesB', 'Length_SeriesB',
-                         'N_SeriesCE', 'Length_SeriesCE',
-                         colSerA)
-  write.csv(seriesC,file=paste0(fileloc1,loc1,loc2,'COMP_',a,'_SEQ31_EndsA',
-                                mFile,startyr,'-',endyr,'.csv'),
-            row.names = FALSE)
-}
-if (dim(series3)[1] == dim(series1)[1] | dim(series3)[2] == dim(series1)[2]){
+if (dim(series3)[1] == dim(series1)[1] && dim(series3)[2] == dim(series1)[2]){
   seriesC <- cbind(series3, series1)
   seriesC <- apply(X=seriesC, MARGIN = 1, FUN=lineCC, 
                    days = seqTime, ending = FALSE) %>%
@@ -545,22 +586,7 @@ print(paste0('Finished calculating the simultanious Ex. Precip. & Heatwave at: '
 # . 5.1 Seq. Extreme Precip. -> Drought ----------------------------------------
 B <- Sys.time()
 print(paste0('Starting to calculate the sequential Ex. Precip. &  Drought at: ',B))
-
-if (dim(series3)[1] == dim(series4)[1] | dim(series3)[2] == dim(series4)[2]){
-  seriesC <- cbind(series3, series4)
-  seriesC <- apply(X=seriesC, MARGIN = 1, FUN=lineCC,
-                   days = seqTime, ending = TRUE) %>%
-    t()
-  seriesC<- cbind(lonlat, seriesC)
-  colnames(seriesC) <- c('lon', 'lat','N_SeriesA', 'Length_SeriesA',
-                         'N_SeriesB', 'Length_SeriesB',
-                         'N_SeriesCE', 'Length_SeriesCE',
-                         colSerA)
-  write.csv(seriesC,file=paste0(fileloc1,loc1,loc2,'COMP_',a,'_SEQ34_EndsA',
-                                mFile,startyr,'-',endyr,'.csv'),
-            row.names = FALSE)
-}
-if (dim(series3)[1] == dim(series4)[1] | dim(series3)[2] == dim(series4)[2]){
+if (dim(series3)[1] == dim(series4)[1] && dim(series3)[2] == dim(series4)[2]){
   seriesC <- cbind(series3, series4)
   seriesC <- apply(X=seriesC, MARGIN = 1, FUN=lineCC,
                    days = seqTime, ending = FALSE) %>%
@@ -581,23 +607,8 @@ print(paste0('Finished calculating the sequential Ex. Precip. &  Drought at: ',B
 # . 5.2 Seq. Drought -> Extreme Precip. ----------------------------------------
 B <- Sys.time()
 print(paste0('Starting to calculate the sequential Drought & Ex. Precip. at: ',B))
-
-if (dim(series4)[1] == dim(series3)[1] | dim(series4)[2] == dim(series3)[2]){
+if (dim(series4)[1] == dim(series3)[1] && dim(series4)[2] == dim(series3)[2]){
   seriesC <- cbind(series4, series3)
-  seriesC <- apply(X=seriesC, MARGIN = 1, FUN=lineCC, 
-                   days = seqTime, ending = TRUE) %>%
-    t()
-  seriesC<- cbind(lonlat, seriesC)
-  colnames(seriesC) <- c('lon', 'lat','N_SeriesA', 'Length_SeriesA',
-                         'N_SeriesB', 'Length_SeriesB',
-                         'N_SeriesCE', 'Length_SeriesCE',
-                         colSerA)
-  write.csv(seriesC,file=paste0(fileloc1,loc1,loc2,'COMP_',a,'_SEQ43_EndsA',
-                                mFile,startyr,'-',endyr,'.csv'),
-            row.names = FALSE)
-}
-if (dim(series3)[1] == dim(series4)[1] | dim(series3)[2] == dim(series4)[2]){
-  seriesC <- cbind(series3, series4)
   seriesC <- apply(X=seriesC, MARGIN = 1, FUN=lineCC,
                    days = seqTime, ending = FALSE) %>%
     t()
@@ -606,7 +617,7 @@ if (dim(series3)[1] == dim(series4)[1] | dim(series3)[2] == dim(series4)[2]){
                          'N_SeriesB', 'Length_SeriesB',
                          'N_SeriesCE', 'Length_SeriesCE',
                          colSerA)
-  write.csv(seriesC,file=paste0(fileloc1,loc1,loc2,'COMP_',a,'_SEQ34',
+  write.csv(seriesC,file=paste0(fileloc1,loc1,loc2,'COMP_',a,'_SEQ43',
                                 mFile,startyr,'-',endyr,'.csv'),
             row.names = FALSE)
 }

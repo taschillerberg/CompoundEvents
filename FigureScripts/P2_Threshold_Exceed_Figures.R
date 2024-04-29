@@ -9,12 +9,7 @@
 #      Updated: Jan. 2023
 
 # Office Computer
-setwd("C:/Users/tas0053/OneDrive - Auburn University/Research/FEMAResearch/Code2")
-fileloc1 <- 'C:/Users/tas0053/OneDrive - Auburn University/Research/FEMAResearch/Data/'
-
-# Mac
-# setwd("~/Library/CloudStorage/OneDrive-AuburnUniversity/Research/FEMAResearch/Code2")
-# fileloc1 <- "~/OneDrive - Auburn University/Research/FEMAResearch/Data/"
+fileloc1 <- 'C:/Research/Data/'
 
 options(show.error.locations = TRUE)
 # Libraries ###############################################################

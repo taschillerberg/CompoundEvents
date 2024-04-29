@@ -9,11 +9,7 @@
 #               Jun. 2023
 #      Updated: Nov. 2023
 
-# Mac
-
-# Office Computer
-setwd("C:/Users/tas0053/OneDrive - Auburn University/Research/FEMAResearch/Code2")
-fileloc1 <- 'C:/Users/tas0053/OneDrive - Auburn University/Research/FEMAResearch/Data/'
+fileloc1 <- 'C:/Research/Data/'
 
 # HPC
 # fileloc1 <- '~/CompoundEvents/Data/'
@@ -471,7 +467,7 @@ c((datLUH_FOR$SSP126_1040 - datLUH_FOR$Historic), (datLUH_FOR$SSP585_1040 - datL
 p1 <- ggplot(data = datLUH_AG, aes(x=lon, y=lat, fill=(SSP126_1040 - Historic))) +
   theme_bw() +
   geom_tile() +
-  scale_fill_viridis_c(limits=c(-0.2,0.2), option = "turbo", 
+  scale_fill_viridis_c(limits=c(-1,1), option = "turbo", 
                        na.value = 'lightblue', direction = 1) +
   geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
                colour="black", fill="NA", linewidth=0.2) +
@@ -484,7 +480,7 @@ p1 <- ggplot(data = datLUH_AG, aes(x=lon, y=lat, fill=(SSP126_1040 - Historic)))
 p2 <- ggplot(data = datLUH_AG, aes(x=lon, y=lat, fill=(SSP126_4070 - Historic))) +
   theme_bw() +
   geom_tile() +
-  scale_fill_viridis_c(limits=c(-0.2,0.2), option = "turbo", 
+  scale_fill_viridis_c(limits=c(-1,1), option = "turbo", 
                        na.value = 'lightblue', direction = 1) +
   geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
                colour="black", fill="NA", linewidth=0.2) +
@@ -497,7 +493,7 @@ p2 <- ggplot(data = datLUH_AG, aes(x=lon, y=lat, fill=(SSP126_4070 - Historic)))
 p3 <- ggplot(data = datLUH_AG, aes(x=lon, y=lat, fill=(SSP126_7000 - Historic))) +
   theme_bw() +
   geom_tile() +
-  scale_fill_viridis_c(limits=c(-0.2,0.2), option = "turbo", 
+  scale_fill_viridis_c(limits=c(-1,1), option = "turbo", 
                        na.value = 'lightblue', direction = 1) +
   geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
                colour="black", fill="NA", linewidth=0.2) +
@@ -510,7 +506,7 @@ p3 <- ggplot(data = datLUH_AG, aes(x=lon, y=lat, fill=(SSP126_7000 - Historic)))
 p4 <- ggplot(data = datLUH_AG, aes(x=lon, y=lat, fill=(SSP585_1040 - Historic))) +
   theme_bw() +
   geom_tile() +
-  scale_fill_viridis_c(limits=c(-0.2,0.2), option = "turbo", 
+  scale_fill_viridis_c(limits=c(-1,1), option = "turbo", 
                        na.value = 'lightblue', direction = 1) +
   geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
                colour="black", fill="NA", linewidth=0.2) +
@@ -523,7 +519,7 @@ p4 <- ggplot(data = datLUH_AG, aes(x=lon, y=lat, fill=(SSP585_1040 - Historic)))
 p5 <- ggplot(data = datLUH_AG, aes(x=lon, y=lat, fill=(SSP585_4070 - Historic))) +
   theme_bw() +
   geom_tile() +
-  scale_fill_viridis_c(limits=c(-0.2,0.2), option = "turbo", 
+  scale_fill_viridis_c(limits=c(-1,1), option = "turbo", 
                        na.value = 'lightblue', direction = 1) +
   geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
                colour="black", fill="NA", linewidth=0.2) +
@@ -536,7 +532,7 @@ p5 <- ggplot(data = datLUH_AG, aes(x=lon, y=lat, fill=(SSP585_4070 - Historic)))
 p6 <- ggplot(data = datLUH_AG, aes(x=lon, y=lat, fill=(SSP585_7000 - Historic))) +
   theme_bw() +
   geom_tile() +
-  scale_fill_viridis_c(limits=c(-0.2,0.2), option = "turbo", 
+  scale_fill_viridis_c(limits=c(-1,1), option = "turbo", 
                        na.value = 'lightblue', direction = 1) +
   geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
                colour="black", fill="NA", linewidth=0.2) +

@@ -7,12 +7,8 @@
 #               Oct. 2022
 #      Updated: Apr. 2023
 
-# Mac
-# setwd("~/Library/CloudStorage/OneDrive-AuburnUniversity/Research/FEMAResearch/Code2")
-# fileloc1 <- '~/Library/CloudStorage/OneDrive-AuburnUniversity/Research/FEMAResearch/Data/'
 # Office Computer
-setwd("C:/Users/tas0053/OneDrive - Auburn University/Research/FEMAResearch/Code2")
-fileloc1 <- 'C:/Users/tas0053/OneDrive - Auburn University/Research/FEMAResearch/Data/'
+fileloc1 <- 'C:/Research/Data/'
 
 # Libraries ####################################################################
 library(tidyverse)

@@ -12,11 +12,8 @@
 #               Oct. 2022
 #      Updated: Sep. 2023
 
-# Mac
-
 # Office Computer
-# setwd("C:/Users/tas0053/OneDrive - Auburn University/Research/FEMAResearch/Code2")
-# fileloc1 <- 'C:/Users/tas0053/OneDrive - Auburn University/Research/FEMAResearch/Data/'
+# fileloc1 <- 'C:/Research/Data/'
 
 # HPC
 fileloc1 <- '~/CompoundEvents/Data/'

@@ -9,13 +9,7 @@
 #               Jun. 2023
 #      Updated: Jan. 2024
 
-# Mac
-# setwd("~/Library/CloudStorage/OneDrive-AuburnUniversity/Research/FEMAResearch/Code2")
-# fileloc1 <- "~/Library/CloudStorage/OneDrive-AuburnUniversity/Research/FEMAResearch/Data/"
-
-# Office Computer
-setwd("C:/Users/tas0053/OneDrive - Auburn University/Research/FEMAResearch/Code2")
-fileloc1 <- 'C:/Users/tas0053/OneDrive - Auburn University/Research/FEMAResearch/Data/'
+fileloc1 <- 'C:/Research/Data/'
 
 # HPC
 # fileloc1 <- '~/CompoundEvents/Data/'
@@ -68,7 +62,7 @@ compTitle <- c('Simultanious Heat & Drought','Sequential Heat & Drought',
                'Sequential Drought & Extreme Precip')[compNum]
 
 baseData <- map_data('world')
-print('Rscript: P6_Exposure.R')
+print('Rscript: P7_Exposure.R')
 print(paste0('Compound Event: ', comp))
 # Part II Functions ############################################################
 apMean <- function(X){
