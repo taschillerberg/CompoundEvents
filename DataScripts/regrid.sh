@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #place this scriptwhere you see all the cmip folders
-#home_dir="/mnt/c/Users/tas0053/OneDrive - Auburn University/Research/FEMAResearch/Data/CMIP6_historical"
+#home_dir="Main project folder/Data/CMIP6_historical"
 
 #for dir in "$home_dir"/*;do
 #for dir in */;do

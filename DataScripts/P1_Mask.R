@@ -7,8 +7,9 @@
 #               Oct. 2022
 #      Updated: Apr. 2023
 
-# Office Computer
-fileloc1 <- 'C:/Research/Data/'
+# Computer
+setwd("Source File Location") 
+fileloc1 <- 'Main project folder' 
 
 # Libraries ####################################################################
 library(tidyverse)
@@ -162,7 +163,7 @@ for (mNum in 1: length(mFile)){
 # Part IV Combining SM Mask ####################################################
 # . 4.1 Opening & prepossessing the files --------------------------------------
 mask <- read_csv(paste0(fileloc1, loc1, loc2[1], 'MASK', mFile[1], '.csv'), 
-                col_names = TRUE, cols(.default = col_double()))
+                 col_names = TRUE, cols(.default = col_double()))
 mask <- cbind(mask$lon, mask$lon2, mask$lat, mask$SMmask)
 colnames(mask) <- c('lon','lon2','lat',strsplit(loc2[1],'/'))
 mask <- as_tibble(mask)

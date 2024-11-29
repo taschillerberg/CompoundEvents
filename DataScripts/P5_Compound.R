@@ -1,9 +1,6 @@
 # P5_Compound.R
 # About: This program will open the exceedance file for the selected 
 #       variable and calculate a 'wave' of when the exceedance occurs.
-#       Most recent run of day historical (B) took 30 hr, 13GB; SSP126 (C & D)
-#       took 32h, 13GB; SSP585(E & F) took h, 14GB 
-#       Time: 30-35hr for 1 variable - 8 Models
 #
 # Inputs: EXCEED_DAY & WAVES_DAY
 # Outputs: COMP_DAY_comp
@@ -12,22 +9,24 @@
 #               Oct. 2022
 #      Updated: Feb. 2024
 
-# fileloc1 <- 'C:/Research/Data/'
+# Computer
+setwd("Source File Location") 
+fileloc1 <- 'Main project folder' 
 
 # HPC
-fileloc1 <- '~/CompoundEvents/Data/'
+# fileloc1 <- '~/CompoundEvents/Data/'
 
 options(show.error.locations = TRUE)
 # Libraries ###############################################################
 library(tidyverse)
 
 # Part I Variables To Change ##############################################
-mNum <- as.numeric('model_num') # Bash script
-# mNum <- 1 # Select a model (1-4)
+# mNum <- as.numeric('model_num') # Bash script
+mNum <- 9 # Select a model (1-9)
 # wavesTime <- c('WAVES_DAY','WAVES_WEEK','WAVES_MONTH')[as.numeric('waves_time')]
 wavesTime <- c('WAVES_DAY_','WAVES_WEEK_','WAVES_MONTH_')[1]
 wavesTime2 <- c('WAVES_DAY_','WAVES_WEEK_FD_','WAVES_WEEK_D_',
-               'WAVES_MONTH_FD_','WAVES_MONTH_D_')[1]
+                'WAVES_MONTH_FD_','WAVES_MONTH_D_')[1]
 mFile <- c('_day_CMCC-ESM2_historical_r1i1p1f1_gn_',
            '_day_EC-Earth3_historical_r1i1p1f1_gr_',
            '_day_GFDL-ESM4_esm-hist_r1i1p1f1_gr1_',
@@ -35,7 +34,8 @@ mFile <- c('_day_CMCC-ESM2_historical_r1i1p1f1_gn_',
            '_day_INM-CM5-0_historical_r1i1p1f1_gr1_',
            '_day_MPI-ESM1-2-HR_historical_r1i1p1f1_gn_',
            '_day_MRI-ESM2-0_historical_r1i1p1f1_gn_',
-           '_day_NorESM2-MM_historical_r1i1p1f1_gn_') [mNum]
+           '_day_NorESM2-MM_historical_r1i1p1f1_gn_',
+           '_day_hr_reanalysis-era5-single-levels_') [mNum]
 # mFile <- c('_day_CMCC-ESM2_ssp126_r1i1p1f1_gn_',
 #            '_day_EC-Earth3_ssp126_r1i1p1f1_gr_',
 #            '_day_GFDL-ESM4_ssp126_r1i1p1f1_gr1_',
@@ -52,11 +52,12 @@ mFile <- c('_day_CMCC-ESM2_historical_r1i1p1f1_gn_',
 #            '_day_MPI-ESM1-2-HR_ssp585_r1i1p1f1_gn_',
 #            '_day_MRI-ESM2-0_ssp585_r1i1p1f1_gn_',
 #            '_day_NorESM2-MM_ssp585_r1i1p1f1_gn_')[mNum]
-loc1 <- c('CMIP6_historical/','CMIP6_SSP126/','CMIP6_SSP585/')[1]
+loc1 <- c('CMIP6_historical/','CMIP6_SSP126/','CMIP6_SSP585/', 'Historical/')[4]
 loc2 <- c('CMCC-ESM2/', 'EC-Earth3/',
           'GFDL-ESM4/', 'INM-CM4-8/',
           'INM-CM5-0/', 'MPI-ESM1-2-HR/',
-          'MRI-ESM2-0/', 'NorESM2-MM/') [mNum]
+          'MRI-ESM2-0/', 'NorESM2-MM/',
+          'ERA5/') [mNum]
 var <- c('tasmax', 'tasmin','pr','mrsos')
 startyr <- 1980
 endyr <- 2010
@@ -271,10 +272,8 @@ lineCC <- function(dat, days, tau = 0, ending){
   
   # dat : matrix containing the combined binary time series
   # days : delta how much of a delay allowed for sequential events
-
+  
   # Variables ------------------------------------------------------------------
-  # print(dat[1])
-  # ID <- dat[1] #
   # dat <- dat[2:length(dat)] %>% as.numeric() #
   dat <- dat[1:length(dat)]
   seriesA <- dat[1:(length(dat)/2)]
@@ -288,7 +287,6 @@ lineCC <- function(dat, days, tau = 0, ending){
     #  Correlation
     result <- daily_Comp_Event(seriesA = seriesA, seriesB = seriesB, 
                                delta = days, tau = tau, ending = ending)
-                               # delta = days, tau = tau, ending = ending, ID = ID)
   } else {
     result <- c(vector('ERROR',length = 6 + length(seriesA)))
   }
@@ -310,8 +308,8 @@ series1 <- as.matrix(series1)
 # Pr
 if (wavesTime == 'WAVES_DAY_'){
   series3 <- read_csv(paste0(fileloc1, loc1, loc2, 'EXCEED_DAY_', var[3],
-                           mFile, startyr,'-',endyr,'.csv'),
-                    col_names = TRUE, cols(.default = col_double()))
+                             mFile, startyr,'-',endyr,'.csv'),
+                      col_names = TRUE, cols(.default = col_double()))
 } else {
   series3 <- read_csv(paste0(fileloc1, loc1, loc2, wavesTime, var[3],
                              mFile, startyr,'-',endyr,'.csv'),
@@ -396,56 +394,56 @@ if (dim(series1)[1] == dim(series4)[1] && dim(series1)[2] == dim(series4)[2]){
             row.names = FALSE)
 }
 
-B <- Sys.time()
-print(paste0('Starting to test the sequential Heatwave & Drought at: ',B))
-if (dim(series1)[1] == dim(series4)[1] && dim(series1)[2] == dim(series4)[2]){
-  seriesC7 <- seriesC[,7:8]
-  colnames(seriesC7) <- c('N_SeriesCE_7d', 'Length_SeriesCE_7d')
-  
-  print('Starting 3 day')
-  seriesC <- cbind(series1, series4)
-  seriesC <- apply(X=seriesC, MARGIN = 1, FUN=lineCC, 
-                   days = 3, ending = FALSE) %>%
-    t()
-  seriesC3<- cbind(lonlat, seriesC[,1:8])
-  colnames(seriesC3) <- c('lon', 'lat','N_SeriesA', 'Length_SeriesA',
-                         'N_SeriesB', 'Length_SeriesB',
-                         'N_SeriesCE_3d', 'Length_SeriesCE_3d')
-  print('Starting 5 day')
-  seriesC <- cbind(series1, series4)
-  seriesC <- apply(X=seriesC, MARGIN = 1, FUN=lineCC, 
-                   days = 5, ending = FALSE) %>%
-    t()
-  seriesC3<- cbind(lonlat, seriesC[,1:8])
-  colnames(seriesC3) <- c('lon', 'lat','N_SeriesA', 'Length_SeriesA',
-                          'N_SeriesB', 'Length_SeriesB',
-                          'N_SeriesCE_3d', 'Length_SeriesCE_3d')
-  print('Starting 9 day')
-  seriesC <- cbind(series1, series4)
-  seriesC <- apply(X=seriesC, MARGIN = 1, FUN=lineCC, 
-                   days = 9, ending = FALSE) %>%
-    t()
-  seriesC3<- cbind(lonlat, seriesC[,1:8])
-  colnames(seriesC3) <- c('lon', 'lat','N_SeriesA', 'Length_SeriesA',
-                          'N_SeriesB', 'Length_SeriesB',
-                          'N_SeriesCE_3d', 'Length_SeriesCE_3d')
-  print('Starting 11 day')
-  seriesC <- cbind(series1, series4)
-  seriesC <- apply(X=seriesC, MARGIN = 1, FUN=lineCC, 
-                   days = 11, ending = FALSE) %>%
-    t()
-  seriesC3<- cbind(lonlat, seriesC[,1:8])
-  colnames(seriesC3) <- c('lon', 'lat','N_SeriesA', 'Length_SeriesA',
-                          'N_SeriesB', 'Length_SeriesB',
-                          'N_SeriesCE_3d', 'Length_SeriesCE_3d')
-  
-  seriesC <- cbind(seriesC3, seriesC5$N_SeriesCE_5d, seriesC5$Length_SeriesCE_3d,
-                   seriesC7, seriesC9$N_SeriesCE_9d, seriesC9$Length_SeriesCE_9d,
-                   seriesC11$N_SeriesCE_11d, seriesC11$Length_SeriesCE_11d)
-  write.csv(seriesC,file=paste0(fileloc1,loc1,loc2,'COMP_',a,'_SEQ14_days',
-                                mFile,startyr,'-',endyr,'.csv'),
-            row.names = FALSE)
-}
+# B <- Sys.time()
+# print(paste0('Starting to test the sequential Heatwave & Drought at: ',B))
+# if (dim(series1)[1] == dim(series4)[1] && dim(series1)[2] == dim(series4)[2]){
+#   seriesC7 <- seriesC[,7:8]
+#   colnames(seriesC7) <- c('N_SeriesCE_7d', 'Length_SeriesCE_7d')
+#   
+#   print('Starting 3 day')
+#   seriesC <- cbind(series1, series4)
+#   seriesC <- apply(X=seriesC, MARGIN = 1, FUN=lineCC, 
+#                    days = 3, ending = FALSE) %>%
+#     t()
+#   seriesC3<- cbind(lonlat, seriesC[,1:8])
+#   colnames(seriesC3) <- c('lon', 'lat','N_SeriesA', 'Length_SeriesA',
+#                          'N_SeriesB', 'Length_SeriesB',
+#                          'N_SeriesCE_3d', 'Length_SeriesCE_3d')
+#   print('Starting 5 day')
+#   seriesC <- cbind(series1, series4)
+#   seriesC <- apply(X=seriesC, MARGIN = 1, FUN=lineCC, 
+#                    days = 5, ending = FALSE) %>%
+#     t()
+#   seriesC3<- cbind(lonlat, seriesC[,1:8])
+#   colnames(seriesC3) <- c('lon', 'lat','N_SeriesA', 'Length_SeriesA',
+#                           'N_SeriesB', 'Length_SeriesB',
+#                           'N_SeriesCE_3d', 'Length_SeriesCE_3d')
+#   print('Starting 9 day')
+#   seriesC <- cbind(series1, series4)
+#   seriesC <- apply(X=seriesC, MARGIN = 1, FUN=lineCC, 
+#                    days = 9, ending = FALSE) %>%
+#     t()
+#   seriesC3<- cbind(lonlat, seriesC[,1:8])
+#   colnames(seriesC3) <- c('lon', 'lat','N_SeriesA', 'Length_SeriesA',
+#                           'N_SeriesB', 'Length_SeriesB',
+#                           'N_SeriesCE_3d', 'Length_SeriesCE_3d')
+#   print('Starting 11 day')
+#   seriesC <- cbind(series1, series4)
+#   seriesC <- apply(X=seriesC, MARGIN = 1, FUN=lineCC, 
+#                    days = 11, ending = FALSE) %>%
+#     t()
+#   seriesC3<- cbind(lonlat, seriesC[,1:8])
+#   colnames(seriesC3) <- c('lon', 'lat','N_SeriesA', 'Length_SeriesA',
+#                           'N_SeriesB', 'Length_SeriesB',
+#                           'N_SeriesCE_3d', 'Length_SeriesCE_3d')
+#   
+#   seriesC <- cbind(seriesC3, seriesC5$N_SeriesCE_5d, seriesC5$Length_SeriesCE_3d,
+#                    seriesC7, seriesC9$N_SeriesCE_9d, seriesC9$Length_SeriesCE_9d,
+#                    seriesC11$N_SeriesCE_11d, seriesC11$Length_SeriesCE_11d)
+#   write.csv(seriesC,file=paste0(fileloc1,loc1,loc2,'COMP_',a,'_SEQ14_days',
+#                                 mFile,startyr,'-',endyr,'.csv'),
+#             row.names = FALSE)
+# }
 
 B <- Sys.time()
 print(paste0('Finished calculating the sequential Heatwave & Drought at: ',B))
@@ -468,54 +466,54 @@ if (dim(series4)[1] == dim(series1)[1] && dim(series4)[2] == dim(series1)[2]){
             row.names = FALSE)
 }
 
-B <- Sys.time()
-print(paste0('Starting to test sequential Drought & Heatwave at: ',B))
-if (dim(series4)[1] == dim(series1)[1] && dim(series4)[2] == dim(series1)[2]){
-  seriesC7 <- seriesC[,7:8]
-  colnames(seriesC7) <- c('N_SeriesCE_7d', 'Length_SeriesCE_7d')
-  print('Starting 3 day')
-  seriesC <- cbind(series4, series1)
-  seriesC <- apply(X=seriesC, MARGIN = 1, FUN=lineCC, 
-                   days = 3, ending = FALSE) %>%
-    t()
-  seriesC3<- cbind(lonlat, seriesC[,1:8])
-  colnames(seriesC3) <- c('lon', 'lat','N_SeriesA', 'Length_SeriesA',
-                          'N_SeriesB', 'Length_SeriesB',
-                          'N_SeriesCE_3d', 'Length_SeriesCE_3d')
-  print('Starting 5 day')
-  seriesC <- cbind(series4, series1)
-  seriesC <- apply(X=seriesC, MARGIN = 1, FUN=lineCC, 
-                   days = 5, ending = FALSE) %>%
-    t()
-  seriesC5<- cbind(lonlat, seriesC[,1:8])
-  colnames(seriesC5) <- c('lon', 'lat','N_SeriesA', 'Length_SeriesA',
-                          'N_SeriesB', 'Length_SeriesB',
-                          'N_SeriesCE_5d', 'Length_SeriesCE_5d')
-  print('Starting 9 day')
-  seriesC <- cbind(series4, series1)
-  seriesC <- apply(X=seriesC, MARGIN = 1, FUN=lineCC, 
-                   days = 9, ending = FALSE) %>%
-    t()
-  seriesC9<- cbind(lonlat, seriesC[,1:8])
-  colnames(seriesC9) <- c('lon', 'lat','N_SeriesA', 'Length_SeriesA',
-                          'N_SeriesB', 'Length_SeriesB',
-                          'N_SeriesCE_9d', 'Length_SeriesCE_9d')
-  print('Starting 11 day')
-  seriesC <- cbind(series4, series1)
-  seriesC <- apply(X=seriesC, MARGIN = 1, FUN=lineCC, 
-                   days = 11, ending = FALSE) %>%
-    t()
-  seriesC11<- cbind(lonlat, seriesC[,1:8])
-  colnames(seriesC11) <- c('lon', 'lat','N_SeriesA', 'Length_SeriesA',
-                          'N_SeriesB', 'Length_SeriesB',
-                          'N_SeriesCE_11d', 'Length_SeriesCE_11d')
-  seriesC <- cbind(seriesC3, seriesC5$N_SeriesCE_5d, seriesC5$Length_SeriesCE_3d,
-                   seriesC7, seriesC9$N_SeriesCE_9d, seriesC9$Length_SeriesCE_9d,
-                   seriesC11$N_SeriesCE_11d, seriesC11$Length_SeriesCE_11d)
-  write.csv(seriesC,file=paste0(fileloc1,loc1,loc2,'COMP_',a,'_SEQ41_days',
-                                mFile,startyr,'-',endyr,'.csv'),
-            row.names = FALSE)
-}
+# B <- Sys.time()
+# print(paste0('Starting to test sequential Drought & Heatwave at: ',B))
+# if (dim(series4)[1] == dim(series1)[1] && dim(series4)[2] == dim(series1)[2]){
+#   seriesC7 <- seriesC[,7:8]
+#   colnames(seriesC7) <- c('N_SeriesCE_7d', 'Length_SeriesCE_7d')
+#   print('Starting 3 day')
+#   seriesC <- cbind(series4, series1)
+#   seriesC <- apply(X=seriesC, MARGIN = 1, FUN=lineCC, 
+#                    days = 3, ending = FALSE) %>%
+#     t()
+#   seriesC3<- cbind(lonlat, seriesC[,1:8])
+#   colnames(seriesC3) <- c('lon', 'lat','N_SeriesA', 'Length_SeriesA',
+#                           'N_SeriesB', 'Length_SeriesB',
+#                           'N_SeriesCE_3d', 'Length_SeriesCE_3d')
+#   print('Starting 5 day')
+#   seriesC <- cbind(series4, series1)
+#   seriesC <- apply(X=seriesC, MARGIN = 1, FUN=lineCC, 
+#                    days = 5, ending = FALSE) %>%
+#     t()
+#   seriesC5<- cbind(lonlat, seriesC[,1:8])
+#   colnames(seriesC5) <- c('lon', 'lat','N_SeriesA', 'Length_SeriesA',
+#                           'N_SeriesB', 'Length_SeriesB',
+#                           'N_SeriesCE_5d', 'Length_SeriesCE_5d')
+#   print('Starting 9 day')
+#   seriesC <- cbind(series4, series1)
+#   seriesC <- apply(X=seriesC, MARGIN = 1, FUN=lineCC, 
+#                    days = 9, ending = FALSE) %>%
+#     t()
+#   seriesC9<- cbind(lonlat, seriesC[,1:8])
+#   colnames(seriesC9) <- c('lon', 'lat','N_SeriesA', 'Length_SeriesA',
+#                           'N_SeriesB', 'Length_SeriesB',
+#                           'N_SeriesCE_9d', 'Length_SeriesCE_9d')
+#   print('Starting 11 day')
+#   seriesC <- cbind(series4, series1)
+#   seriesC <- apply(X=seriesC, MARGIN = 1, FUN=lineCC, 
+#                    days = 11, ending = FALSE) %>%
+#     t()
+#   seriesC11<- cbind(lonlat, seriesC[,1:8])
+#   colnames(seriesC11) <- c('lon', 'lat','N_SeriesA', 'Length_SeriesA',
+#                           'N_SeriesB', 'Length_SeriesB',
+#                           'N_SeriesCE_11d', 'Length_SeriesCE_11d')
+#   seriesC <- cbind(seriesC3, seriesC5$N_SeriesCE_5d, seriesC5$Length_SeriesCE_3d,
+#                    seriesC7, seriesC9$N_SeriesCE_9d, seriesC9$Length_SeriesCE_9d,
+#                    seriesC11$N_SeriesCE_11d, seriesC11$Length_SeriesCE_11d)
+#   write.csv(seriesC,file=paste0(fileloc1,loc1,loc2,'COMP_',a,'_SEQ41_days',
+#                                 mFile,startyr,'-',endyr,'.csv'),
+#             row.names = FALSE)
+# }
 
 B <- Sys.time()
 print(paste0('Finished calculating the sequential Drought & Heatwave at: ',B))

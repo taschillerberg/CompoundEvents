@@ -6,9 +6,11 @@
 #
 # T. A. Schillerberg
 #               Nov. 2023
-#      Updated: Feb. 2024
+#      Updated: Jul. 2024
 
-fileloc1 <- 'C:/Research/'
+# Computer
+setwd("Source File Location") 
+fileloc1 <- 'Main project folder' 
 
 # Libraries ####################################################################
 library(tidyverse)
@@ -18,11 +20,12 @@ require(scales)
 
 # Part 1 Variables ####################################################################
 loc1 <- c('CMIP6_historical/','CMIP6_SSP126/','CMIP6_SSP585/',
-          'LUH2/', 'NASA_SEDAC_population/')
+          'LUH2/', 'NASA_SEDAC_population/', 'Historical/')
 loc2 <- c('CMCC-ESM2/', 'EC-Earth3/',
           'GFDL-ESM4/', 'INM-CM4-8/',
           'INM-CM5-0/', 'MPI-ESM1-2-HR/',
-          'MRI-ESM2-0/', 'NorESM2-MM/')
+          'MRI-ESM2-0/', 'NorESM2-MM/',
+          'ERA5/')
 yr <- 1980:2100
 var <- c('tasmax', 'tasmin', 'pr', 'mrsos')
 varT <- c('Heatwave','Coldwave','Extreme Precipitation','Flash Drought')
@@ -82,12 +85,12 @@ relV4 <- read_csv(paste0(fileloc1,'Data/Results/','OCC_CHANG_',var[4],'.csv'),
                   col_names = TRUE, cols(.default = col_double()))
 
 # Length
-relV1L <- read_csv(paste0(fileloc1,'Data/Results/','OCC_CHANG_',var[1],'_length.csv'), 
-                   col_names = TRUE, cols(.default = col_double()))
-relV4L <- read_csv(paste0(fileloc1,'Data/Results/','OCC_CHANG_',var[4],'_length.csv'), 
-                   col_names = TRUE, cols(.default = col_double()))
-relSEQ14L <- read_csv(paste0(fileloc1,'Data/Results/','OCC_CHANG_','SEQ14','_length.csv'), 
-                   col_names = TRUE, cols(.default = col_double()))
+# relV1L <- read_csv(paste0(fileloc1,'Data/Results/','OCC_CHANG_',var[1],'_length.csv'), 
+#                    col_names = TRUE, cols(.default = col_double()))
+# relV4L <- read_csv(paste0(fileloc1,'Data/Results/','OCC_CHANG_',var[4],'_length.csv'), 
+#                    col_names = TRUE, cols(.default = col_double()))
+# relSEQ14L <- read_csv(paste0(fileloc1,'Data/Results/','OCC_CHANG_','SEQ14','_length.csv'), 
+#                    col_names = TRUE, cols(.default = col_double()))
 
 # . 3.2 Limits -----------------------------------------------------------------
 maxLimitV1 <- rbind(relV1$SSP126_7000_Delta, relV1$SSP585_7000_Delta) %>%
@@ -114,7 +117,6 @@ show_col(viridis_pal(alpha=1, option='G')(6))
 # relV4$SSP126_7000_Sig <- as.logical(relV4$SSP126_7000_Sig)
 # relV4$SSP585_7000_Sig <- as.logical(relV4$SSP585_7000_Sig)
 
-# . 3.3 Formatting -------------------------------------------------------------
 # . 3.3 Formatting -------------------------------------------------------------
 datV1 <- tibble(lat = relV1$lat, lon = relV1$lon, 
                 SSP126_7000_Delta = relV1$SSP126_7000_Delta,
@@ -171,8 +173,8 @@ p1 <- ggplot(data = datV1, aes(x=lon, y=lat, fill=Delta)) +
   geom_tile() +
   scale_fill_stepsn(breaks = c(0,120,240,360,480,600,720),
                     colours =  c( "#faebdd", "#f69c73", "#e83f3f",
-                                  '#a11a5b','#4c1dab','#440154'), 
-                    show.limits = F, oob = oob_keep,
+                                           '#a11a5b','#4c1dab','#440154'), 
+                                           show.limits = F, oob = oob_keep,
                     labels = comma) +
   geom_point(alpha = 0.25, shape = 47,
              aes(size=ifelse(Sig == 1,'dot', 'no_dot'))) +
@@ -196,8 +198,8 @@ p2 <- ggplot(data = datV3, aes(x=lon, y=lat, fill=Delta)) +
   geom_tile() +
   scale_fill_stepsn(breaks = c(-100, 0, 100,200, 300, 400, 500),
                     colours =  c( "#fde725", "#7ad151", "#22A884",
-                                  '#2A788E', '#414487', '#440154'),
-                    show.limits = F, oob = oob_keep,
+                                           '#2A788E', '#414487', '#440154'),
+                                           show.limits = F, oob = oob_keep,
                     labels = comma) +
   geom_point(alpha = 0.25, shape = 47,
              aes(size=ifelse(Sig == 1,'dot', 'no_dot'))) +
@@ -221,8 +223,8 @@ p3 <- ggplot(data = datV4, aes(x = lon, y = lat, fill = Delta)) +
   geom_tile() +
   scale_fill_stepsn(breaks = c(-10, -5, 0, 5, 10, 16),
                     colours =  c( "#DEF5E5", "#60CEAC", "#3497A9",
-                                  '#395D9C', '#382A54'),
-                    show.limits = F, oob = oob_keep,
+                                           '#395D9C', '#382A54'),
+                                           show.limits = F, oob = oob_keep,
                     labels = comma) +
   geom_point(alpha = 0.25, shape = 47,
              aes(size=ifelse(Sig == 1,'dot', 'no_dot'))) +
@@ -240,8 +242,8 @@ p3 <- ggplot(data = datV4, aes(x = lon, y = lat, fill = Delta)) +
         strip.background = element_blank())
 
 F1 <- plot_grid(p1, p2, p3,
-                 nrow = 1, rel_heights = c(1),
-                 ncol = 3, rel_widths = c(.93,.93,1))
+                nrow = 1, rel_heights = c(1),
+                ncol = 3, rel_widths = c(.93,.93,1))
 ggsave(F1, filename = paste0(fileloc1,'Results/Paper/', 'FIG_1', ".tiff"),
        width = 9, height = 4, dpi = 375, bg='white')
 ggsave(F1, filename = paste0(fileloc1,'Results/Paper/', 'FIG_1_sm', ".tiff"),
@@ -593,7 +595,7 @@ F1 <- plot_grid(p1,
                 myLegend,
                 nrow = 4,
                 rel_heights = c(1,1,1,0.09))
-title <- ggdraw() + draw_label(paste0('Significant Global Change '), fontface='bold')
+title <- ggdraw() + draw_label(paste0('Consistent Global Change '), fontface='bold')
 
 ggsave(F1, filename = paste0(fileloc1,'Results/Paper/','FIG_2', ".tiff"),
        width = 9, height = 6, dpi = 350, bg='white')
@@ -1136,7 +1138,7 @@ F1 <- plot_grid(p1, p4,
                 ncol = 2, rel_widths = c(1,1))
 
 title <- ggdraw() + # draw_label(paste0('Significant Change in extreme events - SSP585'),
-  draw_label(paste0('Significant Change in Climate Extremes'), 
+  draw_label(paste0('Consistent Change in Climate Extremes'), 
              fontface='bold')
 F1 <- plot_grid(title,
                 F1,
@@ -1252,9 +1254,9 @@ datC4$Compound <- compT[8]
 
 datC <- rbind(datC1, datC2, datC3, datC4)
 datC$Compound <- factor(datC$Compound, 
-                            levels = c(compT[1], compT[2], compT[3], compT[8]), 
-                            labels = c('Sim. HW & FD', 'Seq. HW & FD', 
-                                       'Seq. FD & HW', 'Seq. FD & EP'))
+                        levels = c(compT[1], compT[2], compT[3], compT[8]), 
+                        labels = c('Sim. HW & FD', 'Seq. HW & FD', 
+                                   'Seq. FD & HW', 'Seq. FD & EP'))
 
 # . 6.4 Plotting ---------------------------------------------------------------
 p1 <- ggplot(data = datC, aes(x=lon, y=lat, fill = Delta)) +
@@ -1262,8 +1264,8 @@ p1 <- ggplot(data = datC, aes(x=lon, y=lat, fill = Delta)) +
   geom_tile() +
   scale_fill_stepsn(breaks = c(-5, 0, 5, 10, 15, 20, 25), 
                     colours =  c( "#faebdd", "#f69c73", "#e83f3f",
-                                  '#a11a5b','#4c1dab','#440154'), 
-                    show.limits = F, oob = oob_keep,
+                                           '#a11a5b','#4c1dab','#440154'), 
+                                           show.limits = F, oob = oob_keep,
                     labels = comma) +
   geom_point(alpha = 0.75, shape = 47,
              aes(size=ifelse(Sig == 1,'dot', 'no_dot'))) +
@@ -1435,8 +1437,8 @@ p2 <- ggplot(data = datLand, aes(x=lon, y=lat, fill = Delta)) +
             color = "maroon",fill = NA, alpha = 0.4) +
   coord_fixed(ratio = 1, xlim = c(-180,180), ylim = c(-60,90), expand = FALSE) +
   labs(
-       # title = 'Land Use Change (Km2)', 
-       x = 'Longitude', y = '', fill = '') +
+    # title = 'Land Use Change (Km2)', 
+    x = 'Longitude', y = '', fill = '') +
   theme(legend.position = "bottom",
         legend.key.size = unit(2, 'cm'),
         legend.key.height = unit(0.5, 'cm')) +
@@ -1826,8 +1828,8 @@ myLegend <- get_legend(myLegend, position = 'bottom') %>%
   as_ggplot()
 
 F1A <- plot_grid(p1, p2, p3,
-                nrow = 1, rel_heights = c(1),
-                ncol = 3, rel_widths = c(1, .69, .74))
+                 nrow = 1, rel_heights = c(1),
+                 ncol = 3, rel_widths = c(1, .69, .74))
 F1 <- plot_grid(F1A,
                 myLegend,
                 nrow = 2, rel_heights = c(1, 0.05),
@@ -2109,8 +2111,8 @@ p1 <- ggplot(data = datP, aes(x=lon, y=lat, fill = Delta)) +
   scale_fill_stepsn(breaks = c(-50000000, 0, 50000000, 100000000, 150000000,
                                200000000, 250000000), 
                     colours =  c( "#fde0ef", "#e6f5d0", "#b8e186",
-                                  "#7fbc41", '#4d9221', '#006837'), 
-                    show.limits = F, oob = oob_keep,
+                                           "#7fbc41", '#4d9221', '#006837'), 
+                                           show.limits = F, oob = oob_keep,
                     labels = comma) +
   geom_point(alpha = 0.75, shape = 47,
              aes(size=ifelse(Sig == 1,'dot', 'no_dot'))) +
@@ -2200,9 +2202,8 @@ rm(list=ls()[! ls() %in% c('fileloc1', 'loc1', 'loc2', 'yr',
                            'locT','locTLev', 'lon1', 'lon2', 'lat1', 'lat2', 
                            'baseData', 
                            'get_legend','as_ggplot','mean_cl_quantile')])
-# END ##########################################################################
-# Part 4 - Figure 2 & Sup 1 & Length  ####################################################
-# . 4.1 Opening Files ----------------------------------------------------------
+# Part 9 - Supplemental Figure 1 ###############################################
+# . 9.1 Opening Files ----------------------------------------------------------
 relV1 <- read_csv(paste0(fileloc1,'Data/Results/','OCC_CHANG_',var[1],'.csv'), 
                   col_names = TRUE, cols(.default = col_double()))
 relV3 <- read_csv(paste0(fileloc1,'Data/Results/','OCC_CHANG_',var[3],'.csv'), 
@@ -2210,554 +2211,380 @@ relV3 <- read_csv(paste0(fileloc1,'Data/Results/','OCC_CHANG_',var[3],'.csv'),
 relV4 <- read_csv(paste0(fileloc1,'Data/Results/','OCC_CHANG_',var[4],'.csv'), 
                   col_names = TRUE, cols(.default = col_double()))
 
-# Length
-relV1L <- read_csv(paste0(fileloc1,'Data/Results/','OCC_CHANG_',var[1],'_length.csv'), 
-                   col_names = TRUE, cols(.default = col_double()))
-relV4L <- read_csv(paste0(fileloc1,'Data/Results/','OCC_CHANG_',var[4],'_length.csv'), 
-                   col_names = TRUE, cols(.default = col_double()))
+obsV1 <- read_csv(paste0(fileloc1,'Data/',loc1[6],loc2[9],'OCC_DAY_',var[1],
+                         '_Hist_ERA5_8010.csv'), 
+                  col_names = TRUE, cols(.default = col_double()))
+obsV3 <- read_csv(paste0(fileloc1,'Data/',loc1[6],loc2[9],'OCC_DAY_',var[3],
+                         '_Hist_ERA5_8010.csv'), 
+                  col_names = TRUE, cols(.default = col_double()))
+obsV4 <- read_csv(paste0(fileloc1,'Data/',loc1[6],loc2[9],'OCC_DAY_',var[4],
+                         '_Hist_ERA5_8010.csv'), 
+                  col_names = TRUE, cols(.default = col_double()))
+# . 9.2 Limits -----------------------------------------------------------------
+maxLimitV1 <- max(relV1$Historical_Mu)
+minLimitV1 <- min(relV1$Historical_Mu)
+maxLimitV3 <- max(relV3$Historical_Mu)
+minLimitV3 <- min(relV3$Historical_Mu)
+maxLimitV4 <- max(relV4$Historical_Mu)
+minLimitV4 <- min(relV4$Historical_Mu)
 
-# . 4.2 Plotting Limits --------------------------------------------------------
-maxLimitV1 <- rbind(relV1$SSP126_7000_Delta, relV1$SSP585_7000_Delta) %>%
-  max()
-minLimitV1 <- rbind(relV1$SSP126_7000_Delta, relV1$SSP585_7000_Delta) %>%
-  min()
-maxLimitV3 <- rbind(relV3$SSP126_7000_Delta, relV3$SSP585_7000_Delta) %>%
-  max()
-minLimitV3 <- rbind(relV3$SSP126_7000_Delta, relV3$SSP585_7000_Delta) %>%
-  min()
-maxLimitV4 <- rbind(relV4$SSP126_7000_Delta, relV4$SSP585_7000_Delta) %>%
-  max()
-minLimitV4 <- rbind(relV4$SSP126_7000_Delta, relV4$SSP585_7000_Delta) %>%
-  min()
-# maxLimitV1 <- rbind(relV1$SSP126_4070_Delta, relV1$SSP585_4070_Delta,
-#                     relV1$SSP126_7000_Delta, relV1$SSP585_7000_Delta) %>%
-#   max()
-# minLimitV1 <- rbind(relV1$SSP126_4070_Delta, relV1$SSP585_4070_Delta,
-#                     relV1$SSP126_7000_Delta, relV1$SSP585_7000_Delta) %>%
-#   min()
-# maxLimitV3 <- rbind(relV3$SSP126_4070_Delta, relV3$SSP585_4070_Delta,
-#                     relV3$SSP126_7000_Delta, relV3$SSP585_7000_Delta) %>%
-#   max()
-# minLimitV3 <- rbind(relV3$SSP126_4070_Delta, relV3$SSP585_4070_Delta,
-#                     relV3$SSP126_7000_Delta, relV3$SSP585_7000_Delta) %>%
-#   min()
-# maxLimitV4 <- rbind(relV4$SSP126_4070_Delta, relV4$SSP585_4070_Delta,
-#                     relV4$SSP126_7000_Delta, relV4$SSP585_7000_Delta) %>%
-#   max()
-# minLimitV4 <- rbind(relV4$SSP126_4070_Delta, relV4$SSP585_4070_Delta,
-#                     relV4$SSP126_7000_Delta, relV4$SSP585_7000_Delta) %>%
-#   min()
+maxLimitV1a <- max(obsV1$ERA5)
+minLimitV1a <- min(obsV1$ERA5)
+maxLimitV3a <- max(obsV3$ERA5)
+minLimitV3a <- min(obsV3$ERA5)
+maxLimitV4a <- max(obsV4$ERA5)
+minLimitV4a <- min(obsV4$ERA5)
+
+obsV1$Dif <- obsV1$ERA5 - relV1$Historical_Mu
+obsV3$Dif <- obsV3$ERA5 - relV3$Historical_Mu
+obsV4$Dif <- obsV4$ERA5 - relV4$Historical_Mu
 
 show_col(viridis_pal(alpha=1, option='F')(6))
 show_col(viridis_pal(alpha=1, option='D')(6))
 show_col(viridis_pal(alpha=1, option='G')(6))
-# For use if can get geom_signHatch to work
-# relV1$SSP126_7000_Sig <- as.logical(relV1$SSP126_7000_Sig)
-# relV1$SSP585_7000_Sig <- as.logical(relV1$SSP126_7000_Sig)
-# relV3$SSP126_7000_Sig <- as.logical(relV3$SSP126_7000_Sig)
-# relV3$SSP585_7000_Sig <- as.logical(relV3$SSP585_7000_Sig)
-# relV4$SSP126_7000_Sig <- as.logical(relV4$SSP126_7000_Sig)
-# relV4$SSP585_7000_Sig <- as.logical(relV4$SSP585_7000_Sig)
-
-# . 4.3 Plotting Change --------------------------------------------------------
-# . . 4.3.1 Late Century ----
-a <- "SSP126 Late-Century - Historical"
-p1 <- ggplot(data = relV1, aes(x=lon, y=lat, fill=SSP126_7000_Delta)) +
+# . 9.3 Plotting----------------------------------------------------------------
+a <- paste0('Heatwave Occurances')
+p1 <- ggplot(data = relV1, aes(x= lon, y= lat, fill= Historical_Mu)) +
   theme_bw() +
   geom_tile() +
-  scale_fill_stepsn(breaks = c(0,120,240),
-                   colours =  c( "#faebddff", "#f69c73ff", "#e83f3fff"), 
-                   show.limits = T, oob = oob_keep,
-                   labels = comma) +
-  # scale_fill_viridis_d(limits = c(minLimitV1, maxLimitV1), option = "rocket",
-  #                      direction = -1, name = '') +
-  geom_point(alpha = 0.5, shape = 47,
-             aes(size=ifelse(SSP126_7000_Sig == 0,'dot', 'no_dot'))) +
-  scale_size_manual(values=c(dot=0.5, no_dot=NA), guide="none") +
+  scale_fill_stepsn(# breaks = c(0,120,240,360,480,600,720),
+    colours =  c( "#faebdd", "#f69c73", "#e83f3f",
+                           '#a11a5b','#4c1dab','#440154'), 
+                           show.limits = F, oob = oob_keep,
+    labels = comma) +
+  # geom_point(alpha = 0.25, shape = 47,
+  #            aes(size=ifelse(Sig == 1,'dot', 'no_dot'))) +
+  # scale_size_manual(values=c(dot=0.5, no_dot=NA), guide="none") +
   geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
                colour="black", fill="NA", linewidth=0.5) +
   coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-60,90), expand = FALSE) +
-  labs(title = '', x = '', y = 'Latitude', fill = '') +
-  theme(legend.position = "NULL",
-        legend.key.size = unit(1, 'cm'),
-        legend.key.height = unit(1, 'cm')) +
-  theme(plot.margin = margin(t = 0.0, r = 0.0, b = 0.0, l = 0.0, unit="cm"))
-p2 <- ggplot(data = relV1, aes(x=lon, y=lat, fill=SSP585_7000_Delta)) +
-  theme_bw() +
-  geom_tile() +
-  scale_fill_stepsn(breaks = c(0,120,240,360,480,600,720),
-                    colours =  c( "#faebdd", "#f69c73", "#e83f3f",
-                                  '#a11a5b','#4c1dab','#440154'), 
-                    show.limits = F, oob = oob_keep,
-                    labels = comma) +
-  # scale_fill_viridis_d(limits = c(minLimitV1, maxLimitV1), option = "rocket",
-  #                      direction = -1, name = '') +
-  geom_point(alpha = 0.5, shape = 47,
-             aes(size=ifelse(SSP585_7000_Sig == 0,'dot', 'no_dot'))) +
-  scale_size_manual(values=c(dot=0.5, no_dot=NA), guide="none") +
-  geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
-               colour="black", fill="NA", linewidth=0.5) +
-  coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-60,90), expand = FALSE) +
-  labs(title = '', x = 'Longitude', y = 'Latitude', fill = '') +
+  labs(title = a, x = 'Longitude', y = 'Latitude', fill = '') +
   theme(legend.position = "bottom",
         legend.key.size = unit(1, 'cm'),
         legend.key.height = unit(.5, 'cm')) +
-  theme(plot.margin = margin(t = 0.0, r = 0.0, b = 0.0, l = 0.0, unit="cm"))
+  theme(plot.margin = margin(t = 0.0, r = 0.0, b = 0.0, l = 0.0, unit="cm")) +
+  # facet_grid(Scenario ~ .) +
+  theme(strip.text = element_blank(),
+        # strip.text = element_text(size = 7), 
+        strip.background = element_blank())
 
-p3 <- ggplot(data = relV3, aes(x=lon, y=lat, fill=SSP126_7000_Delta)) +
+a <- paste0('Extreme Precip Occurances')
+p2 <- ggplot(data = relV3, aes(x=lon, y=lat, fill=Historical_Mu)) +
   theme_bw() +
   geom_tile() +
-  scale_fill_stepsn(breaks = c(-100, 0, 100),
-                    colours =  c( "#fde725", "#7ad151"),
-                    show.limits = T, oob = oob_keep,
-                    labels = comma) +
-  # geom_signHatch(aes(mask = !SSP126_7000_Sig), color = "grey50",alpha = .5) + # Cant get to work with coord_fixed
-  # scale_fill_viridis_d(limits = c(minLimitV1, maxLimitV1), option = "rocket",
-  #                      direction = -1, name = '') +
-  geom_point(alpha = 0.5, shape = 47,
-             aes(size=ifelse(SSP126_7000_Sig == 0,'dot', 'no_dot'))) +
-  scale_size_manual(values=c(dot=0.5, no_dot=NA), guide="none") +
+  scale_fill_stepsn(# breaks = c(-100, 0, 100,200, 300, 400, 500),
+    colours =  c( "#fde725", "#7ad151", "#22A884",
+                           '#2A788E', '#414487', '#440154'),
+                           show.limits = F, oob = oob_keep,
+    labels = comma) +
+  # geom_point(alpha = 0.25, shape = 47,
+  #            aes(size=ifelse(Sig == 1,'dot', 'no_dot'))) +
+  # scale_size_manual(values=c(dot=0.5, no_dot=NA), guide="none") +
   geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
                colour="black", fill="NA", linewidth=0.5) +
   coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-60,90), expand = FALSE) +
-  labs(title = '', x = '', y = '', fill = '') +
-  theme(legend.position = "NULL",
-        legend.key.size = unit(1, 'cm'),
-        legend.key.height = unit(1, 'cm')) +
-  theme(plot.margin = margin(t = 0.0, r = 0.0, b = 0.0, l = 0.0, unit="cm"))
-p4 <- ggplot(data = relV3, aes(x=lon, y=lat, fill=SSP585_7000_Delta)) +
-  theme_bw() +
-  geom_tile() +
-  scale_fill_stepsn(breaks = c(-100, 0, 100,200, 300, 400, 500),
-                    colours =  c( "#fde725", "#7ad151", "#22A884",
-                                  '#2A788E', '#414487', '#440154'),
-                    show.limits = F, oob = oob_keep,
-                    labels = comma) +
-  # scale_fill_viridis_d(limits = c(minLimitV1, maxLimitV1), option = "rocket",
-  #                      direction = -1, name = '') +
-  geom_point(alpha = 0.5, shape = 47,
-             aes(size=ifelse(SSP585_7000_Sig == 0,'dot', 'no_dot'))) +
-  scale_size_manual(values=c(dot=0.5, no_dot=NA), guide="none") +
-  geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
-               colour="black", fill="NA", linewidth=0.5) +
-  coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-60,90), expand = FALSE) +
-  labs(title = '', x = 'Longitude', y = '', fill = '') +
+  labs(title = a, x = 'Longitude', y = '', fill = '') +
   theme(legend.position = "bottom",
         legend.key.size = unit(1, 'cm'),
         legend.key.height = unit(.5, 'cm')) +
-  theme(plot.margin = margin(t = 0.0, r = 0.0, b = 0.0, l = 0.0, unit="cm"))
+  theme(plot.margin = margin(t = 0.0, r = 0.0, b = 0.0, l = 0.0, unit="cm")) +
+  # facet_grid(Scenario ~ .) +
+  theme(strip.text = element_blank(),
+        # strip.text = element_text(size = 7), 
+        strip.background = element_blank())
 
-p5 <- ggplot(data = relV4, aes(x=lon, y=lat, fill=SSP126_7000_Delta)) +
+a <- paste0(varT[4],' Occurances')
+p3 <- ggplot(data = relV4, aes(x = lon, y = lat, fill = Historical_Mu)) +
   theme_bw() +
   geom_tile() +
-  scale_fill_stepsn(breaks = c(-5, 0, 5, 10, 15),
-                    colours =  c( "#60CEAC", "#3497A9",
-                                  '#395D9C', '#382A54'),
-                    show.limits = T, oob = oob_keep,
-                    labels = comma) +
-  # scale_fill_viridis_d(limits = c(minLimitV1, maxLimitV1), option = "rocket",
-  #                      direction = -1, name = '') +
-  geom_point(alpha = 0.5, shape = 47,
-             aes(size=ifelse(SSP126_7000_Sig == 0,'dot', 'no_dot'))) +
-  scale_size_manual(values=c(dot=0.5, no_dot=NA), guide="none") +
+  scale_fill_stepsn(# breaks = c(-10, -5, 0, 5, 10, 16),
+    colours =  c( "#DEF5E5", "#60CEAC", "#3497A9",
+                           '#395D9C', '#382A54'),
+                           show.limits = F, oob = oob_keep,
+    labels = comma) +
+  # geom_point(alpha = 0.25, shape = 47,
+  #            aes(size=ifelse(Sig == 1,'dot', 'no_dot'))) +
+  # scale_size_manual(values=c(dot=0.5, no_dot=NA), guide="none") +
   geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
                colour="black", fill="NA", linewidth=0.5) +
   coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-60,90), expand = FALSE) +
-  labs(title = '', x = '', y = '', fill = '') +
-  theme(legend.position = "NULL",
-        legend.key.size = unit(1, 'cm'),
-        legend.key.height = unit(1, 'cm')) +
-  theme(plot.margin = margin(t = 0.0, r = 0.0, b = 0.0, l = 0.0, unit="cm"))
-p6 <- ggplot(data = relV4, aes(x=lon, y=lat, fill=SSP585_7000_Delta)) +
-  theme_bw() +
-  geom_tile() +
-  scale_fill_stepsn(breaks = c(-10, -5, 0, 5, 10, 15),
-                    colours =  c( "#DEF5E5", "#60CEAC", "#3497A9",
-                                  '#395D9C', '#382A54'),
-                    show.limits = F, oob = oob_keep,
-                    labels = comma) +
-  # scale_fill_viridis_d(limits = c(minLimitV1, maxLimitV1), option = "rocket",
-  #                      direction = -1, name = '') +
-  geom_point(alpha = 0.5, shape = 47,
-             aes(size=ifelse(SSP585_7000_Sig == 0,'dot', 'no_dot'))) +
-  scale_size_manual(values=c(dot=0.5, no_dot=NA), guide="none") +
-  geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
-               colour="black", fill="NA", linewidth=0.5) +
-  coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-60,90), expand = FALSE) +
-  labs(title = '', x = 'Longitude', y = '', fill = '') +
+  labs(title = a, x = 'Longitude', y = '', fill = '') +
   theme(legend.position = "bottom",
         legend.key.size = unit(1, 'cm'),
         legend.key.height = unit(.5, 'cm')) +
-  theme(plot.margin = margin(t = 0.0, r = 0.0, b = 0.0, l = 0.0, unit="cm"))
+  theme(plot.margin = margin(t = 0.0, r = 0.0, b = 0.0, l = 0.0, unit="cm")) +
+  # facet_grid(vars(Scenario)) +
+  theme(strip.text = element_text(size = 7), 
+        strip.background = element_blank())
 
-# . . 4.3.2 Combining ----
-legendV1 <- get_legend(p2) %>% as_ggplot()
-p2 <- p2 +
-  theme(legend.position = "NULL")
-legendV3 <- get_legend(p4) %>% as_ggplot()
-p4 <- p4 +
-  theme(legend.position = "NULL")
-legendV4 <- get_legend(p6) %>% as_ggplot()
-p6 <- p6 +
-  theme(legend.position = "NULL")
-F1A <- plot_grid(p1, p3, p5,
-                 p2, p4, p6,
-                 nrow = 2, rel_heights = c(1,1),
-                 ncol = 3, rel_widths = c(1,1,1))
-F1B <- plot_grid(legendV1, legendV3, legendV4,
-                 nrow = 1, rel_heights = c(1),
-                 ncol = 3, rel_widths = c(1,1,1))
-F1 <- plot_grid(F1A,
-                F1B,
-                nrow = 2, rel_heights = c(.9,.15),
-                ncol = 1, rel_widths = c(1))
-ggsave(F1, filename = paste0(fileloc1,'Results/Paper/', 'FIG_2', ".tiff"),
+F1 <- plot_grid(p1, p2, p3,
+                nrow = 1, rel_heights = c(1),
+                ncol = 3, rel_widths = c(.93,.93,1))
+ggsave(F1, filename = paste0(fileloc1,'Results/Paper/', 'SUPFIG_1', ".tiff"),
        width = 9, height = 4, dpi = 375, bg='white')
-# . . 4.3.3 Mid Century ----
-# . . 4.3.4 Combining ----
-# . 4.4 Remove -----------------------------------------------------------------
-rm(list=ls()[! ls() %in% c('fileloc1', 'loc1', 'loc2', '', 'yr', 
+ggsave(F1, filename = paste0(fileloc1,'Results/Paper/', 'SUPFIG_1_sm', ".tiff"),
+       width = 9, height = 4, dpi = 90, bg='white')
+# . 9.4 Plotting ERA5 ----------------------------------------------------------
+a <- paste0('Heatwave Occurances')
+p1 <- ggplot(data = obsV1, aes(x= lon, y= lat, fill= ERA5)) +
+  theme_bw() +
+  geom_tile() +
+  scale_fill_stepsn(# breaks = c(0,120,240,360,480,600,720),
+    colours =  c( "#faebdd", "#f69c73", "#e83f3f",
+                           '#a11a5b','#4c1dab','#440154'), 
+                           show.limits = F, oob = oob_keep,
+    labels = comma) +
+  # geom_point(alpha = 0.25, shape = 47,
+  #            aes(size=ifelse(Sig == 1,'dot', 'no_dot'))) +
+  # scale_size_manual(values=c(dot=0.5, no_dot=NA), guide="none") +
+  geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
+               colour="black", fill="NA", linewidth=0.5) +
+  coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-60,90), expand = FALSE) +
+  labs(title = a, x = 'Longitude', y = 'Latitude', fill = '') +
+  theme(legend.position = "bottom",
+        legend.key.size = unit(1, 'cm'),
+        legend.key.height = unit(.5, 'cm')) +
+  theme(plot.margin = margin(t = 0.0, r = 0.0, b = 0.0, l = 0.0, unit="cm")) +
+  # facet_grid(Scenario ~ .) +
+  theme(strip.text = element_blank(),
+        # strip.text = element_text(size = 7), 
+        strip.background = element_blank())
+
+a <- paste0('Extreme Precip Occurances')
+p2 <- ggplot(data = obsV3, aes(x=lon, y=lat, fill=ERA5)) +
+  theme_bw() +
+  geom_tile() +
+  scale_fill_stepsn(# breaks = c(-100, 0, 100,200, 300, 400, 500),
+    colours =  c( "#fde725", "#7ad151", "#22A884",
+                           '#2A788E', '#414487', '#440154'),
+                           show.limits = F, oob = oob_keep,
+    labels = comma) +
+  # geom_point(alpha = 0.25, shape = 47,
+  #            aes(size=ifelse(Sig == 1,'dot', 'no_dot'))) +
+  # scale_size_manual(values=c(dot=0.5, no_dot=NA), guide="none") +
+  geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
+               colour="black", fill="NA", linewidth=0.5) +
+  coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-60,90), expand = FALSE) +
+  labs(title = a, x = 'Longitude', y = '', fill = '') +
+  theme(legend.position = "bottom",
+        legend.key.size = unit(1, 'cm'),
+        legend.key.height = unit(.5, 'cm')) +
+  theme(plot.margin = margin(t = 0.0, r = 0.0, b = 0.0, l = 0.0, unit="cm")) +
+  # facet_grid(Scenario ~ .) +
+  theme(strip.text = element_blank(),
+        # strip.text = element_text(size = 7), 
+        strip.background = element_blank())
+
+a <- paste0(varT[4],' Occurances')
+p3 <- ggplot(data = obsV4, aes(x = lon, y = lat, fill = ERA5)) +
+  theme_bw() +
+  geom_tile() +
+  scale_fill_stepsn(# breaks = c(-10, -5, 0, 5, 10, 16),
+    colours =  c( "#DEF5E5", "#60CEAC", "#3497A9",
+                           '#395D9C', '#382A54'),
+                           show.limits = F, oob = oob_keep,
+    labels = comma) +
+  # geom_point(alpha = 0.25, shape = 47,
+  #            aes(size=ifelse(Sig == 1,'dot', 'no_dot'))) +
+  # scale_size_manual(values=c(dot=0.5, no_dot=NA), guide="none") +
+  geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
+               colour="black", fill="NA", linewidth=0.5) +
+  coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-60,90), expand = FALSE) +
+  labs(title = a, x = 'Longitude', y = '', fill = '') +
+  theme(legend.position = "bottom",
+        legend.key.size = unit(1, 'cm'),
+        legend.key.height = unit(.5, 'cm')) +
+  theme(plot.margin = margin(t = 0.0, r = 0.0, b = 0.0, l = 0.0, unit="cm")) +
+  # facet_grid(vars(Scenario)) +
+  theme(strip.text = element_text(size = 7), 
+        strip.background = element_blank())
+
+F1 <- plot_grid(p1, p2, p3,
+                nrow = 1, rel_heights = c(1),
+                ncol = 3, rel_widths = c(.93,.93,1))
+ggsave(F1, filename = paste0(fileloc1,'Results/Paper/', 'SUPFIG_1a', ".tiff"),
+       width = 9, height = 4, dpi = 375, bg='white')
+ggsave(F1, filename = paste0(fileloc1,'Results/Paper/', 'SUPFIG_1a_sm', ".tiff"),
+       width = 9, height = 4, dpi = 90, bg='white')
+# . 9.5 Plotting Difference ----------------------------------------------------
+a <- paste0('Heatwave Occurances')
+p1 <- ggplot(data = obsV1, aes(x= lon, y= lat, fill= Dif)) +
+  theme_bw() +
+  geom_tile() +
+  scale_fill_stepsn(# breaks = c(0,120,240,360,480,600,720),
+    colours =  c( "#faebdd", "#f69c73", "#e83f3f",
+                           '#a11a5b','#4c1dab','#440154'), 
+                           show.limits = F, oob = oob_keep,
+    labels = comma) +
+  # geom_point(alpha = 0.25, shape = 47,
+  #            aes(size=ifelse(Sig == 1,'dot', 'no_dot'))) +
+  # scale_size_manual(values=c(dot=0.5, no_dot=NA), guide="none") +
+  geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
+               colour="black", fill="NA", linewidth=0.5) +
+  coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-60,90), expand = FALSE) +
+  labs(title = a, x = 'Longitude', y = 'Latitude', fill = '') +
+  theme(legend.position = "bottom",
+        legend.key.size = unit(1, 'cm'),
+        legend.key.height = unit(.5, 'cm')) +
+  theme(plot.margin = margin(t = 0.0, r = 0.0, b = 0.0, l = 0.0, unit="cm")) +
+  # facet_grid(Scenario ~ .) +
+  theme(strip.text = element_blank(),
+        # strip.text = element_text(size = 7), 
+        strip.background = element_blank())
+
+a <- paste0('Extreme Precip Occurances')
+p2 <- ggplot(data = obsV3, aes(x=lon, y=lat, fill=Dif)) +
+  theme_bw() +
+  geom_tile() +
+  scale_fill_stepsn(# breaks = c(-100, 0, 100,200, 300, 400, 500),
+    colours =  c( "#fde725", "#7ad151", "#22A884",
+                           '#2A788E', '#414487', '#440154'),
+                           show.limits = F, oob = oob_keep,
+    labels = comma) +
+  # geom_point(alpha = 0.25, shape = 47,
+  #            aes(size=ifelse(Sig == 1,'dot', 'no_dot'))) +
+  # scale_size_manual(values=c(dot=0.5, no_dot=NA), guide="none") +
+  geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
+               colour="black", fill="NA", linewidth=0.5) +
+  coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-60,90), expand = FALSE) +
+  labs(title = a, x = 'Longitude', y = '', fill = '') +
+  theme(legend.position = "bottom",
+        legend.key.size = unit(1, 'cm'),
+        legend.key.height = unit(.5, 'cm')) +
+  theme(plot.margin = margin(t = 0.0, r = 0.0, b = 0.0, l = 0.0, unit="cm")) +
+  # facet_grid(Scenario ~ .) +
+  theme(strip.text = element_blank(),
+        # strip.text = element_text(size = 7), 
+        strip.background = element_blank())
+
+a <- paste0(varT[4],' Occurances')
+p3 <- ggplot(data = obsV4, aes(x = lon, y = lat, fill = Dif)) +
+  theme_bw() +
+  geom_tile() +
+  scale_fill_stepsn(# breaks = c(-10, -5, 0, 5, 10, 16),
+    colours =  c( "#DEF5E5", "#60CEAC", "#3497A9",
+                           '#395D9C', '#382A54'),
+                           show.limits = F, oob = oob_keep,
+    labels = comma) +
+  # geom_point(alpha = 0.25, shape = 47,
+  #            aes(size=ifelse(Sig == 1,'dot', 'no_dot'))) +
+  # scale_size_manual(values=c(dot=0.5, no_dot=NA), guide="none") +
+  geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
+               colour="black", fill="NA", linewidth=0.5) +
+  coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-60,90), expand = FALSE) +
+  labs(title = a, x = 'Longitude', y = '', fill = '') +
+  theme(legend.position = "bottom",
+        legend.key.size = unit(1, 'cm'),
+        legend.key.height = unit(.5, 'cm')) +
+  theme(plot.margin = margin(t = 0.0, r = 0.0, b = 0.0, l = 0.0, unit="cm")) +
+  # facet_grid(vars(Scenario)) +
+  theme(strip.text = element_text(size = 7), 
+        strip.background = element_blank())
+
+F1 <- plot_grid(p1, p2, p3,
+                nrow = 1, rel_heights = c(1),
+                ncol = 3, rel_widths = c(.93,.93,1))
+ggsave(F1, filename = paste0(fileloc1,'Results/Paper/', 'SUPFIG_1b', ".tiff"),
+       width = 9, height = 4, dpi = 375, bg='white')
+ggsave(F1, filename = paste0(fileloc1,'Results/Paper/', 'SUPFIG_1b_sm', ".tiff"),
+       width = 9, height = 4, dpi = 90, bg='white')
+# . 9.4 Remove -----------------------------------------------------------------
+rm(list=ls()[! ls() %in% c('fileloc1', 'loc1', 'loc2', 'yr', 
                            'var', 'varT', 'comp', 'compT', 
-                           'locT', 'lon1', 'lon2', 'lat1', 'lat2', 
+                           'locT','locTLev', 'lon1', 'lon2', 'lat1', 'lat2', 
                            'baseData', 
                            'get_legend','as_ggplot','mean_cl_quantile')])
-
-
-# Part 7 - Figure 6 & 7 ########################################################
-# . 7.1 Opening Files ----------------------------------------------------------
+# Part 10 - Supplemental Figure 2 ##############################################
+# . 10.1 Opening Files ---------------------------------------------------------
 datSim14 <- read_csv(paste0(fileloc1,'Data/Results/','MU_CHANG_COMP_',comp[1],'.csv'),
                      col_names = TRUE, cols(.default = col_double()))
 datSeq14 <- read_csv(paste0(fileloc1,'Data/Results/','MU_CHANG_COMP_',comp[2],'.csv'),
                      col_names = TRUE, cols(.default = col_double()))
 datSeq41 <- read_csv(paste0(fileloc1,'Data/Results/','MU_CHANG_COMP_',comp[3],'.csv'),
                      col_names = TRUE, cols(.default = col_double()))
-datSim13 <- read_csv(paste0(fileloc1,'Data/Results/','MU_CHANG_COMP_',comp[4],'.csv'),
-                     col_names = TRUE, cols(.default = col_double()))
 datSeq43 <- read_csv(paste0(fileloc1,'Data/Results/','MU_CHANG_COMP_',comp[8],'.csv'),
                      col_names = TRUE, cols(.default = col_double()))
 
-# . 7.2 Formatting -------------------------------------------------------------
-# minLimt585 <- rbind(datSim14$SSP585_7000_delta, datSeq14$SSP585_7000_delta, 
-#                     datSeq41$SSP585_7000_delta, # datSim13$SSP585_7000_delta,
-#                     datSeq43$SSP585_7000_delta) %>%
-#   min()
-# maxLimt585 <- rbind(datSim14$SSP585_7000_delta, datSeq14$SSP585_7000_delta, 
-#                     datSeq41$SSP585_7000_delta, # datSim13$SSP585_7000_delta,
-#                     datSeq43$SSP585_7000_delta) %>%
-#   max()
-# minLimt126 <- rbind(datSim14$SSP126_7000_delta, datSeq14$SSP126_7000_delta, 
-#                     datSeq41$SSP126_7000_delta, # datSim13$SSP126_7000_delta,
-#                     datSeq43$SSP126_7000_delta) %>%
-#   min()
-# maxLimt126 <- rbind(datSim14$SSP126_7000_delta, datSeq14$SSP126_7000_delta, 
-#                     datSeq41$SSP126_7000_delta, # datSim13$SSP126_7000_delta,
-#                     datSeq43$SSP126_7000_delta) %>%
-#   max()
-
-minLimt <- rbind( #datSim14$SSP585_4070_delta, datSeq14$SSP585_4070_delta,
-                 # datSeq41$SSP585_4070_delta, # datSim13$SSP585_4070_delta,
-                 # datSeq43$SSP585_4070_delta,
-                 # datSim14$SSP126_4070_delta, datSeq14$SSP126_4070_delta, 
-                 # datSeq41$SSP126_4070_delta, # datSim13$SSP126_4070_delta,
-                 # datSeq43$SSP126_4070_delta,
-                 datSim14$SSP585_7000_delta, datSeq14$SSP585_7000_delta, 
-                 datSeq41$SSP585_7000_delta, # datSim13$SSP585_7000_delta,
-                 datSeq43$SSP585_7000_delta,
-                 datSim14$SSP126_7000_delta, datSeq14$SSP126_7000_delta, 
-                 datSeq41$SSP126_7000_delta, # datSim13$SSP126_7000_delta,
-                 datSeq43$SSP126_7000_delta) %>%
+# . 10.2 Limits ----------------------------------------------------------------
+minLimt <- rbind(
+  datSim14$Historical_mu, datSeq14$Historical_mu, 
+  datSeq41$Historical_mu, # datSim13$Historical_mu,
+  datSeq43$Historical_mu) %>%
   min()
-maxLimt <- rbind(# datSim14$SSP585_4070_delta, datSeq14$SSP585_4070_delta, 
-                 # datSeq41$SSP585_4070_delta, # datSim13$SSP585_4070_delta,
-                 # datSeq43$SSP585_4070_delta,
-                 # datSim14$SSP126_4070_delta, datSeq14$SSP126_4070_delta, 
-                 # datSeq41$SSP126_4070_delta, # datSim13$SSP126_4070_delta,
-                 # datSeq43$SSP126_4070_delta,
-                 datSim14$SSP585_7000_delta, datSeq14$SSP585_7000_delta, 
-                 datSeq41$SSP585_7000_delta, # datSim13$SSP585_7000_delta,
-                 datSeq43$SSP585_7000_delta,
-                 datSim14$SSP126_7000_delta, datSeq14$SSP126_7000_delta, 
-                 datSeq41$SSP126_7000_delta, # datSim13$SSP126_7000_delta,
-                 datSeq43$SSP126_7000_delta) %>%
+maxLimt <- rbind(
+  datSim14$Historical_mu, datSeq14$Historical_mu, 
+  datSeq41$Historical_mu, # datSim13$Historical_mu,
+  datSeq43$Historical_mu) %>%
   max()
 
-# . 7.3 Plotting 585 7000 ------------------------------------------------------
-a <- compT[1]
-p1 <- ggplot(data = datSim14, aes(x=lon, y=lat, fill=SSP585_7000_delta)) +
-  theme_bw() +
-  geom_tile() +
-  scale_fill_stepsn(breaks = c(-5, 0, 5, 10, 15, 20), 
-                    colours =  c( "#faebdd", "#f69c73", "#e83f3f",
-                                  '#a11a5b'), 
-                    show.limits = T, oob = oob_keep,
-                    labels = comma)  + 
-  # scale_fill_viridis_c(limits = c(minLimt,maxLimt), option = "rocket",
-  #                      direction = -1, name = 'Difference of Events') +
-  geom_point(alpha = .75, shape = 47,
-             aes(size=ifelse(SSP585_7000_Sig == 0,'dot', 'no_dot'))) +
-  scale_size_manual(values=c(dot=0.5, no_dot=NA), guide="none") +
-  geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
-               colour="black", fill="NA", linewidth=0.5) +
-  coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-65,90), expand = FALSE) +
-  labs(title = a, fill = '',
-       x = ' ', y = 'Latitude') +
-  theme(legend.position="NULL",
-        legend.key.size = unit(1, 'cm'),
-        legend.key.height = unit(1, 'cm')) +
-  theme(plot.margin=margin(t=0.5, r=0.5, unit="cm"))
+# . 10.3 Formatting ------------------------------------------------------------
+datC1 <- tibble(lat = datSim14$lat, lon = datSim14$lon, 
+                Historical = datSim14$Historical_mu,
+                Compound = compT[1])
+datC1$Historical <- as.integer(datC1$Historical)
 
-a <- compT[2]
-p2 <- ggplot(data = datSeq14, aes(x=lon, y=lat, fill=SSP585_7000_delta)) +
+datC2 <- tibble(lat = datSeq14$lat, lon = datSeq14$lon, 
+                Historical = datSeq14$Historical_mu,
+                Compound = compT[2])
+datC2$Historical <- as.integer(datC2$Historical)
+
+datC3 <- tibble(lat = datSeq41$lat, lon = datSeq41$lon, 
+                Historical = datSeq41$Historical_mu,
+                Compound = compT[3])
+datC3$Historical <- as.integer(datC3$Historical)
+
+datC4 <- tibble(lat = datSeq43$lat, lon = datSeq43$lon, 
+                Historical = datSeq43$Historical_mu,
+                Compound = compT[8])
+datC4$Historical <- as.integer(datC4$Historical)
+
+datC <- rbind(datC1, datC2, datC3, datC4)
+datC$Compound <- factor(datC$Compound, 
+                        levels = c(compT[1], compT[2], compT[3], compT[8]), 
+                        labels = c('Sim. HW & FD', 'Seq. HW & FD', 
+                                   'Seq. FD & HW', 'Seq. FD & EP'))
+# . 10.4 Plotting --------------------------------------------------------------
+p1 <- ggplot(data = datC, aes(x=lon, y=lat, fill = Historical)) +
   theme_bw() +
   geom_tile() +
-  scale_fill_stepsn(breaks = c(-5, 0, 5, 10, 15, 20, 25), 
-                    colours =  c( "#faebdd", "#f69c73", "#e83f3f",
-                                  '#a11a5b','#4c1dab','#440154'), 
-                    show.limits = T, oob = oob_keep,
-                    labels = comma) +
-  # scale_fill_viridis_c(limits = c(minLimt,maxLimt), option = "rocket", 
-  #                      direction = -1, name = 'Difference of Events') +
-  geom_point(alpha = 0.75, shape = 47,
-             aes(size=ifelse(SSP585_7000_Sig == 0,'dot', 'no_dot'))) +
-  scale_size_manual(values=c(dot=0.5, no_dot=NA), guide="none") +
+  scale_fill_stepsn(# breaks = c(-5, 0, 5, 10, 15, 20, 25), 
+    colours =  c( "#faebdd", "#f69c73", "#e83f3f",
+                           '#a11a5b','#4c1dab','#440154'), 
+                           show.limits = F, oob = oob_keep,
+    labels = comma) +
+  # geom_point(alpha = 0.75, shape = 47,
+  #            aes(size=ifelse(Sig == 1,'dot', 'no_dot'))) +
+  # scale_size_manual(values=c(dot=0.5, no_dot=NA), guide="none") +
   geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
                colour="black", fill="NA", linewidth=0.5) +
   coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-65,90), expand = FALSE) +
-  labs(title = a, fill = '',
-       x = ' ', y = ' ') +
+  labs(title = 'Compound Event Occurances', fill = '',
+       x = 'Longitude', y = 'Latitude') +
   theme(legend.position="bottom",
         legend.key.size = unit(1, 'cm'),
         legend.key.height = unit(.5, 'cm')) +
-  theme(plot.margin=margin(t=0.5, r=0.5, unit="cm"))
+  theme(plot.margin=margin(t=0.5, r=0.5, unit="cm"))  +
+  facet_grid(vars(Compound)) +
+  theme(strip.text = element_text(size = 12), 
+        strip.background = element_blank())
 
-a <- compT[3]
-p3 <- ggplot(data = datSeq41, aes(x=lon, y=lat, fill=SSP585_7000_delta)) +
-  theme_bw() +
-  geom_tile() +
-  scale_fill_stepsn(breaks = c(-5, 0, 5, 10, 15), 
-                    colours =  c( "#faebdd", "#f69c73", "#e83f3f",
-                                  '#a11a5b'), 
-                    show.limits = T, oob = oob_keep,
-                    labels = comma) +
-  # scale_fill_viridis_c(limits = c(minLimt,maxLimt), option = "rocket",
-  #                      direction = -1, name = 'Difference of Events') +
-  geom_point(alpha = 0.75, shape = 47,
-             aes(size=ifelse(SSP585_7000_Sig == 0,'dot', 'no_dot'))) +
-  scale_size_manual(values=c(dot=0.5, no_dot=NA), guide="none") +
-  geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
-               colour="black", fill="NA", linewidth=0.5) +
-  coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-65,90), expand = FALSE) +
-  labs(title = a, fill = '',
-       x = 'Longitude', y = 'Latitude') +
-  theme(legend.position="NULL",
-        legend.key.size = unit(1, 'cm'),
-        legend.key.height = unit(1, 'cm')) +
-  theme(plot.margin=margin(t=0.5, r=0.5, unit="cm"))
-
-a <- compT[4]
-p4 <- ggplot(data = datSeq43, aes(x=lon, y=lat, fill=SSP585_7000_delta)) +
-  theme_bw() +
-  geom_tile() +
-  scale_fill_stepsn(breaks = c(-5, 0, 5), 
-                    colours =  c( "#faebdd", "#f69c73"), 
-                    show.limits = T, oob = oob_keep,
-                    labels = comma) + 
-  # scale_fill_viridis_c(limits = c(minLimt,maxLimt), option = "rocket",
-  #                      direction = -1, name = 'Difference of Events') +
-  geom_point(alpha = 0.75, shape = 47,
-             aes(size=ifelse(SSP585_7000_Sig == 0,'dot', 'no_dot'))) +
-  scale_size_manual(values=c(dot=0.5, no_dot=NA), guide="none") +
-  geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
-               colour="black", fill="NA", linewidth=0.5) +
-  coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-65,90), expand = FALSE) +
-  labs(title = a, fill = '',
-       x = 'Longitude', y = '') +
-  theme(legend.position="NULL",
-        legend.key.size = unit(1, 'cm'),
-        legend.key.height = unit(1, 'cm')) +
-  theme(plot.margin=margin(t=0.5, r=0.5, unit="cm"))
-
-a <- compT[8]
-p5 <- ggplot(data = datSim13, aes(x=lon, y=lat, fill=SSP585_7000_delta)) +
-  theme_bw() +
-  geom_tile() +
-  scale_fill_stepsn(breaks = c(-5, 0, 5, 10, 15, 20, 25), 
-                    colours =  c( "#faebdd", "#f69c73", "#e83f3f",
-                                  '#a11a5b','#4c1dab','#440154'), 
-                    show.limits = T, oob = oob_keep,
-                    labels = comma) + 
-  # scale_fill_viridis_c(limits = c(minLimt,maxLimt), option = "rocket", 
-  #                      direction = -1, name = 'Difference of Events') +
-  geom_point(alpha = 0.75, shape = 47,
-             aes(size=ifelse(SSP585_7000_Sig == 0,'dot', 'no_dot'))) +
-  scale_size_manual(values=c(dot=0.5, no_dot=NA), guide="none") +
-  geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
-               colour="black", fill="NA", linewidth=0.5) +
-  coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-65,90), expand = FALSE) +
-  labs(title = a, 
-       x = 'Longitude', y = ' ') +
-  theme(legend.position="bottom",
-        legend.key.size = unit(1, 'cm'),
-        legend.key.height = unit(1, 'cm')) +
-  theme(plot.margin=margin(t=0.5, r=0.5, unit="cm"))
-
-myLegend <- get_legend(p2, position = 'bottom') %>% 
-  as_ggplot()
-p2 <- p2 + theme(legend.position = "NULL")
-F1A <- plot_grid(p1, p2,
-                 p3, p4,
-                 nrow = 2, rel_heights = c(1,1),
-                 ncol = 2, rel_widths = c(1,1))
-F1 <- plot_grid(F1A,
-                myLegend,
-                rel_heights = c(1,0.15),
-                # rel_heights = c(.05,1,0.15),
-                nrow = 2)
-# title <- ggdraw() + draw_label(paste0("Change in occurrence of Compound Events"), 
-#                                fontface='bold')
-ggsave(F1, filename = paste0(fileloc1,'Results/Paper/','FIG_6', ".tiff"),
-       width = 8.9, height = 5.5, dpi = 350, bg='white')
-
-# . 7.4 Plotting 585 7000 ------------------------------------------------------
-a <- compT[1]
-p1 <- ggplot(data = datSim14, aes(x=lon, y=lat, fill=SSP126_7000_delta)) +
-  theme_bw() +
-  geom_tile() +
-  scale_fill_stepsn(breaks = c(-5, 0, 5 ), 
-                    colours =  c( "#faebdd", "#f69c73"), 
-                    show.limits = T, oob = oob_keep,
-                    labels = comma)  + 
-  # scale_fill_viridis_c(limits = c(minLimt,maxLimt), option = "rocket",
-  #                      direction = -1, name = 'Difference of Events') +
-  geom_point(alpha = .75, shape = 47,
-             aes(size=ifelse(SSP126_7000_Sig == 0,'dot', 'no_dot'))) +
-  scale_size_manual(values=c(dot=0.5, no_dot=NA), guide="none") +
-  geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
-               colour="black", fill="NA", linewidth=0.5) +
-  coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-65,90), expand = FALSE) +
-  labs(title = a, fill = '',
-       x = ' ', y = 'Latitude') +
-  theme(legend.position="NULL",
-        legend.key.size = unit(1, 'cm'),
-        legend.key.height = unit(1, 'cm')) +
-  theme(plot.margin=margin(t=0.5, r=0.5, unit="cm"))
-
-a <- compT[2]
-p2 <- ggplot(data = datSeq14, aes(x=lon, y=lat, fill=SSP126_7000_delta)) +
-  theme_bw() +
-  geom_tile() +
-  scale_fill_stepsn(breaks = c(-5, 0, 5, 10, 15, 20), 
-                    colours =  c( "#faebdd", "#f69c73", "#e83f3f",
-                                  '#a11a5b','#4c1dab'), 
-                    show.limits = T, oob = oob_keep,
-                    labels = comma) +
-  # scale_fill_viridis_c(limits = c(minLimt,maxLimt), option = "rocket", 
-  #                      direction = -1, name = 'Difference of Events') +
-  geom_point(alpha = 0.5, shape = 47,
-             aes(size=ifelse(SSP126_7000_Sig == 0,'dot', 'no_dot'))) +
-  scale_size_manual(values=c(dot=0.5, no_dot=NA), guide="none") +
-  geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
-               colour="black", fill="NA", linewidth=0.5) +
-  coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-65,90), expand = FALSE) +
-  labs(title = a, fill = '',
-       x = ' ', y = ' ') +
-  theme(legend.position="NULL",
-        legend.key.size = unit(1, 'cm'),
-        legend.key.height = unit(.5, 'cm')) +
-  theme(plot.margin=margin(t=0.5, r=0.5, unit="cm"))
-
-a <- compT[3]
-p3 <- ggplot(data = datSeq41, aes(x=lon, y=lat, fill=SSP126_7000_delta)) +
-  theme_bw() +
-  geom_tile() +
-  scale_fill_stepsn(breaks = c(-5, 0, 5), 
-                    colours =  c( "#faebdd", "#f69c73"), 
-                    show.limits = T, oob = oob_keep,
-                    labels = comma) +
-  # scale_fill_viridis_c(limits = c(minLimt,maxLimt), option = "rocket",
-  #                      direction = -1, name = 'Difference of Events') +
-  geom_point(alpha = 0.5, shape = 47,
-             aes(size=ifelse(SSP126_7000_Sig == 0,'dot', 'no_dot'))) +
-  scale_size_manual(values=c(dot=0.5, no_dot=NA), guide="none") +
-  geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
-               colour="black", fill="NA", linewidth=0.5) +
-  coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-65,90), expand = FALSE) +
-  labs(title = a, fill = '',
-       x = 'Longitude', y = 'Latitude') +
-  theme(legend.position="NULL",
-        legend.key.size = unit(1, 'cm'),
-        legend.key.height = unit(1, 'cm')) +
-  theme(plot.margin=margin(t=0.5, r=0.5, unit="cm"))
-
-a <- compT[4]
-p4 <- ggplot(data = datSeq43, aes(x=lon, y=lat, fill=SSP126_7000_delta)) +
-  theme_bw() +
-  geom_tile() +
-  scale_fill_stepsn(breaks = c(-5, 0, 5), 
-                    colours =  c( "#faebdd", "#f69c73"), 
-                    show.limits = T, oob = oob_keep,
-                    labels = comma) + 
-  # scale_fill_viridis_c(limits = c(minLimt,maxLimt), option = "rocket",
-  #                      direction = -1, name = 'Difference of Events') +
-  geom_point(alpha = 0.5, shape = 47,
-             aes(size=ifelse(SSP126_7000_Sig == 0,'dot', 'no_dot'))) +
-  scale_size_manual(values=c(dot=0.5, no_dot=NA), guide="none") +
-  geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
-               colour="black", fill="NA", linewidth=0.5) +
-  coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-65,90), expand = FALSE) +
-  labs(title = a, fill = '',
-       x = 'Longitude', y = '') +
-  theme(legend.position="NULL",
-        legend.key.size = unit(1, 'cm'),
-        legend.key.height = unit(1, 'cm')) +
-  theme(plot.margin=margin(t=0.5, r=0.5, unit="cm"))
-
-a <- compT[8]
-p5 <- ggplot(data = datSim13, aes(x=lon, y=lat, fill=SSP126_7000_delta)) +
-  theme_bw() +
-  geom_tile() +
-  scale_fill_stepsn(breaks = c(-5, 0, 5, 10, 15, 20, 25), 
-                    colours =  c( "#faebdd", "#f69c73", "#e83f3f",
-                                  '#a11a5b','#4c1dab','#440154'), 
-                    show.limits = T, oob = oob_keep,
-                    labels = comma) + 
-  # scale_fill_viridis_c(limits = c(minLimt,maxLimt), option = "rocket", 
-  #                      direction = -1, name = 'Difference of Events') +
-  geom_point(alpha = 0.5, shape = 47,
-             aes(size=ifelse(SSP126_7000_Sig == 0,'dot', 'no_dot'))) +
-  scale_size_manual(values=c(dot=0.5, no_dot=NA), guide="none") +
-  geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
-               colour="black", fill="NA", linewidth=0.5) +
-  coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-65,90), expand = FALSE) +
-  labs(title = a, 
-       x = 'Longitude', y = ' ') +
-  theme(legend.position="bottom",
-        legend.key.size = unit(1, 'cm'),
-        legend.key.height = unit(1, 'cm')) +
-  theme(plot.margin=margin(t=0.5, r=0.5, unit="cm"))
-
-F1A <- plot_grid(p1, p2,
-                 p3, p4,
-                 nrow = 2, rel_heights = c(1,1),
-                 ncol = 2, rel_widths = c(1,1))
-F1 <- plot_grid(F1A,
-                myLegend,
-                rel_heights = c(1,0.15),
-                # rel_heights = c(.05,1,0.15),
-                nrow = 2)
-# title <- ggdraw() + draw_label(paste0("Change in occurrence of Compound Events"), 
-#                                fontface='bold')
-ggsave(F1, filename = paste0(fileloc1,'Results/Paper/','FIG_7', ".tiff"),
-       width = 8.9, height = 5.5, dpi = 350, bg='white')
-
-# . 6.7 Remove -----------------------------------------------------------------
-rm(list=ls()[! ls() %in% c('fileloc1', 'loc1', 'loc2', '', 'yr', 
+ggsave(p1, filename = paste0(fileloc1,'Results/Paper/','SUPFIG_2', ".tiff"),
+       width = 7.5, height = 11, dpi = 350, bg='white')
+ggsave(p1, filename = paste0(fileloc1,'Results/Paper/','SUPFIG_2_sm', ".tiff"),
+       width = 7.5, height = 11, dpi = 90, bg='white')
+# . 10.5 Remove ----------------------------------------------------------------
+rm(list=ls()[! ls() %in% c('fileloc1', 'loc1', 'loc2', 'yr', 
                            'var', 'varT', 'comp', 'compT', 
-                           'locT', 'lon1', 'lon2', 'lat1', 'lat2', 
+                           'locT','locTLev', 'lon1', 'lon2', 'lat1', 'lat2', 
                            'baseData', 
                            'get_legend','as_ggplot','mean_cl_quantile')])
-# Part 8 - Figure 8, 9, 10 #####################################################
-# . 8.1 Opening Files ----------------------------------------------------------
+
+
+
+
+
+# Part 11 - Supplemental Figure 3 - 4 ##########################################
+# . 11.1 Opening Files --------------------------------------------------------
 datPopSim14 <- read_csv(paste0(fileloc1,'Data/Results/','EXPOSURE_POP_',comp[1],'.csv'),
                         col_names = TRUE, cols(.default = col_double()))
 datPopSeq14 <- read_csv(paste0(fileloc1,'Data/Results/','EXPOSURE_POP_',comp[2],'.csv'),
@@ -2784,1690 +2611,210 @@ datForSeq41 <- read_csv(paste0(fileloc1,'Data/Results/','EXPOSURE_FOR_',comp[3],
                         col_names = TRUE, cols(.default = col_double()))
 datForSeq43 <- read_csv(paste0(fileloc1,'Data/Results/','EXPOSURE_FOR_',comp[8],'.csv'),
                         col_names = TRUE, cols(.default = col_double()))
-
-datSim14 <- read_csv(paste0(fileloc1, 'Data/Results/','MU_CHANG_COMP_', comp[1], '.csv'),
-                     col_names = TRUE, cols(.default = col_double()))
-datSeq14 <- read_csv(paste0(fileloc1, 'Data/Results/','MU_CHANG_COMP_', comp[2], '.csv'),
-                     col_names = TRUE, cols(.default = col_double()))
-datSeq41 <- read_csv(paste0(fileloc1, 'Data/Results/','MU_CHANG_COMP_', comp[3], '.csv'),
-                     col_names = TRUE, cols(.default = col_double()))
-datSeq43 <- read_csv(paste0(fileloc1, 'Data/Results/','MU_CHANG_COMP_', comp[8], '.csv'),
-                     col_names = TRUE, cols(.default = col_double()))
-# . 8.3 Pre-processing Regions -------------------------------------------------
-# . . 8.3.1 Pre-processing ---
-datPopSim14 <- datPopSim14 %>%
-  select(lon, lat, Historic_mu, 
-         SSP126_1040_delta, SSP126_4070_delta, SSP126_7000_delta,
-         SSP585_1040_delta, SSP585_4070_delta, SSP585_7000_delta)
-datPopSeq14 <- datPopSeq14 %>%
-  select(lon, lat, Historic_mu, 
-         SSP126_1040_delta, SSP126_4070_delta, SSP126_7000_delta,
-         SSP585_1040_delta, SSP585_4070_delta, SSP585_7000_delta)
-datPopSeq41 <- datPopSeq41 %>%
-  select(lon, lat, Historic_mu, 
-         SSP126_1040_delta, SSP126_4070_delta, SSP126_7000_delta,
-         SSP585_1040_delta, SSP585_4070_delta, SSP585_7000_delta)
-datPopSeq43 <- datPopSeq43 %>%
-  select(lon, lat, Historic_mu, 
-         SSP126_1040_delta, SSP126_4070_delta, SSP126_7000_delta,
-         SSP585_1040_delta, SSP585_4070_delta, SSP585_7000_delta)
-
-datAgSim14 <- datAgSim14 %>%
-  select(lon, lat, Historic_mu, 
-         SSP126_1040_delta, SSP126_4070_delta, SSP126_7000_delta,
-         SSP585_1040_delta, SSP585_4070_delta, SSP585_7000_delta)
-datAgSeq14 <- datAgSeq14 %>%
-  select(lon, lat, Historic_mu, 
-         SSP126_1040_delta, SSP126_4070_delta, SSP126_7000_delta,
-         SSP585_1040_delta, SSP585_4070_delta, SSP585_7000_delta)
-datAgSeq41 <- datAgSeq41 %>%
-  select(lon, lat, Historic_mu, 
-         SSP126_1040_delta, SSP126_4070_delta, SSP126_7000_delta,
-         SSP585_1040_delta, SSP585_4070_delta, SSP585_7000_delta)
-datAgSeq43 <- datAgSeq43 %>%
-  select(lon, lat, Historic_mu, 
-         SSP126_1040_delta, SSP126_4070_delta, SSP126_7000_delta,
-         SSP585_1040_delta, SSP585_4070_delta, SSP585_7000_delta)
-
-datForSim14 <- datForSim14 %>%
-  select(lon, lat, Historic_mu,
-         SSP126_1040_delta, SSP126_4070_delta, SSP126_7000_delta,
-         SSP585_1040_delta, SSP585_4070_delta, SSP585_7000_delta)
-datForSeq14 <- datForSeq14 %>%
-  select(lon, lat, Historic_mu,
-         SSP126_1040_delta, SSP126_4070_delta, SSP126_7000_delta,
-         SSP585_1040_delta, SSP585_4070_delta, SSP585_7000_delta)
-datForSeq41 <- datForSeq41 %>%
-  select(lon, lat, Historic_mu,
-         SSP126_1040_delta, SSP126_4070_delta, SSP126_7000_delta,
-         SSP585_1040_delta, SSP585_4070_delta, SSP585_7000_delta)
-datForSeq43 <- datForSeq43 %>%
-  select(lon, lat, Historic_mu,
-         SSP126_1040_delta, SSP126_4070_delta, SSP126_7000_delta,
-         SSP585_1040_delta, SSP585_4070_delta, SSP585_7000_delta)
-
-# . . 8.3.3 Regions ---
-rm(datChang)
-for (j in 1:4){
-  if (j == 1){
-    datPop <- datPopSim14
-    datAg <- datAgSim14
-    datFor <- datForSim14
-    compound <- comp[1]
-  } else if (j == 2){
-    datPop <- datPopSeq14
-    datAg <- datAgSeq14
-    datFor <- datForSeq14
-    compound <- comp[2]
-  } else if (j == 3){
-    datPop <- datPopSeq41
-    datAg <- datAgSeq41
-    datFor <- datForSeq41
-    compound <- comp[3]
-  } else {
-    datPop <- datPopSeq43
-    datAg <- datAgSeq43
-    datFor <- datForSeq43
-    compound <- comp[8]
-  }
-  datCh <- tibble(
-    'Exposure' = numeric(length = 45),
-    'Region' = numeric(length = 45),
-    'Compound' = numeric(length = 45),
-    'Historic_mu' = numeric(length = 45),
-    'SSP126_1040' = numeric(length = 45),
-    'SSP126_4070' = numeric(length = 45),
-    'SSP126_7000' = numeric(length = 45),
-    'SSP585_1040' = numeric(length = 45),
-    'SSP585_4070' = numeric(length = 45),
-    'SSP585_7000' = numeric(length = 45)
-  )
-  for (i in 1:length(locT)){
-    lonA <- lon1[i]
-    lonB <- lon2[i]
-    latA <- lat1[i]
-    latB <- lat2[i]
-    
-    datP <- datPop
-    datP$lon[datP$lon < lonA | datP$lon > lonB] <- NA
-    datP$lat[datP$lat > latA | datP$lat < latB] <- NA
-    datP <- na.omit(datP)
-    datA <- datAg
-    datA$lon[datA$lon < lonA | datA$lon > lonB] <- NA
-    datA$lat[datA$lat > latA | datA$lat < latB] <- NA
-    datA <- na.omit(datA)
-    datF <- datFor
-    datF$lon[datF$lon < lonA | datF$lon > lonB] <- NA
-    datF$lat[datF$lat > latA | datF$lat < latB] <- NA
-    datF <- na.omit(datF)
-    
-    datCh$Region[(3 * (i-1)) + 1] <- locT[i]
-    datCh$Exposure[(3 * (i-1)) + 1] <- 'Population'
-    datCh$Compound[(3 * (i-1)) + 1] <- compound
-    datCh$Historic_mu[(3 * (i-1)) + 1] <- mean(datP$Historic_mu)
-    datCh$SSP126_1040[(3 * (i-1)) + 1] <- mean(datP$SSP126_1040_delta)
-    datCh$SSP126_4070[(3 * (i-1)) + 1] <- mean(datP$SSP126_4070_delta)
-    datCh$SSP126_7000[(3 * (i-1)) + 1] <- mean(datP$SSP126_7000_delta)
-    datCh$SSP585_1040[(3 * (i-1)) + 1] <- mean(datP$SSP585_1040_delta)
-    datCh$SSP585_4070[(3 * (i-1)) + 1] <- mean(datP$SSP585_4070_delta)
-    datCh$SSP585_7000[(3 * (i-1)) + 1] <- mean(datP$SSP585_7000_delta)
-    
-    datCh$Region[(3 * (i-1)) + 2] <- locT[i]
-    datCh$Exposure[(3 * (i-1)) + 2] <- 'Agriculture'
-    datCh$Compound[(3 * (i-1)) + 2] <- compound
-    datCh$Historic_mu[(3 * (i-1)) + 2] <- mean(datA$Historic_mu)
-    datCh$SSP126_1040[(3 * (i-1)) + 2] <- mean(datA$SSP126_1040_delta)
-    datCh$SSP126_4070[(3 * (i-1)) + 2] <- mean(datA$SSP126_4070_delta)
-    datCh$SSP126_7000[(3 * (i-1)) + 2] <- mean(datA$SSP126_7000_delta)
-    datCh$SSP585_1040[(3 * (i-1)) + 2] <- mean(datA$SSP585_1040_delta)
-    datCh$SSP585_4070[(3 * (i-1)) + 2] <- mean(datA$SSP585_4070_delta)
-    datCh$SSP585_7000[(3 * (i-1)) + 2] <- mean(datA$SSP585_7000_delta)
-    
-    datCh$Region[(3 * (i-1)) + 3] <- locT[i]
-    datCh$Exposure[(3 * (i-1)) + 3] <- 'Forestry'
-    datCh$Compound[(3 * (i-1)) + 3] <- compound
-    datCh$Historic_mu[(3 * (i-1)) + 3] <- mean(datF$Historic_mu)
-    datCh$SSP126_1040[(3 * (i-1)) + 3] <- mean(datF$SSP126_1040_delta)
-    datCh$SSP126_4070[(3 * (i-1)) + 3] <- mean(datF$SSP126_4070_delta)
-    datCh$SSP126_7000[(3 * (i-1)) + 3] <- mean(datF$SSP126_7000_delta)
-    datCh$SSP585_1040[(3 * (i-1)) + 3] <- mean(datF$SSP585_1040_delta)
-    datCh$SSP585_4070[(3 * (i-1)) + 3] <- mean(datF$SSP585_4070_delta)
-    datCh$SSP585_7000[(3 * (i-1)) + 3] <- mean(datF$SSP585_7000_delta)
-  }
-  if (j == 1){
-    datChang <- datCh
-  } else {
-    datChang <- rbind(datChang, datCh)
-  }
-}
-datChang$Compound <- factor(datChang$Compound, 
-                            levels = c(comp[1], comp[2], comp[3], comp[8]), 
-                            # labels = c(compT[1], compT[2], compT[3], compT[8])
-                            labels = c('Sim. HW & FD', 'Seq. HW & FD', 
-                                       'Seq. FD & HW', 'Seq. FD & EP'))
-datChang$Region <- factor(datChang$Region, levels = rev(locTLev))
-
-# . 8.4 Plotting Loli 585 ------------------------------------------------------
-dat <- datChang[datChang$Exposure == 'Population',]
-a <- 'Population Change'
-p1 <- ggplot(dat) +
-  theme_bw() +
-  geom_segment(aes(x=Region, xend=Region, y=SSP585_1040, yend=SSP585_4070), 
-               color="grey") +
-  geom_segment(aes(x=Region, xend=Region, y=SSP585_4070, yend=SSP585_7000), 
-               color="grey") +
-  geom_point(aes(x=Region, y=SSP585_1040), color='gold', size=5, alpha = 0.5 ) +
-  geom_point(aes(x=Region, y=SSP585_4070), color='darkorange1', size=5, alpha = 0.5 ) +
-  geom_point(aes(x=Region, y=SSP585_7000), color='red3', size=5, alpha = 0.5 ) +
-  coord_flip() +
-  # scale_y_continuous(labels = scales::label_comma()) +
-  scale_y_continuous(labels = scales::label_number(scale_cut = scales::cut_short_scale())) +
-  labs(x = "", y = "person-events", title = a) +
-  facet_grid(Compound ~ .) +
-  theme(strip.text = element_text(size = 7), 
-        strip.background = element_blank())
-
-dat <- datChang[datChang$Exposure == 'Agriculture',]
-a <- 'Agriculture Land Area Change'
-p2 <- ggplot(dat) +
-  theme_bw() +
-  geom_segment(aes(x=Region, xend=Region, y=SSP585_1040, yend=SSP585_4070), 
-               color="grey") +
-  geom_segment(aes(x=Region, xend=Region, y=SSP585_4070, yend=SSP585_7000), 
-               color="grey") +
-  geom_point(aes(x=Region, y=SSP585_1040), color='gold', size=5, alpha = 0.5 ) +
-  geom_point(aes(x=Region, y=SSP585_4070), color='darkorange1', size=5, alpha = 0.5 ) +
-  geom_point(aes(x=Region, y=SSP585_7000), color='red3', size=5, alpha = 0.5 ) +
-  coord_flip() +
-  scale_y_continuous(labels = scales::label_comma()) +
-  # scale_y_continuous(labels = scales::label_number(scale_cut = scales::cut_short_scale())) +
-  labs(x = "", y = "km2-events", title = a) +
-  facet_grid(Compound ~ .) +
-  theme(strip.text = element_text(size = 7), 
-        strip.background = element_blank())
-
-dat <- datChang[datChang$Exposure == 'Forestry',]
-a <- 'Forestry Land Area Change'
-p3 <- ggplot(dat) +
-  theme_bw() +
-  geom_segment(aes(x=Region, xend=Region, y=SSP585_1040, yend=SSP585_4070), 
-               color="grey") +
-  geom_segment(aes(x=Region, xend=Region, y=SSP585_4070, yend=SSP585_7000), 
-               color="grey") +
-  geom_point(aes(x=Region, y=SSP585_1040), color='gold', size=5, alpha = 0.5 ) +
-  geom_point(aes(x=Region, y=SSP585_4070), color='darkorange1', size=5, alpha = 0.5 ) +
-  geom_point(aes(x=Region, y=SSP585_7000), color='red3', size=5, alpha = 0.5 ) +
-  coord_flip() +
-  scale_y_continuous(labels = scales::label_comma()) +
-  # scale_y_continuous(labels = scales::label_number(scale_cut = scales::cut_short_scale())) +
-  labs(x = "", y = "km2-events", title = a) +
-  facet_grid(Compound ~ .) +
-  theme(strip.text = element_text(size = 7), 
-        strip.background = element_blank())
-
-dat <- matrix(0, nrow = 6, ncol = 3) %>%
-  tibble()
-colnames(dat) <- c('Scenario','XX1','YY2')
-dat[,2] <- c(2,3,4,5,3,2)
-dat[,3] <- c(3,4,5,4,3,2)
-dat$Scenario <- factor(colnames(datChang[3:8]))
-colnames(dat) <- c('Scenario','XX1','YY2')
-myLegend <- ggplot(dat, aes(x=XX1 ,y=YY2, color = Scenario)) +
-  theme_bw() +
-  geom_point(size=5, alpha = 0.5) + 
-  scale_color_manual(values = c('SSP126_1040'="gold",
-                                'SSP126_4070'="darkorange1",
-                                'SSP126_7000'='red3'), 
-                     
-                     labels = c('Early-Century', 'Mid-Century', 'Late-Century'),
-                     name = "") 
-myLegend <- get_legend(myLegend, position = 'bottom') %>% 
-  as_ggplot()
-
-F1 <- plot_grid(p1,
-                myLegend,
-                nrow = 2,
-                rel_heights = c(1, 0.05))
-ggsave(F1, filename = paste0(fileloc1,'Results/Paper/','FIG_8', ".tiff"),
-       width = 7, height = 5.2, dpi = 350, bg='white')
-F1 <- plot_grid(p2,
-                myLegend,
-                nrow = 2,
-                rel_heights = c(1, 0.05))
-ggsave(F1, filename = paste0(fileloc1,'Results/Paper/','FIG_9', ".tiff"),
-       width = 7, height = 5.2, dpi = 350, bg='white')
-F1 <- plot_grid(p3,
-                myLegend,
-                nrow = 2,
-                rel_heights = c(1, 0.05))
-ggsave(F1, filename = paste0(fileloc1,'Results/Paper/','FIG_10', ".tiff"),
-       width = 7, height = 5.2, dpi = 350, bg='white')
-
-# . 8.5 Plotting Loli 126 ------------------------------------------------------
-dat <- datChang[datChang$Exposure == 'Population',]
-a <- 'Population Change'
-p1 <- ggplot(dat) +
-  theme_bw() +
-  geom_segment(aes(x=Region, xend=Region, y=SSP126_1040, yend=SSP126_4070), 
-               color="grey") +
-  geom_segment(aes(x=Region, xend=Region, y=SSP126_4070, yend=SSP126_7000), 
-               color="grey") +
-  geom_point(aes(x=Region, y=SSP126_1040), color='gold', size=5, alpha = 0.5 ) +
-  geom_point(aes(x=Region, y=SSP126_4070), color='darkorange1', size=5, alpha = 0.5 ) +
-  geom_point(aes(x=Region, y=SSP126_7000), color='red3', size=5, alpha = 0.5 ) +
-  coord_flip() +
-  # scale_y_continuous(labels = scales::label_comma()) +
-  scale_y_continuous(labels = scales::label_number(scale_cut = scales::cut_short_scale())) +
-  labs(x = "", y = "person-events", title = a) +
-  facet_grid(Compound ~ .) +
-  theme(strip.text = element_text(size = 7), 
-        strip.background = element_blank())
-
-dat <- datChang[datChang$Exposure == 'Agriculture',]
-a <- 'Agriculture Land Area Change'
-p2 <- ggplot(dat) +
-  theme_bw() +
-  geom_segment(aes(x=Region, xend=Region, y=SSP126_1040, yend=SSP126_4070), 
-               color="grey") +
-  geom_segment(aes(x=Region, xend=Region, y=SSP126_4070, yend=SSP126_7000), 
-               color="grey") +
-  geom_point(aes(x=Region, y=SSP126_1040), color='gold', size=5, alpha = 0.5 ) +
-  geom_point(aes(x=Region, y=SSP126_4070), color='darkorange1', size=5, alpha = 0.5 ) +
-  geom_point(aes(x=Region, y=SSP126_7000), color='red3', size=5, alpha = 0.5 ) +
-  coord_flip() +
-  scale_y_continuous(labels = scales::label_comma()) +
-  # scale_y_continuous(labels = scales::label_number(scale_cut = scales::cut_short_scale())) +
-  labs(x = "", y = "km2-events", title = a) +
-  facet_grid(Compound ~ .) +
-  theme(strip.text = element_text(size = 7), 
-        strip.background = element_blank())
-
-dat <- datChang[datChang$Exposure == 'Forestry',]
-a <- 'Forestry Land Area Change'
-p3 <- ggplot(dat) +
-  theme_bw() +
-  geom_segment(aes(x=Region, xend=Region, y=SSP126_1040, yend=SSP126_4070), 
-               color="grey") +
-  geom_segment(aes(x=Region, xend=Region, y=SSP126_4070, yend=SSP126_7000), 
-               color="grey") +
-  geom_point(aes(x=Region, y=SSP126_1040), color='gold', size=5, alpha = 0.5 ) +
-  geom_point(aes(x=Region, y=SSP126_4070), color='darkorange1', size=5, alpha = 0.5 ) +
-  geom_point(aes(x=Region, y=SSP126_7000), color='red3', size=5, alpha = 0.5 ) +
-  coord_flip() +
-  scale_y_continuous(labels = scales::label_comma()) +
-  # scale_y_continuous(labels = scales::label_number(scale_cut = scales::cut_short_scale())) +
-  labs(x = "", y = "km2-events", title = a) +
-  facet_grid(Compound ~ .) +
-  theme(strip.text = element_text(size = 7), 
-        strip.background = element_blank())
-
-dat <- matrix(0, nrow = 6, ncol = 3) %>%
-  tibble()
-colnames(dat) <- c('Scenario','XX1','YY2')
-dat[,2] <- c(2,3,4,5,3,2)
-dat[,3] <- c(3,4,5,4,3,2)
-dat$Scenario <- factor(colnames(datChang[3:8]))
-colnames(dat) <- c('Scenario','XX1','YY2')
-myLegend <- ggplot(dat, aes(x=XX1 ,y=YY2, color = Scenario)) +
-  theme_bw() +
-  geom_point(size=5, alpha = 0.5) + 
-  scale_color_manual(values = c('SSP126_1040'="gold",
-                                'SSP126_4070'="darkorange1",
-                                'SSP126_7000'='red3'), 
-                     
-                     labels = c('Early-Century', 'Mid-Century', 'Late-Century'),
-                     name = "") 
-myLegend <- get_legend(myLegend, position = 'bottom') %>% 
-  as_ggplot()
-
-F1 <- plot_grid(p1,
-                myLegend,
-                nrow = 2,
-                rel_heights = c(1, 0.05))
-ggsave(F1, filename = paste0(fileloc1,'Results/Paper/','FIG_11', ".tiff"),
-       width = 7, height = 5.2, dpi = 350, bg='white')
-F1 <- plot_grid(p2,
-                myLegend,
-                nrow = 2,
-                rel_heights = c(1, 0.05))
-ggsave(F1, filename = paste0(fileloc1,'Results/Paper/','FIG_12', ".tiff"),
-       width = 7, height = 5.2, dpi = 350, bg='white')
-F1 <- plot_grid(p3,
-                myLegend,
-                nrow = 2,
-                rel_heights = c(1, 0.05))
-ggsave(F1, filename = paste0(fileloc1,'Results/Paper/','FIG_13', ".tiff"),
-       width = 7, height = 5.2, dpi = 350, bg='white')
-
-# . 7.4 Plotting Loli 585-126 --------------------------------------------------
-dat <- datChang[datChang$Exposure == 'Population',]
-a <- 'Population Change'
-p1 <- ggplot(dat) +
-  theme_bw() +
-  geom_segment(aes(x=Region, xend=Region, y=SSP126_1040, yend=SSP126_4070), 
-               color="grey") +
-  geom_segment(aes(x=Region, xend=Region, y=SSP126_4070, yend=SSP126_7000), 
-               color="grey") +
-  geom_segment(aes(x=Region, xend=Region, y=SSP585_1040, yend=SSP585_4070),
-               color="grey") +
-  geom_segment(aes(x=Region, xend=Region, y=SSP585_4070, yend=SSP585_7000),
-               color="grey") +
-  geom_point(aes(x=Region, y=SSP126_1040), color='#e0ecf4', size=5, alpha = 0.75) +
-  geom_point(aes(x=Region, y=SSP126_4070), color='#9ebcda', size=5, alpha = 0.5) +
-  geom_point(aes(x=Region, y=SSP126_7000), color='#8856a7', size=5, alpha = 0.5) +
-  geom_point(aes(x=Region, y=SSP585_1040), color='gold', size=5, alpha = 0.5) +
-  geom_point(aes(x=Region, y=SSP585_4070), color='darkorange1', size=5, alpha = 0.5) +
-  geom_point(aes(x=Region, y=SSP585_7000), color='red3', size=5, alpha = 0.5 ) +
-  coord_flip() +
-  # scale_y_continuous(labels = scales::label_comma()) +
-  scale_y_continuous(labels = scales::label_number(scale_cut = scales::cut_short_scale())) +
-  labs(x = "", y = "person-events", title = a) +
-  facet_grid(Compound ~ .) +
-  theme(strip.text = element_text(size = 7), 
-        strip.background = element_blank())
-
-dat <- datChang[datChang$Exposure == 'Agriculture',]
-a <- 'Agriculture Land Area Change'
-p2 <- ggplot(dat) +
-  theme_bw() +
-  geom_segment(aes(x=Region, xend=Region, y=SSP126_1040, yend=SSP126_4070), 
-               color="grey") +
-  geom_segment(aes(x=Region, xend=Region, y=SSP126_4070, yend=SSP126_7000), 
-               color="grey") +
-  geom_segment(aes(x=Region, xend=Region, y=SSP585_1040, yend=SSP585_4070),
-               color="grey") +
-  geom_segment(aes(x=Region, xend=Region, y=SSP585_4070, yend=SSP585_7000),
-               color="grey") +
-  geom_point(aes(x=Region, y=SSP126_1040), color='#e0ecf4', size=5, alpha = 0.75) +
-  geom_point(aes(x=Region, y=SSP126_4070), color='#9ebcda', size=5, alpha = 0.5) +
-  geom_point(aes(x=Region, y=SSP126_7000), color='#8856a7', size=5, alpha = 0.5) +
-  geom_point(aes(x=Region, y=SSP585_1040), color='gold', size=5, alpha = 0.5) +
-  geom_point(aes(x=Region, y=SSP585_4070), color='darkorange1', size=5, alpha = 0.5) +
-  geom_point(aes(x=Region, y=SSP585_7000), color='red3', size=5, alpha = 0.5 ) +
-  coord_flip() +
-  scale_y_continuous(labels = scales::label_comma()) +
-  # scale_y_continuous(labels = scales::label_number(scale_cut = scales::cut_short_scale())) +
-  labs(x = "", y = "km2-events", title = a) +
-  facet_grid(Compound ~ .) +
-  theme(strip.text = element_text(size = 7), 
-        strip.background = element_blank())
-
-dat <- datChang[datChang$Exposure == 'Forestry',]
-a <- 'Forestry Land Area Change'
-p3 <- ggplot(dat) +
-  theme_bw() +
-  geom_segment(aes(x=Region, xend=Region, y=SSP126_1040, yend=SSP126_4070), 
-               color="grey") +
-  geom_segment(aes(x=Region, xend=Region, y=SSP126_4070, yend=SSP126_7000), 
-               color="grey") +
-  geom_segment(aes(x=Region, xend=Region, y=SSP585_1040, yend=SSP585_4070),
-               color="grey") +
-  geom_segment(aes(x=Region, xend=Region, y=SSP585_4070, yend=SSP585_7000),
-               color="grey") +
-  geom_point(aes(x=Region, y=SSP126_1040), color='#e0ecf4', size=5, alpha = 0.75) +
-  geom_point(aes(x=Region, y=SSP126_4070), color='#9ebcda', size=5, alpha = 0.5) +
-  geom_point(aes(x=Region, y=SSP126_7000), color='#8856a7', size=5, alpha = 0.5) +
-  geom_point(aes(x=Region, y=SSP585_1040), color='gold', size=5, alpha = 0.5) +
-  geom_point(aes(x=Region, y=SSP585_4070), color='darkorange1', size=5, alpha = 0.5) +
-  geom_point(aes(x=Region, y=SSP585_7000), color='red3', size=5, alpha = 0.5 ) +
-  coord_flip() +
-  scale_y_continuous(labels = scales::label_comma()) +
-  # scale_y_continuous(labels = scales::label_number(scale_cut = scales::cut_short_scale())) +
-  labs(x = "", y = "km2-events", title = a) +
-  facet_grid(Compound ~ .) +
-  theme(strip.text = element_text(size = 7), 
-        strip.background = element_blank())
-
-dat <- matrix(0, nrow = 6, ncol = 3) %>%
-  tibble()
-colnames(dat) <- c('Scenario','XX1','YY2')
-dat[,2] <- c(2,3,4,5,3,2)
-dat[,3] <- c(3,4,5,4,3,2)
-dat$Scenario <- factor(colnames(datChang[5:10]), levels = c('SSP126_1040', 'SSP585_1040',
-                                                            'SSP126_4070', 'SSP585_4070',
-                                                            'SSP126_7000', 'SSP585_7000'))
-
-colnames(dat) <- c('Scenario','XX1','YY2')
-myLegend <- ggplot(dat, aes(x=XX1 ,y=YY2, color = Scenario)) +
-  theme_bw() +
-  geom_point(size=5, alpha = 0.5) + 
-  scale_color_manual(values = c('SSP126_1040' = '#e0ecf4','SSP585_1040'="gold",
-                                'SSP126_4070' = '#9ebcda','SSP585_4070'="darkorange1",
-                                'SSP126_7000' = '#8856a7', 'SSP585_7000'='red3'), 
-                     labels = c('SSP1-2.6 Early-Century', 'SSP5-8.5 Early-Century',
-                                'SSP1-2.6 Mid-Century',  'SSP5-8.5 Mid-Century',
-                                'SSP1-2.6 Late-Century', 'SSP5-8.5 Late-Century'),
-                     name = "") 
-myLegend <- get_legend(myLegend, position = 'bottom') %>% 
-  as_ggplot()
-
-F1 <- plot_grid(p1,
-                myLegend,
-                nrow = 2, rel_heights = c(1, 0.12))
-ggsave(F1, filename = paste0(fileloc1,'Results/Paper/Supplement/','SUPP_FIG_8', ".tiff"),
-       width = 6.9, height = 5.5, dpi = 350, bg='white')
-F1 <- plot_grid(p2,
-                myLegend,
-                nrow = 2, rel_heights = c(1, 0.12))
-ggsave(F1, filename = paste0(fileloc1,'Results/Paper/Supplement/','SUPP_FIG_9', ".tiff"),
-       width = 6.9, height = 5.5, dpi = 350, bg='white')
-F1 <- plot_grid(p3,
-                myLegend,
-                nrow = 2, rel_heights = c(1, 0.12))
-ggsave(F1, filename = paste0(fileloc1,'Results/Paper/Supplement/','SUPP_FIG_10', ".tiff"),
-       width = 6.9, height = 5.5, dpi = 350, bg='white')
-
-
-
-
-
-
-
-
-# END ##########################################################################
-# Part 3 - Figure 1 & Sup 1 ####################################################
-# . 3.1 Opening Files ----------------------------------------------------------
-relV1 <- read_csv(paste0(fileloc1,'Data/Results/','OCC_CHANG_',var[1],'.csv'), 
-                    col_names = TRUE, cols(.default = col_double()))
-relV3 <- read_csv(paste0(fileloc1,'Data/Results/','OCC_CHANG_',var[3],'.csv'), 
-                  col_names = TRUE, cols(.default = col_double()))
-relV4 <- read_csv(paste0(fileloc1,'Data/Results/','OCC_CHANG_',var[4],'.csv'), 
-                     col_names = TRUE, cols(.default = col_double()))
-
-# . 3.2 Plotting limits --------------------------------------------------------
-# maxLimitV1 <- rbind(relV1$SSP126_7000_Delta, relV1$SSP585_7000_Delta) %>%
-#   max()
-# minLimitV1 <- rbind(relV1$SSP126_7000_Delta, relV1$SSP585_7000_Delta) %>%
-#   min()
-# maxLimitV3 <- rbind(relV3$SSP126_7000_Delta, relV3$SSP585_7000_Delta) %>%
-#   max()
-# minLimitV3 <- rbind(relV3$SSP126_7000_Delta, relV3$SSP585_7000_Delta) %>%
-#   min()
-# maxLimitV4 <- rbind(relV4$SSP126_7000_Delta, relV4$SSP585_7000_Delta) %>%
-#   max()
-# minLimitV4 <- rbind(relV4$SSP126_7000_Delta, relV4$SSP585_7000_Delta) %>%
-#   min()
-maxLimitV1 <- rbind(relV1$SSP126_4070_Delta, relV1$SSP585_4070_Delta,
-                    relV1$SSP126_7000_Delta, relV1$SSP585_7000_Delta) %>%
-  max()
-minLimitV1 <- rbind(relV1$SSP126_4070_Delta, relV1$SSP585_4070_Delta,
-                    relV1$SSP126_7000_Delta, relV1$SSP585_7000_Delta) %>%
+# . 11.2 Pre-processing Limits -------------------------------------------------
+# . . 11.2.1 Population ----
+minLimt <- rbind(
+  datPopSim14$Historic_mu , datPopSeq14$Historic_mu, 
+  datPopSeq41$Historic_mu, 
+  datPopSeq43$Historic_mu) %>%
   min()
-maxLimitV3 <- rbind(relV3$SSP126_4070_Delta, relV3$SSP585_4070_Delta,
-                    relV3$SSP126_7000_Delta, relV3$SSP585_7000_Delta) %>%
+maxLimt <- rbind(
+  datPopSim14$Historic_mu, datPopSeq14$Historic_mu, 
+  datPopSeq41$Historic_mu, # datSim13$Historic_mu,
+  datPopSeq43$Historic_mu) %>%
   max()
-minLimitV3 <- rbind(relV3$SSP126_4070_Delta, relV3$SSP585_4070_Delta,
-                    relV3$SSP126_7000_Delta, relV3$SSP585_7000_Delta) %>%
-  min()
-maxLimitV4 <- rbind(relV4$SSP126_4070_Delta, relV4$SSP585_4070_Delta,
-                    relV4$SSP126_7000_Delta, relV4$SSP585_7000_Delta) %>%
-  max()
-minLimitV4 <- rbind(relV4$SSP126_4070_Delta, relV4$SSP585_4070_Delta,
-                    relV4$SSP126_7000_Delta, relV4$SSP585_7000_Delta) %>%
-  min()
 
-# . 3.3 Plotting Change 7000 ---------------------------------------------------
-a <- "SSP126 Late-Century - Historical"
-p1 <- ggplot(data = relV1, aes(x=lon, y=lat, fill=SSP126_7000_Delta)) +
+datC1 <- tibble(lat = datPopSim14$lat, lon = datPopSim14$lon, 
+                Historical = datPopSim14$Historic_mu,
+                Compound = compT[1])
+datC1$Delta <- as.integer(datC1$Historical)
+
+datC2 <- tibble(lat = datPopSeq14$lat, lon = datPopSeq14$lon, 
+                Historical = datPopSeq14$Historic_mu,
+                Compound = compT[2])
+datC2$Delta <- as.integer(datC2$Historical)
+
+datC3 <- tibble(lat = datPopSeq41$lat, lon = datPopSeq41$lon, 
+                Historical = datPopSeq41$Historic_mu,
+                Compound = compT[3])
+datC3$Delta <- as.integer(datC3$Historical)
+
+datC4 <- tibble(lat = datPopSeq43$lat, lon = datPopSeq43$lon, 
+                Historical = datPopSeq43$Historic_mu,
+                Compound = compT[8])
+datC4$Delta <- as.integer(datC4$Historical)
+
+datP <- rbind(datC1, datC2, datC3, datC4)
+datP$Compound <- factor(datP$Compound, 
+                        levels = c(compT[1], compT[2], compT[3], compT[8]), 
+                        labels = c('Sim. HW & FD', 'Seq. HW & FD', 
+                                   'Seq. FD & HW', 'Seq. FD & EP'))
+# . . 11.2.2 Agriculture ----
+minLimt <- rbind(
+  datAgSim14$Historic_mu , datAgSeq14$Historic_mu, 
+  datAgSeq41$Historic_mu, 
+  datAgSeq43$Historic_mu) %>%
+  min()
+maxLimt <- rbind(
+  datAgSim14$Historic_mu, datAgSeq14$Historic_mu, 
+  datAgSeq41$Historic_mu, # datSim13$Historic_mu,
+  datAgSeq43$Historic_mu) %>%
+  max()
+
+datC1 <- tibble(lat = datAgSim14$lat, lon = datAgSim14$lon, 
+                Historical = datAgSim14$Historic_mu,
+                Compound = compT[1])
+datC1$Delta <- as.integer(datC1$Historical)
+
+datC2 <- tibble(lat = datAgSeq14$lat, lon = datAgSeq14$lon, 
+                Historical = datAgSeq14$Historic_mu,
+                Compound = compT[2])
+datC2$Delta <- as.integer(datC2$Historical)
+
+datC3 <- tibble(lat = datAgSeq41$lat, lon = datAgSeq41$lon, 
+                Historical = datAgSeq41$Historic_mu,
+                Compound = compT[3])
+datC3$Delta <- as.integer(datC3$Historical)
+
+datC4 <- tibble(lat = datAgSeq43$lat, lon = datAgSeq43$lon, 
+                Historical = datAgSeq43$Historic_mu,
+                Compound = compT[8])
+datC4$Delta <- as.integer(datC4$Historical)
+
+datA <- rbind(datC1, datC2, datC3, datC4)
+datA$Compound <- factor(datA$Compound, 
+                        levels = c(compT[1], compT[2], compT[3], compT[8]), 
+                        labels = c('Sim. HW & FD', 'Seq. HW & FD', 
+                                   'Seq. FD & HW', 'Seq. FD & EP'))
+# . . 11.2.3 Forestry ----
+minLimt <- rbind(
+  datForSim14$Historic_mu , datForSeq14$Historic_mu, 
+  datForSeq41$Historic_mu, 
+  datForSeq43$Historic_mu) %>%
+  min()
+maxLimt <- rbind(
+  datForSim14$Historic_mu, datForSeq14$Historic_mu, 
+  datForSeq41$Historic_mu, # datSim13$Historic_mu,
+  datForSeq43$Historic_mu) %>%
+  max()
+
+datC1 <- tibble(lat = datForSim14$lat, lon = datForSim14$lon, 
+                Historical = datForSim14$Historic_mu,
+                Compound = compT[1])
+datC1$Delta <- as.integer(datC1$Historical)
+
+datC2 <- tibble(lat = datForSeq14$lat, lon = datForSeq14$lon, 
+                Historical = datForSeq14$Historic_mu,
+                Compound = compT[2])
+datC2$Delta <- as.integer(datC2$Historical)
+
+datC3 <- tibble(lat = datForSeq41$lat, lon = datForSeq41$lon, 
+                Historical = datForSeq41$Historic_mu,
+                Compound = compT[3])
+datC3$Delta <- as.integer(datC3$Historical)
+
+datC4 <- tibble(lat = datForSeq43$lat, lon = datForSeq43$lon, 
+                Historical = datForSeq43$Historic_mu,
+                Compound = compT[8])
+datC4$Delta <- as.integer(datC4$Historical)
+datF <- rbind(datC1, datC2, datC3, datC4)
+datF$Compound <- factor(datF$Compound, 
+                        levels = c(compT[1], compT[2], compT[3], compT[8]), 
+                        labels = c('Sim. HW & FD', 'Seq. HW & FD', 
+                                   'Seq. FD & HW', 'Seq. FD & EP'))
+# . 11.6 Plotting Exposure ------------------------------------------------------
+p1 <- ggplot(data = datP, aes(x=lon, y=lat, fill = Historical)) +
   theme_bw() +
   geom_tile() +
-  scale_fill_viridis_c(limits = c(minLimitV1, maxLimitV1), option = "rocket",
-                       direction = -1, name = '') +
-  geom_point(alpha = 0.5, shape = 47,
-             aes(size=ifelse(SSP126_7000_Sig == 0,'dot', 'no_dot'))) +
-  scale_size_manual(values=c(dot=0.5, no_dot=NA), guide="none") +
+  scale_fill_stepsn(#breaks = c(-50000000, 0, 50000000, 100000000, 150000000,
+    #           200000000, 250000000), 
+    colours =  c( "#fde0ef", "#e6f5d0", "#b8e186",
+                           "#7fbc41", '#4d9221', '#006837'), 
+                           show.limits = F, oob = oob_keep,
+    labels = comma) +
+  # geom_point(alpha = 0.75, shape = 47,
+  #            aes(size=ifelse(Sig == 1,'dot', 'no_dot'))) +
+  # scale_size_manual(values=c(dot=0.5, no_dot=NA), guide="none") +
   geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
                colour="black", fill="NA", linewidth=0.5) +
-  coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-60,90), expand = FALSE) +
-  labs(title = 'A', x = '', y = 'Latitude') +
-  theme(legend.position = #"bottom",
-        legend.key.size = unit(1, 'cm'),
-        legend.key.height = unit(1, 'cm')) +
-  theme(plot.margin = margin(t = 0.0, r = 0.0, b = 0.0, l = 0.0, unit="cm"))
-
-p2 <- ggplot(data = relV3, aes(x=lon, y=lat, fill=SSP126_7000_Delta)) +
-  theme_bw() +
-  geom_tile() +
-  # scale_fill_viridis_c(limits = c(minLimitV3, 0), option = "viridis",
-  #                      direction = -1, name = '') +
-  scale_fill_viridis_c(limits = c(minLimitV3, maxLimitV3), option = "viridis",
-                       direction = -1, name = '') +
-  geom_point(alpha = 0.5, shape = 47,
-             aes(size=ifelse(SSP126_7000_Sig == 0,'dot', 'no_dot'))) +
-  scale_size_manual(values=c(dot=0.5, no_dot=NA), guide="none") +
-  geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
-               colour="black", fill="NA", linewidth=0.5) +
-  coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-60,90), expand = FALSE) +
-  labs(title = 'B', x = '', y = '') +
+  coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-65,90), expand = FALSE) +
+  labs(title = 'Population Exposure (person-events)', fill = '',
+       x = 'Longitude', y = 'Latitude') +
   theme(legend.position="bottom",
-        legend.key.size = unit(1, 'cm'),
-        legend.key.height = unit(1, 'cm')) +
-  theme(plot.margin = margin(t = 0.0, r = 0.0, b = 0.0, l = 0.0, unit="cm"))
+        legend.key.size = unit(2.5, 'cm'),
+        legend.key.height = unit(.5, 'cm')) +
+  theme(plot.margin=margin(t=0.5, r=0.5, unit="cm"))  +
+  facet_grid(vars(Compound)) +
+  theme(strip.text = element_text(size = 12), 
+        strip.background = element_blank())
 
-p3 <- ggplot(data = relV4, aes(x=lon, y=lat, fill=SSP126_7000_Delta)) +
+ggsave(p1, filename = paste0(fileloc1,'Results/Paper/','SUPFIG_3', ".tiff"),
+       width = 7.5, height = 11, dpi = 350, bg='white')
+ggsave(p1, filename = paste0(fileloc1,'Results/Paper/','SUPFIG_3_sm', ".tiff"),
+       width = 7.5, height = 11, dpi = 90, bg='white')
+
+
+p2 <- ggplot(data = datA, aes(x=lon, y=lat, fill = Historical)) +
   theme_bw() +
   geom_tile() +
-  scale_fill_viridis_c(limits = c(minLimitV4, maxLimitV4), option = "mako",
-                       direction = -1, name = '') +
-  geom_point(alpha = 0.5, shape = 47,
-             aes(size=ifelse(SSP126_7000_Sig == 0,'dot', 'no_dot'))) +
-  scale_size_manual(values=c(dot=0.5, no_dot=NA), guide="none") +
+  scale_fill_stepsn(# breaks = c(-Inf, -30000, 0, 30000, 60000, 90000, Inf), 
+    colours =  c( "#af8dc3", "#e7d4e8", "#d9f0d3", "#7fbf7b", '#1b7837', '#006837'), 
+    show.limits = F, oob = oob_keep,
+    labels = comma) +
+  # geom_point(alpha = 0.75, shape = 47,
+  #            aes(size=ifelse(Sig == 1,'dot', 'no_dot'))) +
+  # scale_size_manual(values=c(dot=0.5, no_dot=NA), guide="none") +
   geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
                colour="black", fill="NA", linewidth=0.5) +
-  coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-60,90), expand = FALSE) +
-  labs(title = 'C', x = '', y = '') +
+  coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-65,90), expand = FALSE) +
+  labs(title = 'Agriculture Exposure (km2-events)', fill = '',
+       x = 'Longitude', y = 'Latitude') +
   theme(legend.position="bottom",
-        legend.key.size = unit(1, 'cm'),
-        legend.key.height = unit(1, 'cm')) +
-  theme(plot.margin = margin(t = 0.0, r = 0.05, b = 0.0, l = 0.0, unit="cm"))
+        legend.key.size = unit(2, 'cm'),
+        legend.key.height = unit(.5, 'cm')) +
+  theme(plot.margin=margin(t=0.5, r=0.5, unit="cm"))  +
+  facet_grid(vars(Compound)) +
+  theme(strip.text = element_text(size = 12), 
+        strip.background = element_blank())
 
-a <- "SSP585 Late-Century - Historical"
-p4 <- ggplot(data = relV1, aes(x=lon, y=lat, fill=SSP585_7000_Delta)) +
+ggsave(p2, filename = paste0(fileloc1,'Results/Paper/','SUPFIG_4', ".tiff"),
+       width = 7.5, height = 11, dpi = 350, bg='white')
+ggsave(p2, filename = paste0(fileloc1,'Results/Paper/','SUPFIG_4_sm', ".tiff"),
+       width = 7.5, height = 11, dpi = 90, bg='white')
+
+p3 <- ggplot(data = datF, aes(x=lon, y=lat, fill = Historical)) +
   theme_bw() +
   geom_tile() +
-  scale_fill_viridis_c(limits = c(minLimitV1, maxLimitV1), option = "rocket",
-                       direction = -1, name = 'Difference of Events') +
-  geom_point(alpha = 0.5, shape = 47,
-             aes(size=ifelse(SSP585_7000_Sig == 0,'dot', 'no_dot'))) +
-  scale_size_manual(values=c(dot=0.5, no_dot=NA), guide="none") +
+  scale_fill_stepsn(#breaks = c(-Inf, -60000, 0, 60000, 120000, 1800000, Inf), 
+    colours =  c( "#af8dc3", "#e7d4e8", "#d9f0d3", "#7fbf7b", '#1b7837', '#006837'), 
+    show.limits = F, oob = oob_keep,
+    labels = comma) +
+  # geom_point(alpha = 0.75, shape = 47,
+  #            aes(size=ifelse(Sig == 1,'dot', 'no_dot'))) +
+  # scale_size_manual(values=c(dot=0.5, no_dot=NA), guide="none") +
   geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
                colour="black", fill="NA", linewidth=0.5) +
-  coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-60,90), expand = FALSE) +
-  labs(title = 'D', x = 'Longitude', y = 'Latitude') +
-  theme(legend.position="NULL") +
-  theme(plot.margin = margin(t = 0.0, r = 0.1, b = 0.0, l = 0.0, unit="cm"))
-
-p5 <- ggplot(data = relV3, aes(x=lon, y=lat, fill=SSP585_7000_Delta)) +
-  theme_bw() +
-  geom_tile() +
-  # scale_fill_viridis_c(limits = c(minLimitV3, 0), option = "viridis",
-  #                      direction = -1, name = 'Difference of Events') +
-  scale_fill_viridis_c(limits = c(minLimitV3, maxLimitV3), option = "viridis",
-                       direction = -1, name = 'Difference of Events') +
-  geom_point(alpha = 0.5, shape = 47,
-             aes(size=ifelse(SSP585_7000_Sig == 0,'dot', 'no_dot'))) +
-  scale_size_manual(values=c(dot=0.5, no_dot=NA), guide="none") +
-  geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
-               colour="black", fill="NA", linewidth=0.5) +
-  coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-60,90), expand = FALSE) +
-  labs(title = 'E', x = 'Longitude', y = '') +
-  theme(legend.position="NULL") +
-  theme(plot.margin = margin(t = 0.0, r = 0.0, b = 0.0, l = 0.0, unit="cm"))
-
-p6 <- ggplot(data = relV4, aes(x=lon, y=lat, fill=SSP585_7000_Delta)) +
-  theme_bw() +
-  geom_tile() +
-  # scale_fill_viridis_c(limits = c(0, maxLimitV4), option = "mako",
-  #                      direction = -1, name = 'Difference of Events') +
-  scale_fill_viridis_c(limits = c(minLimitV4, maxLimitV4), option = "mako",
-                       direction = -1, name = 'Difference of Events') +
-  geom_point(alpha = 0.5, shape = 47,
-             aes(size=ifelse(SSP585_7000_Sig == 0,'dot', 'no_dot'))) +
-  scale_size_manual(values=c(dot=0.5, no_dot=NA), guide="none") +
-  geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
-               colour="black", fill="NA", linewidth=0.5) +
-  coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-60,90), expand = FALSE) +
-  labs(title = 'F', x = 'Longitude', y = '') +
-  theme(legend.position="NULL") +
-  theme(plot.margin = margin(t = 0.0, r = 0.05, b = 0.0, l = 0.0, unit="cm"))
-
-myLegendT <- get_legend(p1, position = 'bottom') %>% 
-  as_ggplot()
-p1 <- p1 + theme(legend.position = "NULL")
-myLegendP <- get_legend(p2, position = 'bottom') %>% 
-  as_ggplot()
-p2 <- p2 + theme(legend.position = "NULL")
-myLegendM <- get_legend(p3, position = 'bottom') %>% 
-  as_ggplot()
-p3 <- p3 + theme(legend.position = "NULL")
-
-F1 <- plot_grid(p1, p2, p3,
-                p4, p5, p6, 
-                myLegendT, myLegendP, myLegendM,
-                nrow = 3,
-                # labels = c('A','B','C','D', 'E', 'F', NULL, NULL, NULL),
-                rel_widths = c(1, 1, 1),
-                rel_heights = c(1, 1, .3))
-title <- ggdraw() + draw_label(paste0("Change of ", varT), fontface='bold')
-ggsave(F1, filename = paste0(fileloc1,'Results/Paper/','FIG_1', ".tiff"),
-       width = 14, height = 6.1, dpi = 375, bg='white')
-
-# . 3.4 Supp Plotting Limits ---------------------------------------------------
-maxLimitV1 <- rbind(relV1$SSP126_4070_Delta, relV1$SSP585_4070_Delta,
-                   relV1$SSP126_7000_Delta, relV1$SSP585_7000_Delta) %>%
-  max()
-minLimitV1 <- rbind(relV1$SSP126_4070_Delta, relV1$SSP585_4070_Delta,
-                   relV1$SSP126_7000_Delta, relV1$SSP585_7000_Delta) %>%
-  min()
-maxLimitV3 <- rbind(relV3$SSP126_4070_Delta, relV3$SSP585_4070_Delta,
-                   relV3$SSP126_7000_Delta, relV3$SSP585_7000_Delta) %>%
-  max()
-minLimitV3 <- rbind(relV3$SSP126_4070_Delta, relV3$SSP585_4070_Delta,
-                   relV3$SSP126_7000_Delta, relV3$SSP585_7000_Delta) %>%
-  min()
-maxLimitV4 <- rbind(relV4$SSP126_4070_Delta, relV4$SSP585_4070_Delta,
-                   relV4$SSP126_7000_Delta, relV4$SSP585_7000_Delta) %>%
-  max()
-minLimitV4 <- rbind(relV4$SSP126_4070_Delta, relV4$SSP585_4070_Delta,
-                   relV4$SSP126_7000_Delta, relV4$SSP585_7000_Delta) %>%
-  min()
-
-# . 3.5 Supp Plotting Change 4070 ----------------------------------------------
-a <- "SSP126 Mid-Century - Historical"
-p1 <- ggplot(data = relV1, aes(x=lon, y=lat, fill=SSP126_4070_Delta)) +
-  theme_bw() +
-  geom_tile() +
-  scale_fill_viridis_c(limits = c(minLimitV1, maxLimitV1), option = "rocket",
-                       direction = -1, name = '') +
-  geom_point(alpha = 0.5, shape = 47,
-             aes(size=ifelse(SSP126_4070_Sig == 0,'dot', 'no_dot'))) +
-  scale_size_manual(values=c(dot=0.5, no_dot=NA), guide="none") +
-  geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
-               colour="black", fill="NA", linewidth=0.5) +
-  coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-60,90), expand = FALSE) +
-  labs(title = 'A', x = '', y = 'Latitude') +
+  coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-65,90), expand = FALSE) +
+  labs(title = 'Forestry Exposure (km2-events)', fill = '',
+       x = 'Longitude', y = 'Latitude') +
   theme(legend.position="bottom",
-        legend.key.size = unit(1, 'cm'),
-        legend.key.height = unit(1, 'cm')) +
-  theme(plot.margin = margin(t = 0.0, r = 0.0, b = 0.0, l = 0.0, unit="cm"))
+        legend.key.size = unit(2, 'cm'),
+        legend.key.height = unit(.5, 'cm')) +
+  theme(plot.margin=margin(t=0.5, r=0.5, unit="cm"))  +
+  facet_grid(vars(Compound)) +
+  theme(strip.text = element_text(size = 12), 
+        strip.background = element_blank())
 
-p2 <- ggplot(data = relV3, aes(x=lon, y=lat, fill=SSP126_4070_Delta)) +
-  theme_bw() +
-  geom_tile() +
-  scale_fill_viridis_c(limits = c(minLimitV3, maxLimitV3), option = "viridis",
-                       direction = -1, name = '') +
-  geom_point(alpha = 0.5, shape = 47,
-             aes(size=ifelse(SSP126_4070_Sig == 0,'dot', 'no_dot'))) +
-  scale_size_manual(values=c(dot=0.5, no_dot=NA), guide="none") +
-  geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
-               colour="black", fill="NA", linewidth=0.5) +
-  coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-60,90), expand = FALSE) +
-  labs(title = 'B', x = '', y = '') +
-  theme(legend.position="bottom",
-        legend.key.size = unit(1, 'cm'),
-        legend.key.height = unit(1, 'cm')) +
-  theme(plot.margin = margin(t = 0.0, r = 0.0, b = 0.0, l = 0.0, unit="cm"))
+ggsave(p3, filename = paste0(fileloc1,'Results/Paper/','SUPFIG_5', ".tiff"),
+       width = 7.5, height = 11, dpi = 350, bg='white')
+ggsave(p3, filename = paste0(fileloc1,'Results/Paper/','SUPFIG_5_sm', ".tiff"),
+       width = 7.5, height = 11, dpi = 90, bg='white')
 
-p3 <- ggplot(data = relV4, aes(x=lon, y=lat, fill=SSP126_4070_Delta)) +
-  theme_bw() +
-  geom_tile() +
-  scale_fill_viridis_c(limits = c(minLimitV4, maxLimitV4), option = "mako",
-                       direction = -1, name = '') +
-  geom_point(alpha = 0.5, shape = 47,
-             aes(size=ifelse(SSP126_4070_Sig == 0,'dot', 'no_dot'))) +
-  scale_size_manual(values=c(dot=0.5, no_dot=NA), guide="none") +
-  geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
-               colour="black", fill="NA", linewidth=0.5) +
-  coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-60,90), expand = FALSE) +
-  labs(title = 'C', x = '', y = '') +
-  theme(legend.position="bottom",
-        legend.key.size = unit(1, 'cm'),
-        legend.key.height = unit(1, 'cm')) +
-  theme(plot.margin = margin(t = 0.0, r = 0.05, b = 0.0, l = 0.0, unit="cm"))
 
-a <- "SSP585 Mid-Century - Historical"
-p4 <- ggplot(data = relV1, aes(x=lon, y=lat, fill=SSP585_4070_Delta)) +
-  theme_bw() +
-  geom_tile() +
-  scale_fill_viridis_c(limits = c(minLimitV1, maxLimitV1), option = "rocket",
-                       direction = -1, name = 'Difference of Events') +
-  geom_point(alpha = 0.5, shape = 47,
-             aes(size=ifelse(SSP585_4070_Sig == 0,'dot', 'no_dot'))) +
-  scale_size_manual(values=c(dot=0.5, no_dot=NA), guide="none") +
-  geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
-               colour="black", fill="NA", linewidth=0.5) +
-  coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-60,90), expand = FALSE) +
-  labs(title = 'D', x = 'Longitude', y = 'Latitude') +
-  theme(legend.position="NULL") +
-  theme(plot.margin = margin(t = 0.0, r = 0.1, b = 0.0, l = 0.0, unit="cm"))
-
-p5 <- ggplot(data = relV3, aes(x=lon, y=lat, fill=SSP585_4070_Delta)) +
-  theme_bw() +
-  geom_tile() +
-  scale_fill_viridis_c(limits = c(minLimitV3, maxLimitV3), option = "viridis",
-                       direction = -1, name = 'Difference of Events') +
-  geom_point(alpha = 0.5, shape = 47,
-             aes(size=ifelse(SSP585_4070_Sig == 0,'dot', 'no_dot'))) +
-  scale_size_manual(values=c(dot=0.5, no_dot=NA), guide="none") +
-  geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
-               colour="black", fill="NA", linewidth=0.5) +
-  coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-60,90), expand = FALSE) +
-  labs(title = 'E', x = 'Longitude', y = '') +
-  theme(legend.position="NULL") +
-  theme(plot.margin = margin(t = 0.0, r = 0.0, b = 0.0, l = 0.0, unit="cm"))
-
-p6 <- ggplot(data = relV4, aes(x=lon, y=lat, fill=SSP585_4070_Delta)) +
-  theme_bw() +
-  geom_tile() +
-  scale_fill_viridis_c(limits = c(minLimitV4, maxLimitV4), option = "mako",
-                       direction = -1, name = 'Difference of Events') +
-  geom_point(alpha = 0.5, shape = 47,
-             aes(size=ifelse(SSP585_4070_Sig == 0,'dot', 'no_dot'))) +
-  scale_size_manual(values=c(dot=0.5, no_dot=NA), guide="none") +
-  geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
-               colour="black", fill="NA", linewidth=0.5) +
-  coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-60,90), expand = FALSE) +
-  labs(title = 'F', x = 'Longitude', y = '') +
-  theme(legend.position="NULL") +
-  theme(plot.margin = margin(t = 0.0, r = 0.05, b = 0.0, l = 0.0, unit="cm"))
-
-myLegendT <- get_legend(p1, position = 'bottom') %>% 
-  as_ggplot()
-p1 <- p1 + theme(legend.position = "NULL")
-myLegendP <- get_legend(p2, position = 'bottom') %>% 
-  as_ggplot()
-p2 <- p2 + theme(legend.position = "NULL")
-myLegendM <- get_legend(p3, position = 'bottom') %>% 
-  as_ggplot()
-p3 <- p3 + theme(legend.position = "NULL")
-
-F1 <- plot_grid(p1, p2, p3,
-                p4, p5, p6, 
-                myLegendT, myLegendP, myLegendM,
-                nrow = 3,
-                # labels = c('A','B','C','D', 'E', 'F', NULL, NULL, NULL),
-                rel_widths = c(1, 1, 1),
-                rel_heights = c(1, 1, .3))
-title <- ggdraw() + draw_label(paste0("Change of ", varT), fontface='bold')
-ggsave(F1, filename = paste0(fileloc1,'Results/Paper/Supplement/',
-                             'SUPP_FIG_1', ".tiff"),
-       width = 14, height = 6.1, dpi = 375, bg='white')
-
-# . 3.6 Remove -----------------------------------------------------------------
-rm(list=ls()[! ls() %in% c('fileloc1', 'loc1', 'loc2', '', 'yr', 
+# . 11.7 Remove ----------------------------------------------------------------
+rm(list=ls()[! ls() %in% c('fileloc1', 'loc1', 'loc2', 'yr', 
                            'var', 'varT', 'comp', 'compT', 
-                           'locT', 'lon1', 'lon2', 'lat1', 'lat2', 
-                           'baseData', 
-                           'get_legend','as_ggplot','mean_cl_quantile')])
-
-
-# Part 6 - Figure 4 & Sup 3 & Sup 4 ############################################
-# . 6.1 Opening Files ----------------------------------------------------------
-datSim14 <- read_csv(paste0(fileloc1,'Data/Results/','MU_CHANG_COMP_',comp[1],'.csv'),
-                col_names = TRUE, cols(.default = col_double()))
-datSeq14 <- read_csv(paste0(fileloc1,'Data/Results/','MU_CHANG_COMP_',comp[2],'.csv'),
-                     col_names = TRUE, cols(.default = col_double()))
-datSeq41 <- read_csv(paste0(fileloc1,'Data/Results/','MU_CHANG_COMP_',comp[3],'.csv'),
-                     col_names = TRUE, cols(.default = col_double()))
-datSim13 <- read_csv(paste0(fileloc1,'Data/Results/','MU_CHANG_COMP_',comp[4],'.csv'),
-                     col_names = TRUE, cols(.default = col_double()))
-datSeq43 <- read_csv(paste0(fileloc1,'Data/Results/','MU_CHANG_COMP_',comp[8],'.csv'),
-                     col_names = TRUE, cols(.default = col_double()))
-
-# . 6.2 Formatting -------------------------------------------------------------
-minLimt585 <- rbind(datSim14$SSP585_7000_delta, datSeq14$SSP585_7000_delta, 
-                    datSeq41$SSP585_7000_delta, # datSim13$SSP585_7000_delta,
-                    datSeq43$SSP585_7000_delta) %>%
-  min()
-maxLimt585 <- rbind(datSim14$SSP585_7000_delta, datSeq14$SSP585_7000_delta, 
-                    datSeq41$SSP585_7000_delta, # datSim13$SSP585_7000_delta,
-                    datSeq43$SSP585_7000_delta) %>%
-  max()
-minLimt126 <- rbind(datSim14$SSP126_7000_delta, datSeq14$SSP126_7000_delta, 
-                    datSeq41$SSP126_7000_delta, # datSim13$SSP126_7000_delta,
-                    datSeq43$SSP126_7000_delta) %>%
-  min()
-maxLimt126 <- rbind(datSim14$SSP126_7000_delta, datSeq14$SSP126_7000_delta, 
-                    datSeq41$SSP126_7000_delta, # datSim13$SSP126_7000_delta,
-                    datSeq43$SSP126_7000_delta) %>%
-  max()
-
-minLimt <- rbind(datSim14$SSP585_4070_delta, datSeq14$SSP585_4070_delta, 
-                 datSeq41$SSP585_4070_delta, # datSim13$SSP585_4070_delta,
-                 datSeq43$SSP585_4070_delta,
-                 datSim14$SSP126_4070_delta, datSeq14$SSP126_4070_delta, 
-                 datSeq41$SSP126_4070_delta, # datSim13$SSP126_4070_delta,
-                 datSeq43$SSP126_4070_delta,
-                 datSim14$SSP585_7000_delta, datSeq14$SSP585_7000_delta, 
-                 datSeq41$SSP585_7000_delta, # datSim13$SSP585_7000_delta,
-                 datSeq43$SSP585_7000_delta,
-                 datSim14$SSP126_7000_delta, datSeq14$SSP126_7000_delta, 
-                 datSeq41$SSP126_7000_delta, # datSim13$SSP126_7000_delta,
-                 datSeq43$SSP126_7000_delta) %>%
-  min()
-maxLimt <- rbind(datSim14$SSP585_4070_delta, datSeq14$SSP585_4070_delta, 
-                 datSeq41$SSP585_4070_delta, # datSim13$SSP585_4070_delta,
-                 datSeq43$SSP585_4070_delta,
-                 datSim14$SSP126_4070_delta, datSeq14$SSP126_4070_delta, 
-                 datSeq41$SSP126_4070_delta, # datSim13$SSP126_4070_delta,
-                 datSeq43$SSP126_4070_delta,
-                 datSim14$SSP585_7000_delta, datSeq14$SSP585_7000_delta, 
-                 datSeq41$SSP585_7000_delta, # datSim13$SSP585_7000_delta,
-                 datSeq43$SSP585_7000_delta,
-                 datSim14$SSP126_7000_delta, datSeq14$SSP126_7000_delta, 
-                 datSeq41$SSP126_7000_delta, # datSim13$SSP126_7000_delta,
-                 datSeq43$SSP126_7000_delta) %>%
-  max()
-
-# . 6.3 Plotting 585 7000 ------------------------------------------------------
-a <- compT[1]
-p1 <- ggplot(data = datSim14, aes(x=lon, y=lat, fill=SSP585_7000_delta)) +
-  theme_bw() +
-  geom_tile() +
-  # scale_fill_viridis_c(limits = c(minLimt585,maxLimt585), option = "rocket", 
-  scale_fill_viridis_c(limits = c(minLimt,maxLimt), option = "rocket",
-                       direction = -1, name = 'Difference of Events') +
-  geom_point(alpha = .5, shape = 47,
-             aes(size=ifelse(SSP585_7000_Sig == 0,'dot', 'no_dot'))) +
-  scale_size_manual(values=c(dot=0.5, no_dot=NA), guide="none") +
-  geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
-               colour="black", fill="NA", linewidth=0.5) +
-  coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-65,90), expand = FALSE) +
-  labs(title = a, 
-       x = ' ', y = 'Latitude') +
-  theme(legend.position="bottom") +
-  theme(legend.key.size = unit(1, 'cm'),
-        legend.key.height = unit(1, 'cm')) +
-  theme(plot.margin=margin(t=0.5, r=0.5, unit="cm"))
-
-a <- compT[2]
-p2 <- ggplot(data = datSeq14, aes(x=lon, y=lat, fill=SSP585_7000_delta)) +
-  theme_bw() +
-  geom_tile() +
-  # scale_fill_viridis_c(limits = c(minLimt585,maxLimt585), option = "rocket", 
-  scale_fill_viridis_c(limits = c(minLimt,maxLimt), option = "rocket", 
-                       direction = -1, name = 'Difference of Events') +
-  geom_point(alpha = 1, shape = 47,
-             aes(size=ifelse(SSP585_7000_Sig == 0,'dot', 'no_dot'))) +
-  scale_size_manual(values=c(dot=0.5, no_dot=NA), guide="none") +
-  geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
-               colour="black", fill="NA", linewidth=0.5) +
-  coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-65,90), expand = FALSE) +
-  labs(title = a, 
-       x = ' ', y = ' ') +
-  theme(legend.position = "NULL") +
-  theme(plot.margin=margin(t=0.5, r=0.5, unit="cm"))
-
-a <- compT[3]
-p3 <- ggplot(data = datSeq41, aes(x=lon, y=lat, fill=SSP585_7000_delta)) +
-  theme_bw() +
-  geom_tile() +
-  # scale_fill_viridis_c(limits = c(minLimt585,maxLimt585), option = "rocket", 
-  scale_fill_viridis_c(limits = c(minLimt,maxLimt), option = "rocket",
-                       direction = -1, name = 'Difference of Events') +
-  geom_point(alpha = 1, shape = 47,
-             aes(size=ifelse(SSP585_7000_Sig == 0,'dot', 'no_dot'))) +
-  scale_size_manual(values=c(dot=0.5, no_dot=NA), guide="none") +
-  geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
-               colour="black", fill="NA", linewidth=0.5) +
-  coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-65,90), expand = FALSE) +
-  labs(title = a, 
-       x = 'Longitude', y = 'Latitude') +
-  theme(legend.position = "NULL") +
-  theme(plot.margin=margin(t=0.5, r=0.5, unit="cm"))
-
-a <- compT[4]
-p4 <- ggplot(data = datSim13, aes(x=lon, y=lat, fill=SSP585_7000_delta)) +
-  theme_bw() +
-  geom_tile() +
-  # scale_fill_viridis_c(limits = c(minLimt585,maxLimt585), option = "rocket", 
-  scale_fill_viridis_c(limits = c(minLimt,maxLimt), option = "rocket",
-                       direction = -1, name = 'Difference of Events') +
-  geom_point(alpha = 1, shape = 47,
-             aes(size=ifelse(SSP585_7000_Sig == 0,'dot', 'no_dot'))) +
-  scale_size_manual(values=c(dot=0.5, no_dot=NA), guide="none") +
-  geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
-               colour="black", fill="NA", linewidth=0.5) +
-  coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-65,90), expand = FALSE) +
-  labs(title = a, 
-       x = 'Longitude', y = 'Latitude') +
-  theme(legend.position = "NULL") +
-  theme(plot.margin=margin(t=0.5, r=0.5, unit="cm"))
-
-a <- compT[8]
-p5 <- ggplot(data = datSeq43, aes(x=lon, y=lat, fill=SSP585_7000_delta)) +
-  theme_bw() +
-  geom_tile() +
-  # scale_fill_viridis_c(limits = c(minLimt585,maxLimt585), option = "rocket", 
-  scale_fill_viridis_c(limits = c(minLimt,maxLimt), option = "rocket", 
-                       direction = -1, name = 'Difference of Events') +
-  geom_point(alpha = 1, shape = 47,
-             aes(size=ifelse(SSP585_7000_Sig == 0,'dot', 'no_dot'))) +
-  scale_size_manual(values=c(dot=0.5, no_dot=NA), guide="none") +
-  geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
-               colour="black", fill="NA", linewidth=0.5) +
-  coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-65,90), expand = FALSE) +
-  labs(title = a, 
-       x = 'Longitude', y = ' ') +
-  theme(legend.position = "NULL") +
-  theme(plot.margin=margin(t=0.5, r=0.5, unit="cm"))
-
-myLegend <- get_legend(p1, position = 'bottom') %>% 
-  as_ggplot()
-p1 <- p1 + theme(legend.position = "NULL")
-# F1 <- plot_grid(p1, p2, p3,
-#                  p4, p5, myLegend,
-#                  nrow = 2,
-#                  # labels = c('A','B','C','D'),
-#                  rel_widths = c(1,1))
-# F1 <- plot_grid(F1A,
-#                 myLegend,
-#                 rel_heights = c(1,0.15),
-#                 # rel_heights = c(.05,1,0.15),
-#                 nrow = 2)
-F1A <- plot_grid(p1, p2,
-                 p3, p5,
-                 nrow = 2,
-                 # labels = c('A','B','C','D'),
-                 rel_widths = c(1,1))
-F1 <- plot_grid(F1A,
-                myLegend,
-                rel_heights = c(1,0.15),
-                # rel_heights = c(.05,1,0.15),
-                nrow = 2)
-title <- ggdraw() + draw_label(paste0("Change in occurrence of Compound Events"), 
-                               fontface='bold')
-ggsave(F1, filename = paste0(fileloc1,'Results/Paper/','FIG_4', ".tiff"),
-       width = 8.9, height = 5.7, dpi = 350, bg='white')
-# . 6.3 Plotting 585 4070 ------------------------------------------------------
-a <- compT[1]
-p1 <- ggplot(data = datSim14, aes(x=lon, y=lat, fill=SSP126_7000_delta)) +
-  theme_bw() +
-  geom_tile() +
-  # scale_fill_viridis_c(limits = c(minLimt126,maxLimt126), option = "rocket", 
-  scale_fill_viridis_c(limits = c(minLimt,maxLimt), option = "rocket",
-                       direction = -1, name = 'Difference of Events') +
-  geom_point(alpha = 1, shape = 47,
-             aes(size=ifelse(SSP126_7000_Sig == 0,'dot', 'no_dot'))) +
-  scale_size_manual(values=c(dot=0.5, no_dot=NA), guide="none") +
-  geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
-               colour="black", fill="NA", linewidth=0.5) +
-  coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-65,90), expand = FALSE) +
-  labs(title = a, 
-       x = ' ', y = 'Latitude') +
-  theme(legend.position="bottom") +
-  theme(legend.key.size = unit(1, 'cm'),
-        legend.key.height = unit(1, 'cm')) +
-  theme(plot.margin=margin(t=0.5, r=0.5, unit="cm"))
-
-a <- compT[2]
-p2 <- ggplot(data = datSeq14, aes(x=lon, y=lat, fill=SSP126_7000_delta)) +
-  theme_bw() +
-  geom_tile() +
-  # scale_fill_viridis_c(limits = c(minLimt126,maxLimt126), option = "rocket", 
-  scale_fill_viridis_c(limits = c(minLimt,maxLimt), option = "rocket",
-                       direction = -1, name = 'Difference of Events') +
-  geom_point(alpha = 1, shape = 47,
-             aes(size=ifelse(SSP126_7000_Sig == 0,'dot', 'no_dot'))) +
-  scale_size_manual(values=c(dot=0.5, no_dot=NA), guide="none") +
-  geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
-               colour="black", fill="NA", linewidth=0.5) +
-  coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-65,90), expand = FALSE) +
-  labs(title = a, 
-       x = ' ', y = ' ') +
-  theme(legend.position = "NULL") +
-  theme(plot.margin=margin(t=0.5, r=0.5, unit="cm"))
-
-a <- compT[3]
-p3 <- ggplot(data = datSeq41, aes(x=lon, y=lat, fill=SSP126_7000_delta)) +
-  theme_bw() +
-  geom_tile() +
-  # scale_fill_viridis_c(limits = c(minLimt126,maxLimt126), option = "rocket", 
-  scale_fill_viridis_c(limits = c(minLimt,maxLimt), option = "rocket",
-                       direction = -1, name = 'Difference of Events') +
-  geom_point(alpha = 1, shape = 47,
-             aes(size=ifelse(SSP126_7000_Sig == 0,'dot', 'no_dot'))) +
-  scale_size_manual(values=c(dot=0.5, no_dot=NA), guide="none") +
-  geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
-               colour="black", fill="NA", linewidth=0.5) +
-  coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-65,90), expand = FALSE) +
-  labs(title = a, 
-       x = 'Longitude', y = 'Latitude') +
-  theme(legend.position = "NULL") +
-  theme(plot.margin=margin(t=0.5, r=0.5, unit="cm"))
-
-a <- compT[3]
-p4 <- ggplot(data = datSim13, aes(x=lon, y=lat, fill=SSP126_7000_delta)) +
-  theme_bw() +
-  geom_tile() +
-  # scale_fill_viridis_c(limits = c(minLimt126,maxLimt126), option = "rocket", 
-  scale_fill_viridis_c(limits = c(minLimt,maxLimt), option = "rocket",
-                       direction = -1, name = 'Difference of Events') +
-  geom_point(alpha = 1, shape = 47,
-             aes(size=ifelse(SSP126_7000_Sig == 0,'dot', 'no_dot'))) +
-  scale_size_manual(values=c(dot=0.5, no_dot=NA), guide="none") +
-  geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
-               colour="black", fill="NA", linewidth=0.5) +
-  coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-65,90), expand = FALSE) +
-  labs(title = a, 
-       x = 'Longitude', y = 'Latitude') +
-  theme(legend.position = "NULL") +
-  theme(plot.margin=margin(t=0.5, r=0.5, unit="cm"))
-
-a <- compT[8]
-p5 <- ggplot(data = datSeq43, aes(x=lon, y=lat, fill=SSP126_7000_delta)) +
-  theme_bw() +
-  geom_tile() +
-  # scale_fill_viridis_c(limits = c(minLimt126,maxLimt126), option = "rocket", 
-  scale_fill_viridis_c(limits = c(minLimt,maxLimt), option = "rocket",
-                       direction = -1, name = 'Difference of Events') +
-  geom_point(alpha = 1, shape = 47,
-             aes(size=ifelse(SSP126_7000_Sig == 0,'dot', 'no_dot'))) +
-  scale_size_manual(values=c(dot=0.5, no_dot=NA), guide="none") +
-  geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
-               colour="black", fill="NA", linewidth=0.5) +
-  coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-65,90), expand = FALSE) +
-  labs(title = a, 
-       x = 'Longitude', y = ' ') +
-  theme(legend.position = "NULL") +
-  theme(plot.margin=margin(t=0.5, r=0.5, unit="cm"))
-
-myLegend <- get_legend(p1, position = 'bottom') %>% 
-  as_ggplot()
-p1 <- p1 + theme(legend.position = "NULL")
-# F1 <- plot_grid(p1, p2, p3,
-#                  p4, p5, myLegend,
-#                  nrow = 2,
-#                  # labels = c('A','B','C','D'),
-#                  rel_widths = c(1,1))
-# F1 <- plot_grid(F1A,
-#                 myLegend,
-#                 rel_heights = c(1,0.15),
-#                 # rel_heights = c(.05,1,0.15),
-#                 nrow = 2)
-F1A <- plot_grid(p1, p2,
-                 p3, p5,
-                 nrow = 2,
-                 # labels = c('A','B','C','D'),
-                 rel_widths = c(1,1))
-F1 <- plot_grid(F1A,
-                myLegend,
-                rel_heights = c(1,0.15),
-                # rel_heights = c(.05,1,0.15),
-                nrow = 2)
-title <- ggdraw() + draw_label(paste0("Change in occurrence of Compound Events"), 
-                               fontface='bold')
-ggsave(F1, filename = paste0(fileloc1,'Results/Paper/Supplement/','SUPP_FIG_3', ".tiff"),
-       width = 8.9, height = 5.7, dpi = 350, bg='white')
-# . 6.3 Plotting 126 -----------------------------------------------------------
-a <- compT[1]
-p1 <- ggplot(data = datSim14, aes(x=lon, y=lat, fill=SSP126_4070_delta)) +
-  theme_bw() +
-  geom_tile() +
-  # scale_fill_viridis_c(limits = c(minLimt126,maxLimt126), option = "rocket", 
-  scale_fill_viridis_c(limits = c(minLimt,maxLimt), option = "rocket",
-                       direction = -1, name = 'Difference of Events') +
-  geom_point(alpha = 1, shape = 47,
-             aes(size=ifelse(SSP126_4070_Sig == 0,'dot', 'no_dot'))) +
-  scale_size_manual(values=c(dot=0.5, no_dot=NA), guide="none") +
-  geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
-               colour="black", fill="NA", linewidth=0.5) +
-  coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-65,90), expand = FALSE) +
-  labs(title = a, 
-       x = ' ', y = 'Latitude') +
-  theme(legend.position="bottom") +
-  theme(legend.key.size = unit(1, 'cm'),
-        legend.key.height = unit(1, 'cm')) +
-  theme(plot.margin=margin(t=0.5, r=0.5, unit="cm"))
-
-a <- '' # compT[1]
-p2 <- ggplot(data = datSim14, aes(x=lon, y=lat, fill=SSP126_7000_delta)) +
-  theme_bw() +
-  geom_tile() +
-  # scale_fill_viridis_c(limits = c(minLimt126,maxLimt126), option = "rocket", 
-  scale_fill_viridis_c(limits = c(minLimt,maxLimt), option = "rocket",
-                       direction = -1, name = 'Difference of Events') +
-  geom_point(alpha = 1, shape = 47,
-             aes(size=ifelse(SSP126_7000_Sig == 0,'dot', 'no_dot'))) +
-  scale_size_manual(values=c(dot=0.5, no_dot=NA), guide="none") +
-  geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
-               colour="black", fill="NA", linewidth=0.5) +
-  coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-65,90), expand = FALSE) +
-  labs(title = a, 
-       x = 'Longitude', y = 'Latitude') +
-  theme(legend.position = "NULL") +
-  theme(plot.margin=margin(t=0.5, r=0.5, unit="cm"))
-
-a <- compT[2]
-p3 <- ggplot(data = datSeq14, aes(x=lon, y=lat, fill=SSP126_4070_delta)) +
-  theme_bw() +
-  geom_tile() +
-  # scale_fill_viridis_c(limits = c(minLimt126,maxLimt126), option = "rocket", 
-  scale_fill_viridis_c(limits = c(minLimt,maxLimt), option = "rocket",
-                       direction = -1, name = 'Difference of Events') +
-  geom_point(alpha = 1, shape = 47,
-             aes(size=ifelse(SSP126_4070_Sig == 0,'dot', 'no_dot'))) +
-  scale_size_manual(values=c(dot=0.5, no_dot=NA), guide="none") +
-  geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
-               colour="black", fill="NA", linewidth=0.5) +
-  coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-65,90), expand = FALSE) +
-  labs(title = a, 
-       x = ' ', y = ' ') +
-  theme(legend.position = "NULL") +
-  theme(plot.margin=margin(t=0.5, r=0.5, unit="cm"))
-
-a <- '' # compT[2]
-p4 <- ggplot(data = datSeq14, aes(x=lon, y=lat, fill=SSP126_7000_delta)) +
-  theme_bw() +
-  geom_tile() +
-  # scale_fill_viridis_c(limits = c(minLimt126,maxLimt126), option = "rocket", 
-  scale_fill_viridis_c(limits = c(minLimt,maxLimt), option = "rocket",
-                       direction = -1, name = 'Difference of Events') +
-  geom_point(alpha = 1, shape = 47,
-             aes(size=ifelse(SSP126_7000_Sig == 0,'dot', 'no_dot'))) +
-  scale_size_manual(values=c(dot=0.5, no_dot=NA), guide="none") +
-  geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
-               colour="black", fill="NA", linewidth=0.5) +
-  coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-65,90), expand = FALSE) +
-  labs(title = a, 
-       x = 'Longitude', y = ' ') +
-  theme(legend.position = "NULL") +
-  theme(plot.margin=margin(t=0.5, r=0.5, unit="cm"))
-
-a <- compT[3]
-p5 <- ggplot(data = datSeq41, aes(x=lon, y=lat, fill=SSP126_4070_delta)) +
-  theme_bw() +
-  geom_tile() +
-  # scale_fill_viridis_c(limits = c(minLimt126,maxLimt126), option = "rocket", 
-  scale_fill_viridis_c(limits = c(minLimt,maxLimt), option = "rocket",
-                       direction = -1, name = 'Difference of Events') +
-  geom_point(alpha = 1, shape = 47,
-             aes(size=ifelse(SSP126_4070_Sig == 0,'dot', 'no_dot'))) +
-  scale_size_manual(values=c(dot=0.5, no_dot=NA), guide="none") +
-  geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
-               colour="black", fill="NA", linewidth=0.5) +
-  coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-65,90), expand = FALSE) +
-  labs(title = a, 
-       x = ' ', y = ' ') +
-  theme(legend.position = "NULL") +
-  theme(plot.margin=margin(t=0.5, r=0.5, unit="cm"))
-
-a <- '' # compT[3]
-p6 <- ggplot(data = datSeq41, aes(x=lon, y=lat, fill=SSP126_7000_delta)) +
-  theme_bw() +
-  geom_tile() +
-  # scale_fill_viridis_c(limits = c(minLimt126,maxLimt126), option = "rocket", 
-  scale_fill_viridis_c(limits = c(minLimt,maxLimt), option = "rocket",
-                       direction = -1, name = 'Difference of Events') +
-  geom_point(alpha = 1, shape = 47,
-             aes(size=ifelse(SSP126_7000_Sig == 0,'dot', 'no_dot'))) +
-  scale_size_manual(values=c(dot=0.5, no_dot=NA), guide="none") +
-  geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
-               colour="black", fill="NA", linewidth=0.5) +
-  coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-65,90), expand = FALSE) +
-  labs(title = a, 
-       x = 'Longitude', y = ' ') +
-  theme(legend.position = "NULL") +
-  theme(plot.margin=margin(t=0.5, r=0.5, unit="cm"))
-
-a <- compT[8]
-p7 <- ggplot(data = datSeq43, aes(x=lon, y=lat, fill=SSP126_4070_delta)) +
-  theme_bw() +
-  geom_tile() +
-  # scale_fill_viridis_c(limits = c(minLimt126,maxLimt126), option = "rocket", 
-  scale_fill_viridis_c(limits = c(minLimt,maxLimt), option = "rocket",
-                       direction = -1, name = 'Difference of Events') +
-  geom_point(alpha = 1, shape = 47,
-             aes(size=ifelse(SSP126_4070_Sig == 0,'dot', 'no_dot'))) +
-  scale_size_manual(values=c(dot=0.5, no_dot=NA), guide="none") +
-  geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
-               colour="black", fill="NA", linewidth=0.5) +
-  coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-65,90), expand = FALSE) +
-  labs(title = a, 
-       x = ' ', y = ' ') +
-  theme(legend.position = "NULL") +
-  theme(plot.margin=margin(t=0.5, r=0.5, unit="cm"))
-
-a <- '' # compT[8]
-p8 <- ggplot(data = datSeq43, aes(x=lon, y=lat, fill=SSP126_7000_delta)) +
-  theme_bw() +
-  geom_tile() +
-  # scale_fill_viridis_c(limits = c(minLimt126,maxLimt126), option = "rocket", 
-  scale_fill_viridis_c(limits = c(minLimt,maxLimt), option = "rocket",
-                       direction = -1, name = 'Difference of Events') +
-  geom_point(alpha = 1, shape = 47,
-             aes(size=ifelse(SSP126_7000_Sig == 0,'dot', 'no_dot'))) +
-  scale_size_manual(values=c(dot=0.5, no_dot=NA), guide="none") +
-  geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
-               colour="black", fill="NA", linewidth=0.5) +
-  coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-65,90), expand = FALSE) +
-  labs(title = a, 
-       x = 'Longitude', y = ' ') +
-  theme(legend.position = "NULL") +
-  theme(plot.margin=margin(t=0.5, r=0.5, unit="cm"))
-
-myLegend <- get_legend(p1, position = 'bottom') %>% 
-  as_ggplot()
-p1 <- p1 + theme(legend.position = "NULL")
-F1A <- plot_grid(p1, p3, p5, p7, 
-                 p2, p4, p6, p8,
-                 nrow = 2,
-                 # labels = c('A','B','C','D'),
-                 rel_widths = c(1,1))
-F1 <- plot_grid(# title,
-                F1A,
-                myLegend,
-                rel_heights = c(1,0.15),
-                # rel_heights = c(.05,1,0.15),
-                nrow = 2)
-title <- ggdraw() + draw_label(paste0("Change in occurrence of Compound Events"), 
-                               fontface='bold')
-
-ggsave(F1, filename = paste0(fileloc1,'Results/Paper/Supplement/','SUPP_FIG_4', ".tiff"),
-       width = 15.8, height = 5.2, dpi = 350, bg='white')
-
-# . 6.4 Remove -----------------------------------------------------------------
-rm(list=ls()[! ls() %in% c('fileloc1', 'loc1', 'loc2', '', 'yr', 
-                           'var', 'varT', 'comp', 'compT', 
-                           'locT', 'lon1', 'lon2', 'lat1', 'lat2', 
-                           'baseData', 
-                           'get_legend','as_ggplot','mean_cl_quantile')])
-
-# Part 7 - Figure 5, 6, 7 & Sup 5 ##############################################
-# . 7.1 Variables Needed -------------------------------------------------------
-
-# . 7.2 Opening Files ----------------------------------------------------------
-datPopSim14 <- read_csv(paste0(fileloc1,'Data/Results/','EXPOSURE_POP_',comp[1],'.csv'),
-                        col_names = TRUE, cols(.default = col_double()))
-datPopSeq14 <- read_csv(paste0(fileloc1,'Data/Results/','EXPOSURE_POP_',comp[2],'.csv'),
-                        col_names = TRUE, cols(.default = col_double()))
-datPopSeq41 <- read_csv(paste0(fileloc1,'Data/Results/','EXPOSURE_POP_',comp[3],'.csv'),
-                        col_names = TRUE, cols(.default = col_double()))
-datPopSeq43 <- read_csv(paste0(fileloc1,'Data/Results/','EXPOSURE_POP_',comp[8],'.csv'),
-                        col_names = TRUE, cols(.default = col_double()))
-
-datAgSim14 <- read_csv(paste0(fileloc1,'Data/Results/','EXPOSURE_AG_',comp[1],'.csv'),
-                        col_names = TRUE, cols(.default = col_double()))
-datAgSeq14 <- read_csv(paste0(fileloc1,'Data/Results/','EXPOSURE_AG_',comp[2],'.csv'),
-                        col_names = TRUE, cols(.default = col_double()))
-datAgSeq41 <- read_csv(paste0(fileloc1,'Data/Results/','EXPOSURE_AG_',comp[3],'.csv'),
-                        col_names = TRUE, cols(.default = col_double()))
-datAgSeq43 <- read_csv(paste0(fileloc1,'Data/Results/','EXPOSURE_AG_',comp[8],'.csv'),
-                        col_names = TRUE, cols(.default = col_double()))
-
-datForSim14 <- read_csv(paste0(fileloc1,'Data/Results/','EXPOSURE_FOR_',comp[1],'.csv'),
-                        col_names = TRUE, cols(.default = col_double()))
-datForSeq14 <- read_csv(paste0(fileloc1,'Data/Results/','EXPOSURE_FOR_',comp[2],'.csv'),
-                        col_names = TRUE, cols(.default = col_double()))
-datForSeq41 <- read_csv(paste0(fileloc1,'Data/Results/','EXPOSURE_FOR_',comp[3],'.csv'),
-                        col_names = TRUE, cols(.default = col_double()))
-datForSeq43 <- read_csv(paste0(fileloc1,'Data/Results/','EXPOSURE_FOR_',comp[8],'.csv'),
-                        col_names = TRUE, cols(.default = col_double()))
-
-datSim14 <- read_csv(paste0(fileloc1, 'Data/Results/','MU_CHANG_COMP_', comp[1], '.csv'),
-                     col_names = TRUE, cols(.default = col_double()))
-datSeq14 <- read_csv(paste0(fileloc1, 'Data/Results/','MU_CHANG_COMP_', comp[2], '.csv'),
-                     col_names = TRUE, cols(.default = col_double()))
-datSeq41 <- read_csv(paste0(fileloc1, 'Data/Results/','MU_CHANG_COMP_', comp[3], '.csv'),
-                     col_names = TRUE, cols(.default = col_double()))
-datSeq43 <- read_csv(paste0(fileloc1, 'Data/Results/','MU_CHANG_COMP_', comp[8], '.csv'),
-                     col_names = TRUE, cols(.default = col_double()))
-
-# . 7.3 Pre-processing Regions -------------------------------------------------
-# . . 7.3.1 Pre-processing ---
-datPopSim14 <- datPopSim14 %>%
-  select(lon, lat, Historic_mu, 
-         SSP126_1040_delta, SSP126_4070_delta, SSP126_7000_delta,
-         SSP585_1040_delta, SSP585_4070_delta, SSP585_7000_delta)
-datPopSeq14 <- datPopSeq14 %>%
-  select(lon, lat, Historic_mu, 
-         SSP126_1040_delta, SSP126_4070_delta, SSP126_7000_delta,
-         SSP585_1040_delta, SSP585_4070_delta, SSP585_7000_delta)
-datPopSeq41 <- datPopSeq41 %>%
-  select(lon, lat, Historic_mu, 
-         SSP126_1040_delta, SSP126_4070_delta, SSP126_7000_delta,
-         SSP585_1040_delta, SSP585_4070_delta, SSP585_7000_delta)
-datPopSeq43 <- datPopSeq43 %>%
-  select(lon, lat, Historic_mu, 
-         SSP126_1040_delta, SSP126_4070_delta, SSP126_7000_delta,
-         SSP585_1040_delta, SSP585_4070_delta, SSP585_7000_delta)
-
-datAgSim14 <- datAgSim14 %>%
-  select(lon, lat, Historic_mu, 
-         SSP126_1040_delta, SSP126_4070_delta, SSP126_7000_delta,
-         SSP585_1040_delta, SSP585_4070_delta, SSP585_7000_delta)
-datAgSeq14 <- datAgSeq14 %>%
-  select(lon, lat, Historic_mu, 
-         SSP126_1040_delta, SSP126_4070_delta, SSP126_7000_delta,
-         SSP585_1040_delta, SSP585_4070_delta, SSP585_7000_delta)
-datAgSeq41 <- datAgSeq41 %>%
-  select(lon, lat, Historic_mu, 
-         SSP126_1040_delta, SSP126_4070_delta, SSP126_7000_delta,
-         SSP585_1040_delta, SSP585_4070_delta, SSP585_7000_delta)
-datAgSeq43 <- datAgSeq43 %>%
-  select(lon, lat, Historic_mu, 
-         SSP126_1040_delta, SSP126_4070_delta, SSP126_7000_delta,
-         SSP585_1040_delta, SSP585_4070_delta, SSP585_7000_delta)
-
-datForSim14 <- datForSim14 %>%
-  select(lon, lat, Historic_mu,
-         SSP126_1040_delta, SSP126_4070_delta, SSP126_7000_delta,
-         SSP585_1040_delta, SSP585_4070_delta, SSP585_7000_delta)
-datForSeq14 <- datForSeq14 %>%
-  select(lon, lat, Historic_mu,
-         SSP126_1040_delta, SSP126_4070_delta, SSP126_7000_delta,
-         SSP585_1040_delta, SSP585_4070_delta, SSP585_7000_delta)
-datForSeq41 <- datForSeq41 %>%
-  select(lon, lat, Historic_mu,
-         SSP126_1040_delta, SSP126_4070_delta, SSP126_7000_delta,
-         SSP585_1040_delta, SSP585_4070_delta, SSP585_7000_delta)
-datForSeq43 <- datForSeq43 %>%
-  select(lon, lat, Historic_mu,
-         SSP126_1040_delta, SSP126_4070_delta, SSP126_7000_delta,
-         SSP585_1040_delta, SSP585_4070_delta, SSP585_7000_delta)
-
-# . . 7.3.2 Significant Locations --- not finished
-# # Sim 14 
-# datSim14 <- datSim14 %>%
-#   select(lon, lat, SSP126_1040_Sig, SSP126_4070_Sig, SSP126_7000_delta,
-#          SSP585_1040_Sig, SSP585_4070_Sig, SSP585_7000_Sig)
-# datSim14$SSP126 <- 0
-# datSim14$SSP585 <- 0
-# datSim14$SSP126 <- apply(X = datSim14[,3:5], MARGIN = 1, FUN = SUM)
-# datSim14$SSP126[datSim14$SSP126 >= 1] <- 1
-# datSim14$SSP126[datSim14$SSP126 == 0] <- NA
-# datSim14$SSP585 <- apply(X = datSim14[,6:8], MARGIN = 1, FUN = SUM)
-# datSim14$SSP585[datSim14$SSP585 >= 1] <- 1
-# datSim14$SSP585[datSim14$SSP585 == 0] <- NA
-# datPopSeq14_126 <- cbind(datPopSeq14$lon, datPopSeq14$lat,
-#                          datPopSeq14[,3:ncol(datPopSeq14)] * datSim14$SSP126)
-# datPopSeq14_585 <- cbind(datPopSeq14$lon, datPopSeq14$lat,
-#                          datPopSeq14[,3:ncol(datPopSeq14)] * datSim14$SSP126)
-
-# . . 7.3.3 Regions ---
-rm(datChang)
-for (j in 1:4){
-  if (j == 1){
-    datPop <- datPopSim14
-    datAg <- datAgSim14
-    datFor <- datForSim14
-    compound <- comp[1]
-  } else if (j == 2){
-    datPop <- datPopSeq14
-    datAg <- datAgSeq14
-    datFor <- datForSeq14
-    compound <- comp[2]
-  } else if (j == 3){
-    datPop <- datPopSeq41
-    datAg <- datAgSeq41
-    datFor <- datForSeq41
-    compound <- comp[3]
-  } else {
-    datPop <- datPopSeq43
-    datAg <- datAgSeq43
-    datFor <- datForSeq43
-    compound <- comp[8]
-  }
-  datCh <- tibble(
-    'Exposure' = numeric(length = 45),
-    'Region' = numeric(length = 45),
-    'Compound' = numeric(length = 45),
-    'Historic_mu' = numeric(length = 45),
-    'SSP126_1040' = numeric(length = 45),
-    'SSP126_4070' = numeric(length = 45),
-    'SSP126_7000' = numeric(length = 45),
-    'SSP585_1040' = numeric(length = 45),
-    'SSP585_4070' = numeric(length = 45),
-    'SSP585_7000' = numeric(length = 45)
-  )
-  for (i in 1:length(locT)){
-    lonA <- lon1[i]
-    lonB <- lon2[i]
-    latA <- lat1[i]
-    latB <- lat2[i]
-    
-    datP <- datPop
-    datP$lon[datP$lon < lonA | datP$lon > lonB] <- NA
-    datP$lat[datP$lat > latA | datP$lat < latB] <- NA
-    datP <- na.omit(datP)
-    datA <- datAg
-    datA$lon[datA$lon < lonA | datA$lon > lonB] <- NA
-    datA$lat[datA$lat > latA | datA$lat < latB] <- NA
-    datA <- na.omit(datA)
-    datF <- datFor
-    datF$lon[datF$lon < lonA | datF$lon > lonB] <- NA
-    datF$lat[datF$lat > latA | datF$lat < latB] <- NA
-    datF <- na.omit(datF)
-    
-    datCh$Region[(3 * (i-1)) + 1] <- locT[i]
-    datCh$Exposure[(3 * (i-1)) + 1] <- 'Population'
-    datCh$Compound[(3 * (i-1)) + 1] <- compound
-    datCh$Historic_mu[(3 * (i-1)) + 1] <- mean(datP$Historic_mu)
-    datCh$SSP126_1040[(3 * (i-1)) + 1] <- mean(datP$SSP126_1040_delta)
-    datCh$SSP126_4070[(3 * (i-1)) + 1] <- mean(datP$SSP126_4070_delta)
-    datCh$SSP126_7000[(3 * (i-1)) + 1] <- mean(datP$SSP126_7000_delta)
-    datCh$SSP585_1040[(3 * (i-1)) + 1] <- mean(datP$SSP585_1040_delta)
-    datCh$SSP585_4070[(3 * (i-1)) + 1] <- mean(datP$SSP585_4070_delta)
-    datCh$SSP585_7000[(3 * (i-1)) + 1] <- mean(datP$SSP585_7000_delta)
-    
-    datCh$Region[(3 * (i-1)) + 2] <- locT[i]
-    datCh$Exposure[(3 * (i-1)) + 2] <- 'Agriculture'
-    datCh$Compound[(3 * (i-1)) + 2] <- compound
-    datCh$Historic_mu[(3 * (i-1)) + 2] <- mean(datA$Historic_mu)
-    datCh$SSP126_1040[(3 * (i-1)) + 2] <- mean(datA$SSP126_1040_delta)
-    datCh$SSP126_4070[(3 * (i-1)) + 2] <- mean(datA$SSP126_4070_delta)
-    datCh$SSP126_7000[(3 * (i-1)) + 2] <- mean(datA$SSP126_7000_delta)
-    datCh$SSP585_1040[(3 * (i-1)) + 2] <- mean(datA$SSP585_1040_delta)
-    datCh$SSP585_4070[(3 * (i-1)) + 2] <- mean(datA$SSP585_4070_delta)
-    datCh$SSP585_7000[(3 * (i-1)) + 2] <- mean(datA$SSP585_7000_delta)
-    
-    datCh$Region[(3 * (i-1)) + 3] <- locT[i]
-    datCh$Exposure[(3 * (i-1)) + 3] <- 'Forestry'
-    datCh$Compound[(3 * (i-1)) + 3] <- compound
-    datCh$Historic_mu[(3 * (i-1)) + 3] <- mean(datF$Historic_mu)
-    datCh$SSP126_1040[(3 * (i-1)) + 3] <- mean(datF$SSP126_1040_delta)
-    datCh$SSP126_4070[(3 * (i-1)) + 3] <- mean(datF$SSP126_4070_delta)
-    datCh$SSP126_7000[(3 * (i-1)) + 3] <- mean(datF$SSP126_7000_delta)
-    datCh$SSP585_1040[(3 * (i-1)) + 3] <- mean(datF$SSP585_1040_delta)
-    datCh$SSP585_4070[(3 * (i-1)) + 3] <- mean(datF$SSP585_4070_delta)
-    datCh$SSP585_7000[(3 * (i-1)) + 3] <- mean(datF$SSP585_7000_delta)
-  }
-  if (j == 1){
-    datChang <- datCh
-  } else {
-    datChang <- rbind(datChang, datCh)
-  }
-}
-datChang$Compound <- factor(datChang$Compound, 
-                            levels = c(comp[1], comp[2], comp[3], comp[8]), 
-                            # labels = c(compT[1], compT[2], compT[3], compT[8])
-                            labels = c('Sim. HW & FD', 'Seq. HW & FD', 
-                                       'Seq. FD & HW', 'Seq. FD & EP'))
-datChang$Region <- factor(datChang$Region, levels = rev(locTLev))
-
-
-# . 7.4 Plotting Loli ----------------------------------------------------------
-dat <- datChang[datChang$Exposure == 'Population',]
-a <- 'Population Change'
-p1 <- ggplot(dat) +
-  theme_bw() +
-  geom_segment(aes(x=Region, xend=Region, y=SSP585_1040, yend=SSP585_4070), 
-               color="grey") +
-  geom_segment(aes(x=Region, xend=Region, y=SSP585_4070, yend=SSP585_7000), 
-               color="grey") +
-  geom_point(aes(x=Region, y=SSP585_1040), color='gold', size=5, alpha = 0.5 ) +
-  geom_point(aes(x=Region, y=SSP585_4070), color='darkorange1', size=5, alpha = 0.5 ) +
-  geom_point(aes(x=Region, y=SSP585_7000), color='red3', size=5, alpha = 0.5 ) +
-  coord_flip() +
-  # scale_y_continuous(labels = scales::label_comma()) +
-  scale_y_continuous(labels = scales::label_number(scale_cut = scales::cut_short_scale())) +
-  labs(x = "", y = "person-events", title = a) +
-  facet_grid(Compound ~ .) +
-  theme(strip.text = element_text(size = 7), 
-        strip.background = element_blank())
-
-dat <- datChang[datChang$Exposure == 'Agriculture',]
-a <- 'Agriculture Land Area Change'
-p2 <- ggplot(dat) +
-  theme_bw() +
-  geom_segment(aes(x=Region, xend=Region, y=SSP585_1040, yend=SSP585_4070), 
-               color="grey") +
-  geom_segment(aes(x=Region, xend=Region, y=SSP585_4070, yend=SSP585_7000), 
-               color="grey") +
-  geom_point(aes(x=Region, y=SSP585_1040), color='gold', size=5, alpha = 0.5 ) +
-  geom_point(aes(x=Region, y=SSP585_4070), color='darkorange1', size=5, alpha = 0.5 ) +
-  geom_point(aes(x=Region, y=SSP585_7000), color='red3', size=5, alpha = 0.5 ) +
-  coord_flip() +
-  # scale_y_continuous(labels = scales::label_comma()) +
-  scale_y_continuous(labels = scales::label_number(scale_cut = scales::cut_short_scale())) +
-  labs(x = "", y = "km2-events", title = a) +
-  facet_grid(Compound ~ .) +
-  theme(strip.text = element_text(size = 7), 
-        strip.background = element_blank())
-
-dat <- datChang[datChang$Exposure == 'Forestry',]
-a <- 'Forestry Land Area Change'
-p3 <- ggplot(dat) +
-  theme_bw() +
-  geom_segment(aes(x=Region, xend=Region, y=SSP585_1040, yend=SSP585_4070), 
-               color="grey") +
-  geom_segment(aes(x=Region, xend=Region, y=SSP585_4070, yend=SSP585_7000), 
-               color="grey") +
-  geom_point(aes(x=Region, y=SSP585_1040), color='gold', size=5, alpha = 0.5 ) +
-  geom_point(aes(x=Region, y=SSP585_4070), color='darkorange1', size=5, alpha = 0.5 ) +
-  geom_point(aes(x=Region, y=SSP585_7000), color='red3', size=5, alpha = 0.5 ) +
-  coord_flip() +
-  # scale_y_continuous(labels = scales::label_comma()) +
-  scale_y_continuous(labels = scales::label_number(scale_cut = scales::cut_short_scale())) +
-  labs(x = "", y = "km2-events", title = a) +
-  facet_grid(Compound ~ .) +
-  theme(strip.text = element_text(size = 7), 
-        strip.background = element_blank())
-
-dat <- matrix(0, nrow = 6, ncol = 3) %>%
-  tibble()
-colnames(dat) <- c('Scenario','XX1','YY2')
-dat[,2] <- c(2,3,4,5,3,2)
-dat[,3] <- c(3,4,5,4,3,2)
-dat$Scenario <- factor(colnames(datChang[3:8]))
-colnames(dat) <- c('Scenario','XX1','YY2')
-myLegend <- ggplot(dat, aes(x=XX1 ,y=YY2, color = Scenario)) +
-  theme_bw() +
-  geom_point(size=5, alpha = 0.5) + 
-  scale_color_manual(values = c('SSP126_1040'="gold",
-                                'SSP126_4070'="darkorange1",
-                                'SSP126_7000'='red3'), 
-                     
-                     labels = c('Early-Century', 'Mid-Century', 'Late-Century'),
-                     name = "") 
-myLegend <- get_legend(myLegend, position = 'bottom') %>% 
-  as_ggplot()
-
-F1 <- plot_grid(p1,
-                myLegend,
-                nrow = 2,
-                rel_heights = c(1, 0.05))
-ggsave(F1, filename = paste0(fileloc1,'Results/Paper/','FIG_5', ".tiff"),
-       width = 7, height = 5.2, dpi = 350, bg='white')
-F1 <- plot_grid(p2,
-                myLegend,
-                nrow = 2,
-                rel_heights = c(1, 0.05))
-ggsave(F1, filename = paste0(fileloc1,'Results/Paper/','FIG_6', ".tiff"),
-       width = 7, height = 5.2, dpi = 350, bg='white')
-F1 <- plot_grid(p3,
-                myLegend,
-                nrow = 2,
-                rel_heights = c(1, 0.05))
-ggsave(F1, filename = paste0(fileloc1,'Results/Paper/','FIG_7', ".tiff"),
-       width = 7, height = 5.2, dpi = 350, bg='white')
-
-# . 7.5 Plotting Sup Loli ------------------------------------------------------
-dat <- datChang[datChang$Exposure == 'Population',]
-a <- 'Population Change'
-p1 <- ggplot(dat) +
-  theme_bw() +
-  geom_segment(aes(x=Region, xend=Region, y=SSP126_1040, yend=SSP126_4070), 
-               color="grey") +
-  geom_segment(aes(x=Region, xend=Region, y=SSP126_4070, yend=SSP126_7000), 
-               color="grey") +
-  geom_point(aes(x=Region, y=SSP126_1040), color='gold', size=5, alpha = 0.5 ) +
-  geom_point(aes(x=Region, y=SSP126_4070), color='darkorange1', size=5, alpha = 0.5 ) +
-  geom_point(aes(x=Region, y=SSP126_7000), color='red3', size=5, alpha = 0.5 ) +
-  coord_flip() +
-  # scale_y_continuous(labels = scales::label_comma()) +
-  scale_y_continuous(labels = scales::label_number(scale_cut = scales::cut_short_scale())) +
-  labs(x = "", y = "person-events", title = a) +
-  facet_grid(Compound ~ .) +
-  theme(strip.text = element_text(size = 7), 
-        strip.background = element_blank())
-
-dat <- datChang[datChang$Exposure == 'Agriculture',]
-a <- 'Agriculture Land Area Change'
-p2 <- ggplot(dat) +
-  theme_bw() +
-  geom_segment(aes(x=Region, xend=Region, y=SSP126_1040, yend=SSP126_4070), 
-               color="grey") +
-  geom_segment(aes(x=Region, xend=Region, y=SSP126_4070, yend=SSP126_7000), 
-               color="grey") +
-  geom_point(aes(x=Region, y=SSP126_1040), color='gold', size=5, alpha = 0.5 ) +
-  geom_point(aes(x=Region, y=SSP126_4070), color='darkorange1', size=5, alpha = 0.5 ) +
-  geom_point(aes(x=Region, y=SSP126_7000), color='red3', size=5, alpha = 0.5 ) +
-  coord_flip() +
-  # scale_y_continuous(labels = scales::label_comma()) +
-  scale_y_continuous(labels = scales::label_number(scale_cut = scales::cut_short_scale())) +
-  labs(x = "", y = "km2-events", title = a) +
-  facet_grid(Compound ~ .) +
-  theme(strip.text = element_text(size = 7), 
-        strip.background = element_blank())
-
-dat <- datChang[datChang$Exposure == 'Forestry',]
-a <- 'Forestry Land Area Change'
-p3 <- ggplot(dat) +
-  theme_bw() +
-  geom_segment(aes(x=Region, xend=Region, y=SSP126_1040, yend=SSP126_4070), 
-               color="grey") +
-  geom_segment(aes(x=Region, xend=Region, y=SSP126_4070, yend=SSP126_7000), 
-               color="grey") +
-  geom_point(aes(x=Region, y=SSP126_1040), color='gold', size=5, alpha = 0.5 ) +
-  geom_point(aes(x=Region, y=SSP126_4070), color='darkorange1', size=5, alpha = 0.5 ) +
-  geom_point(aes(x=Region, y=SSP126_7000), color='red3', size=5, alpha = 0.5 ) +
-  coord_flip() +
-  # scale_y_continuous(labels = scales::label_comma()) +
-  scale_y_continuous(labels = scales::label_number(scale_cut = scales::cut_short_scale())) +
-  labs(x = "", y = "km2-events", title = a) +
-  facet_grid(Compound ~ .) +
-  theme(strip.text = element_text(size = 7), 
-        strip.background = element_blank())
-
-dat <- matrix(0, nrow = 6, ncol = 3) %>%
-  tibble()
-colnames(dat) <- c('Scenario','XX1','YY2')
-dat[,2] <- c(2,3,4,5,3,2)
-dat[,3] <- c(3,4,5,4,3,2)
-dat$Scenario <- factor(colnames(datChang[3:8]))
-colnames(dat) <- c('Scenario','XX1','YY2')
-myLegend <- ggplot(dat, aes(x=XX1 ,y=YY2, color = Scenario)) +
-  theme_bw() +
-  geom_point(size=5, alpha = 0.5) + 
-  scale_color_manual(values = c('SSP126_1040'="gold",
-                                'SSP126_4070'="darkorange1",
-                                'SSP126_7000'='red3'), 
-                     
-                     labels = c('Early-Century', 'Mid-Century', 'Late-Century'),
-                     name = "") 
-myLegend <- get_legend(myLegend, position = 'bottom') %>% 
-  as_ggplot()
-
-F1 <- plot_grid(p1,
-                myLegend,
-                nrow = 2,
-                rel_heights = c(1, 0.05))
-ggsave(F1, filename = paste0(fileloc1,'Results/Paper/Supplement/','SUPP_FIG_5', ".tiff"),
-       width = 7, height = 5.2, dpi = 350, bg='white')
-F1 <- plot_grid(p2,
-                myLegend,
-                nrow = 2,
-                rel_heights = c(1, 0.05))
-ggsave(F1, filename = paste0(fileloc1,'Results/Paper/Supplement/','SUPP_FIG_6', ".tiff"),
-       width = 7, height = 5.2, dpi = 350, bg='white')
-F1 <- plot_grid(p3,
-                myLegend,
-                nrow = 2,
-                rel_heights = c(1, 0.05))
-ggsave(F1, filename = paste0(fileloc1,'Results/Paper/Supplement/','SUPP_FIG_7', ".tiff"),
-       width = 7, height = 5.2, dpi = 350, bg='white')
-# . 7.6 Remove -----------------------------------------------------------------
-rm(list=ls()[! ls() %in% c('fileloc1', 'loc1', 'loc2', '', 'yr', 
-                           'var', 'varT', 'comp', 'compT', 
-                           'locT', 'locTLev', 'lon1', 'lon2', 'lat1', 'lat2', 
-                           'baseData', 
-                           'get_legend','as_ggplot','mean_cl_quantile')])
-# . 6.1 Opening Files
-# . 4.# Remove -----------------------------------------------------------------
-rm(list=ls()[! ls() %in% c('fileloc1', 'loc1', 'loc2', '', 'yr', 
-                           'var', 'varT', 'comp', 'compT', 
-                           'locT', 'lon1', 'lon2', 'lat1', 'lat2', 
+                           'locT','locTLev', 'lon1', 'lon2', 'lat1', 'lat2', 
                            'baseData', 
                            'get_legend','as_ggplot','mean_cl_quantile')])
 

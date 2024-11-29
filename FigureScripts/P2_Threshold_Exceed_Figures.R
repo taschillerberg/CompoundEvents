@@ -6,50 +6,51 @@
 #
 # T. A. Schillerberg
 #               Oct. 2022
-#      Updated: Jan. 2023
+#      Updated: Jul. 2024
 
-# Office Computer
-fileloc1 <- 'C:/Research/Data/'
+# Computer
+setwd("Source File Location") 
+fileloc1 <- 'Main project folder' 
 
 options(show.error.locations = TRUE)
 # Libraries ###############################################################
 library(tidyverse)
 library(cowplot)
-# library(sf)
-# library(ggforce)
 require(gridExtra)
 
 # Part I Variables To Change ##############################################
 mNum <- 1 # For Part V
 mFileH <- c('_day_CMCC-ESM2_historical_r1i1p1f1_gn_',
-           '_day_EC-Earth3_historical_r1i1p1f1_gr_',
-           '_day_GFDL-ESM4_esm-hist_r1i1p1f1_gr1_',
-           '_day_INM-CM4-8_historical_r1i1p1f1_gr1_',
-           '_day_INM-CM5-0_historical_r1i1p1f1_gr1_',
-           '_day_MPI-ESM1-2-HR_historical_r1i1p1f1_gn_',
-           '_day_MRI-ESM2-0_historical_r1i1p1f1_gn_',
-           '_day_NorESM2-MM_historical_r1i1p1f1_gn_')
+            '_day_EC-Earth3_historical_r1i1p1f1_gr_',
+            '_day_GFDL-ESM4_esm-hist_r1i1p1f1_gr1_',
+            '_day_INM-CM4-8_historical_r1i1p1f1_gr1_',
+            '_day_INM-CM5-0_historical_r1i1p1f1_gr1_',
+            '_day_MPI-ESM1-2-HR_historical_r1i1p1f1_gn_',
+            '_day_MRI-ESM2-0_historical_r1i1p1f1_gn_',
+            '_day_NorESM2-MM_historical_r1i1p1f1_gn_',
+            '_day_hr_reanalysis-era5-single-levels_')
 mFile126 <- c('_day_CMCC-ESM2_ssp126_r1i1p1f1_gn_',
-           '_day_EC-Earth3_ssp126_r1i1p1f1_gr_',
-           '_day_GFDL-ESM4_ssp126_r1i1p1f1_gr1_',
-           '_day_INM-CM4-8_ssp126_r1i1p1f1_gr1_',
-           '_day_INM-CM5-0_ssp126_r1i1p1f1_gr1_',
-           '_day_MPI-ESM1-2-HR_ssp126_r1i1p1f1_gn_',
-           '_day_MRI-ESM2-0_ssp126_r1i1p1f1_gn_',
-           '_day_NorESM2-MM_ssp126_r1i1p1f1_gn_')
+              '_day_EC-Earth3_ssp126_r1i1p1f1_gr_',
+              '_day_GFDL-ESM4_ssp126_r1i1p1f1_gr1_',
+              '_day_INM-CM4-8_ssp126_r1i1p1f1_gr1_',
+              '_day_INM-CM5-0_ssp126_r1i1p1f1_gr1_',
+              '_day_MPI-ESM1-2-HR_ssp126_r1i1p1f1_gn_',
+              '_day_MRI-ESM2-0_ssp126_r1i1p1f1_gn_',
+              '_day_NorESM2-MM_ssp126_r1i1p1f1_gn_')
 mFile585 <- c('_day_CMCC-ESM2_ssp585_r1i1p1f1_gn_',
-           '_day_EC-Earth3_ssp585_r1i1p1f1_gr_',
-           '_day_GFDL-ESM4_ssp585_r1i1p1f1_gr1_',
-           '_day_INM-CM4-8_ssp585_r1i1p1f1_gr1_',
-           '_day_INM-CM5-0_ssp585_r1i1p1f1_gr1_',
-           '_day_MPI-ESM1-2-HR_ssp585_r1i1p1f1_gn_',
-           '_day_MRI-ESM2-0_ssp585_r1i1p1f1_gn_',
-           '_day_NorESM2-MM_ssp585_r1i1p1f1_gn_')
-loc1 <- c('CMIP6_historical/','CMIP6_SSP126/','CMIP6_SSP585/')
+              '_day_EC-Earth3_ssp585_r1i1p1f1_gr_',
+              '_day_GFDL-ESM4_ssp585_r1i1p1f1_gr1_',
+              '_day_INM-CM4-8_ssp585_r1i1p1f1_gr1_',
+              '_day_INM-CM5-0_ssp585_r1i1p1f1_gr1_',
+              '_day_MPI-ESM1-2-HR_ssp585_r1i1p1f1_gn_',
+              '_day_MRI-ESM2-0_ssp585_r1i1p1f1_gn_',
+              '_day_NorESM2-MM_ssp585_r1i1p1f1_gn_')
+loc1 <- c('CMIP6_historical/','CMIP6_SSP126/','CMIP6_SSP585/','Historical/')
 loc2 <- c('CMCC-ESM2/', 'EC-Earth3/',
           'GFDL-ESM4/', 'INM-CM4-8/',
           'INM-CM5-0/', 'MPI-ESM1-2-HR/',
-          'MRI-ESM2-0/', 'NorESM2-MM/')
+          'MRI-ESM2-0/', 'NorESM2-MM/',
+          'ERA5/')
 var <- c('tasmax', 'tasmin', 'pr', 'mrsos') [1]
 startyr <- 1980
 endyr <- 2010
@@ -106,51 +107,54 @@ datThreshM7 <- read_csv(paste0(fileloc1,'CMIP6_historical/',loc2[7],
 datThreshM8 <- read_csv(paste0(fileloc1,'CMIP6_historical/',loc2[8],
                                'THRESHOLD_',var, mFileH[8],1980,'-',2010,'.csv'),
                         col_names = TRUE, cols(.default = col_double()))
+datThreshM9 <- read_csv(paste0(fileloc1,'Historical/',loc2[9],
+                               'THRESHOLD_',var, mFileH[9],1980,'-',2010,'.csv'),
+                        col_names = TRUE, cols(.default = col_double()))
 
 if (var == 'tasmax'){
   datThresh <- cbind(datThreshM1$lon, datThreshM1$lat, datThreshM1$P95, 
                      datThreshM2$P95, datThreshM3$P95, datThreshM4$P95,
                      datThreshM5$P95, datThreshM6$P95, datThreshM7$P95, 
-                     datThreshM8$P95) %>%
+                     datThreshM8$P95, datThreshM9$P95) %>%
     as_tibble()
   colnames(datThresh) <- c('lon', 'lat','CMCC-ESM2', 'EC-Earth3', 'GFDL-ESM4',
                            'INM-CM4-8', 'INM-CM5-0', 'MPI-ESM1-2-HR', 
-                           'MRI-ESM2-0', 'NorESM2-MM')
+                           'MRI-ESM2-0', 'NorESM2-MM', 'ERA5')
   datTitle <- 'Threshold for Tmax 95th percentile'
   legendTitle <- 'Degree C'
 } else if (var == 'tasmin'){
   datThresh <- cbind(datThreshM1$lon, datThreshM1$lat, datThreshM1$P05,
-                       datThreshM2$P05, datThreshM3$P05, datThreshM4$P05,
-                       datThreshM5$P05, datThreshM6$P05, datThreshM7$P05, 
-                       datThreshM8$P05) %>%
+                     datThreshM2$P05, datThreshM3$P05, datThreshM4$P05,
+                     datThreshM5$P05, datThreshM6$P05, datThreshM7$P05, 
+                     datThreshM8$P05) %>%
     as_tibble() 
   colnames(datThresh) <- c('lon', 'lat','CMCC-ESM2', 'EC-Earth3', 'GFDL-ESM4',
                            'INM-CM4-8', 'INM-CM5-0', 'MPI-ESM1-2-HR', 
-                           'MRI-ESM2-0', 'NorESM2-MM')
+                           'MRI-ESM2-0', 'NorESM2-MM', 'ERA5')
   datTitle <- 'Threshold for Tmin 5th percentile'
   legendTitle <- 'Degree C'
 } else if (var == 'pr'){
   datThresh <- cbind(datThreshM1$lon, datThreshM1$lat, datThreshM1$P99, 
-                       datThreshM2$P99, datThreshM3$P99, datThreshM4$P99, 
-                       datThreshM5$P99, datThreshM6$P99, datThreshM7$P99,
-                       datThreshM8$P99) %>%
+                     datThreshM2$P99, datThreshM3$P99, datThreshM4$P99, 
+                     datThreshM5$P99, datThreshM6$P99, datThreshM7$P99,
+                     datThreshM8$P99) %>%
     as_tibble() 
   colnames(datThresh) <- c('lon', 'lat','CMCC-ESM2', 'EC-Earth3', 'GFDL-ESM4',
                            'INM-CM4-8', 'INM-CM5-0', 'MPI-ESM1-2-HR', 
-                           'MRI-ESM2-0', 'NorESM2-MM')
+                           'MRI-ESM2-0', 'NorESM2-MM', 'ERA5')
   datTitle <- 'Threshold for Pr 99th percentile'
   legendTitle <- 'mm/day'
 } else if (var == 'mrsos'){
   datThresh <- cbind(datThreshM1$lon, datThreshM1$lat, datThreshM1$P10,
-                       datThreshM2$P10, datThreshM3$P10, datThreshM4$P10,
-                       datThreshM5$P10, datThreshM6$P10, datThreshM7$P10,
-                       datThreshM8$P10) %>%
+                     datThreshM2$P10, datThreshM3$P10, datThreshM4$P10,
+                     datThreshM5$P10, datThreshM6$P10, datThreshM7$P10,
+                     datThreshM8$P10) %>%
     as_tibble()
   colnames(datThresh) <- c('lon', 'lat','CMCC-ESM2', 'EC-Earth3', 'GFDL-ESM4',
                            'INM-CM4-8', 'INM-CM5-0', 'MPI-ESM1-2-HR', 
-                           'MRI-ESM2-0', 'NorESM2-MM')
+                           'MRI-ESM2-0', 'NorESM2-MM', 'ERA5')
   datTitle <- 'Threshold for Soil Moisture 10th percentile'
-  legendTitle <- 'kg/m2'
+  legendTitle <- c('kg/m2', 'm3/m3')[2]
 } else {
   print("Var selection not reconized")
 }
@@ -169,9 +173,10 @@ sM5 <- summary(datThresh$`INM-CM5-0`) %>% round(digits = 4)
 sM6 <- summary(datThresh$`MPI-ESM1-2-HR`) %>% round(digits = 4)
 sM7 <- summary(datThresh$`MRI-ESM2-0`) %>% round(digits = 4) 
 sM8 <- summary(datThresh$`NorESM2-MM`) %>% round(digits = 4)
+sM9 <- summary(datThresh$ERA5) %>% round(digits = 4)
 sMmu <- summary(datThresh$Mu) %>% round(digits = 4)
 
-sM1 <- rbind(sM1,sM2, sM3, sM4, sM5, sM6, sM7, sM8, sMmu) %>% 
+sM1 <- rbind(sM1,sM2, sM3, sM4, sM5, sM6, sM7, sM8, sM9, sMmu) %>% 
   as_tibble()
 colnames(sM1) <- c('Min.','1st Qu.','Median','Mean','3rd Qu.','Max.','NAs')
 # sM1 <- sM1 %>% select(-NAs)
@@ -318,7 +323,23 @@ pM8 <- ggplot(data = datThresh, aes(x=lon, y=lat, fill=`NorESM2-MM`)) +
   theme(legend.position = "NULL") +
   theme(plot.margin=margin(t=0.5, r=0.5, unit="cm"))
 
-rowM <- c(rowM, 'Model Mean')
+a <-strsplit(loc2[9],'/') %>% unlist() 
+rowM <- c(rowM, a)
+pM9 <- ggplot(data = datThresh, aes(x=lon, y=lat, fill=ERA5)) +
+  theme_bw() +
+  geom_tile() +
+  scale_fill_viridis_c(limits = c(mMin,mMax), option = "rocket",
+                       na.value = 'lightblue', direction = -1, 
+                       name = legendTitle) +
+  geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
+               colour="black", fill="NA", linewidth=0.2) +
+  coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-84,90), expand = FALSE) +
+  labs(title = a, 
+       x = 'Longitude', y = 'Latitude') +
+  theme(legend.position = "NULL") +
+  theme(plot.margin=margin(t=0.5, r=0.5, unit="cm"))
+
+rowM <- c(rowM, 'CMIP6 Model Mean')
 pMu <- ggplot(data = datThresh, aes(x=lon, y=lat, fill=Mu)) +
   theme_bw() +
   geom_tile() +
@@ -337,9 +358,10 @@ myLegend <- get_legend(pM1, position = 'right') %>%
   as_ggplot()
 pM1 <- pM1 + theme(legend.position = "NULL")
 
-p1 <- plot_grid(pM1, pM2, pM3, pM4,
-                pM5, pM6, pM7, pM8,
-                nrow = 2,
+p1 <- plot_grid(pM1, pM2, pM3, 
+                pM4, pM5, pM6, 
+                pM7, pM8, pM9,
+                nrow = 3,
                 # labels = c('A','B','C','D'),
                 rel_widths = c(1,1))
 F1A <- plot_grid(p1,
@@ -347,7 +369,7 @@ F1A <- plot_grid(p1,
                  # myLegend,
                  # ncol=2,
                  # rel_widths = c(1,0.07)
-                 )
+)
 rownames(sM1) <- rowM
 F1B <- plot_grid(pMu, gridExtra::tableGrob(sM1),
                  rel_widths = c(1,1),
@@ -356,11 +378,11 @@ title <- ggdraw() + draw_label(datTitle, fontface='bold')
 F1 <- plot_grid(title,
                 F1A,
                 F1B,
-                rel_heights = c(.05,.85,.5),
+                rel_heights = c(.05,.85,.45),
                 nrow = 3)
 
 ggsave(F1, filename = paste0(fileloc1,loc1[1],'Results/','THRESHOLD_',var, ".tiff"),
-       width = 14, height = 10, dpi = 350, bg='white')
+       width = 14, height = 14, dpi = 350, bg='white')
 
 
 # Part IV Mean Values ##########################################################
@@ -376,16 +398,31 @@ datFreqH <- tibble(
   'MPI-ESM1-2-HR' = numeric(length = 12476),
   'MRI-ESM2-0' = numeric(length = 12476),
   'NorESM2-MM' = numeric(length = 12476),
+  'ERA5' = numeric(length = 12476),
   'Mu' = numeric(length = 12476),
 )
-datFreq126_4070 <- datFreqH
-datFreq126_7000 <- datFreqH
-datFreq585_4070 <- datFreqH
-datFreq585_7000 <- datFreqH
+datFreq126_1040 <- tibble(
+  'lon' = numeric(length = 12476),
+  'lat' = numeric(length = 12476),
+  'CMCC-ESM2' = numeric(length = 12476),
+  'EC-Earth3' = numeric(length = 12476),
+  'GFDL-ESM4' = numeric(length = 12476),
+  'INM-CM4-8' = numeric(length = 12476),
+  'INM-CM5-0' = numeric(length = 12476),
+  'MPI-ESM1-2-HR' = numeric(length = 12476),
+  'MRI-ESM2-0' = numeric(length = 12476),
+  'NorESM2-MM' = numeric(length = 12476),
+  'Mu' = numeric(length = 12476),
+)
+datFreq126_4070 <- datFreq126_1040
+datFreq126_7000 <- datFreq126_1040
+datFreq585_1040 <- datFreq126_1040
+datFreq585_4070 <- datFreq126_1040
+datFreq585_7000 <- datFreq126_1040
 
 # . 4.2 Opening & Formatting Exceed Files --------------------------------------
 # . . 4.2.1 Historical ---------------------------------------------------------
-for (i in 1: length(loc2)){
+for (i in 1:(length(loc2)-1)){
   dat <- read_csv(paste0(fileloc1,loc1[1],loc2[i],'EXCEED_',timeSpan,var,
                          mFileH[i],1980,'-',2010,'.csv'),
                   col_names = TRUE, cols(.default = col_double()))
@@ -404,8 +441,38 @@ datFreqH$Mu <- apply(datFreqH[,3:10], MARGIN = 1, function(x){
   sum(x, na.rm = TRUE)/length(x[!is.na(x)])
 })
 
-# . . 4.2.2 SSP126 2040-70 -----------------------------------------------------
-for (i in 1: length(loc2)){
+# ERA 5
+dat <- read_csv(paste0(fileloc1,loc1[4],loc2[9],'EXCEED_',timeSpan,var,
+                       mFileH[i],1980,'-',2010,'.csv'),
+                col_names = TRUE, cols(.default = col_double()))
+Xx <- apply(X = dat[,3:ncol(dat)], MARGIN = 1,
+            FUN = sum, na.rm=TRUE)    #Number of occurrences
+Xx <- Xx/(ncol(dat)-2) * ((ncol(dat)-2)/31) # Frequency
+
+datFreqH[,11] <- as_tibble(Xx)
+
+# . . 4.2.2 SSP126 2010-40 -----------------------------------------------------
+for (i in 1: (length(loc2)-1)){
+  dat <- read_csv(paste0(fileloc1,loc1[2],loc2[i],'EXCEED_',timeSpan,var,
+                         mFile126[i],2010,'-',2040,'.csv'),
+                  col_names = TRUE, cols(.default = col_double()))
+  Xx <- apply(X = dat[,3:ncol(dat)], MARGIN = 1,
+              FUN = sum, na.rm=TRUE)    #Number of occurrences
+  Xx <- Xx/(ncol(dat)-2) * ((ncol(dat)-2)/31) # Frequency
+  if (i == 1){
+    datFreq126_1040$lon <- dat$lon
+    datFreq126_1040$lat <- dat$lat
+    datFreq126_1040[,2+i] <- as_tibble(Xx)
+  } else {
+    datFreq126_1040[,2+i] <- as_tibble(Xx)
+  }
+}
+datFreq126_1040$Mu <- apply(datFreq126_1040[,3:10], MARGIN = 1, function(x){
+  sum(x, na.rm = TRUE)/length(x[!is.na(x)])
+})
+
+# . . 4.2.3 SSP126 2040-70 -----------------------------------------------------
+for (i in 1: (length(loc2)-1)){
   dat <- read_csv(paste0(fileloc1,loc1[2],loc2[i],'EXCEED_',timeSpan,var,
                          mFile126[i],2040,'-',2070,'.csv'),
                   col_names = TRUE, cols(.default = col_double()))
@@ -424,8 +491,8 @@ datFreq126_4070$Mu <- apply(datFreq126_4070[,3:10], MARGIN = 1, function(x){
   sum(x, na.rm = TRUE)/length(x[!is.na(x)])
 })
 
-# . . 4.2.3 SSP126 2070-2100 ---------------------------------------------------
-for (i in 1: length(loc2)){
+# . . 4.2.4 SSP126 2070-2100 ---------------------------------------------------
+for (i in 1: (length(loc2)-1)){
   dat <- read_csv(paste0(fileloc1,loc1[2],loc2[i],'EXCEED_',timeSpan,var,
                          mFile126[i],2070,'-',2100,'.csv'),
                   col_names = TRUE, cols(.default = col_double()))
@@ -444,8 +511,28 @@ datFreq126_7000$Mu <- apply(datFreq126_7000[,3:10], MARGIN = 1, function(x){
   sum(x, na.rm = TRUE)/length(x[!is.na(x)])
 })
 
-# . . 4.2.4 SSP585 2040-70 -----------------------------------------------------
-for (i in 1: length(loc2)){
+# . . 4.2.5 SSP585 2010-40 -----------------------------------------------------
+for (i in 1: (length(loc2)-1)){
+  dat <- read_csv(paste0(fileloc1,loc1[3],loc2[i],'EXCEED_',timeSpan,var,
+                         mFile585[i],2010,'-',2040,'.csv'),
+                  col_names = TRUE, cols(.default = col_double()))
+  Xx <- apply(X = dat[,3:ncol(dat)], MARGIN = 1,
+              FUN = sum, na.rm=TRUE)    #Number of occurrences
+  Xx <- Xx/(ncol(dat)-2) * ((ncol(dat)-2)/31) # Frequency
+  if (i == 1){
+    datFreq585_1040$lon <- dat$lon
+    datFreq585_1040$lat <- dat$lat
+    datFreq585_1040[,2+i] <- as_tibble(Xx)
+  } else {
+    datFreq585_1040[,2+i] <- as_tibble(Xx)
+  }
+}
+datFreq585_1040$Mu <- apply(datFreq585_1040[,3:10], MARGIN = 1, function(x){
+  sum(x, na.rm = TRUE)/length(x[!is.na(x)])
+})
+
+# . . 4.2.6 SSP585 2040-70 -----------------------------------------------------
+for (i in 1: (length(loc2)-1)){
   dat <- read_csv(paste0(fileloc1,loc1[3],loc2[i],'EXCEED_',timeSpan,var,
                          mFile585[i],2040,'-',2070,'.csv'),
                   col_names = TRUE, cols(.default = col_double()))
@@ -464,8 +551,8 @@ datFreq585_4070$Mu <- apply(datFreq585_4070[,3:10], MARGIN = 1, function(x){
   sum(x, na.rm = TRUE)/length(x[!is.na(x)])
 })
 
-# . . 4.2.5 SSP585 2070-2100 ---------------------------------------------------
-for (i in 1: length(loc2)){
+# . . 4.2.7 SSP585 2070-2100 ---------------------------------------------------
+for (i in 1: (length(loc2)-1)){
   dat <- read_csv(paste0(fileloc1,loc1[3],loc2[i],'EXCEED_',timeSpan,var,
                          mFile585[i],2070,'-',2100,'.csv'),
                   col_names = TRUE, cols(.default = col_double()))
@@ -485,19 +572,25 @@ datFreq585_7000$Mu <- apply(datFreq585_7000[,3:10], MARGIN = 1, function(x){
 })
 
 # . 4.3 Creating a table of values ---------------------------------------------
-sFH <- summary(datFreqH$Mu)
-sFM126 <- summary(datFreq126_4070$Mu)
-sFL126 <- summary(datFreq126_7000$Mu)
-sFM585 <- summary(datFreq585_4070$Mu)
-sFL585 <- summary(datFreq585_7000$Mu)
-sF <- rbind(sFH, sFM126, sFL126, sFM585, sFL585) %>% as_tibble()
+sFH <- summary(datFreqH$Mu) %>% round(digits = 2)
+sFE <- summary(datFreqH$ERA5) %>% round(digits = 2)
+sFE126 <- summary(datFreq126_1040$Mu) %>% round(digits = 2)
+sFM126 <- summary(datFreq126_4070$Mu) %>% round(digits = 2)
+sFL126 <- summary(datFreq126_7000$Mu) %>% round(digits = 2)
+sFE585 <- summary(datFreq585_1040$Mu) %>% round(digits = 2)
+sFM585 <- summary(datFreq585_4070$Mu) %>% round(digits = 2)
+sFL585 <- summary(datFreq585_7000$Mu) %>% round(digits = 2)
+sF <- rbind(sFH, sFE, 
+            sFE126, sFM126, sFL126, 
+            sFE585, sFM585, sFL585) %>%
+  as_tibble()
 colnames(sF) <- c('Freq Min.','Freq 1st Qu.','Freq Median','Freq Mean',
                   'Freq 3rd Qu.','Freq Max.')
 sFmin <- min(sF$'Freq Min.')
 sFmax <- max(sF$'Freq Max.')
 
 # . 4.4 Plotting the Frequencies -----------------------------------------------
-a <- 'Historical'
+a <- 'Historical CMIP6'
 pM1 <- ggplot(data = datFreqH, aes(x=lon, y=lat, fill=Mu)) +
   theme_bw() +
   geom_tile() +
@@ -511,8 +604,36 @@ pM1 <- ggplot(data = datFreqH, aes(x=lon, y=lat, fill=Mu)) +
   theme(legend.position="right") +
   theme(plot.margin=margin(t=0.5, r=0.5, unit="cm"))
 
+a <- 'Historical ERA5'
+pM2 <- ggplot(data = datFreqH, aes(x=lon, y=lat, fill=ERA5)) +
+  theme_bw() +
+  geom_tile() +
+  scale_fill_viridis_c(limits = c(sFmin,sFmax), option = "rocket", na.value = 'lightblue',
+                       direction = -1, name = 'Frequency of Events') +
+  geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
+               colour="black", fill="NA", linewidth=0.5) +
+  coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-84,90), expand = FALSE) +
+  labs(title = a, 
+       x = 'Longitude', y = 'Latitude') +
+  theme(legend.position="NULL") +
+  theme(plot.margin=margin(t=0.5, r=0.5, unit="cm"))
+
+a <- 'SSP126 Early-Century'
+pM3 <- ggplot(data = datFreq126_1040, aes(x=lon, y=lat, fill=Mu)) +
+  theme_bw() +
+  geom_tile() +
+  scale_fill_viridis_c(limits = c(sFmin,sFmax), option = "rocket", na.value = 'lightblue',
+                       direction = -1) +
+  geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
+               colour="black", fill="NA", linewidth=0.5) +
+  coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-84,90), expand = FALSE) +
+  labs(title = a, 
+       x = 'Longitude', y = 'Latitude') +
+  theme(legend.position = "NULL") +
+  theme(plot.margin=margin(t=0.5, r=0.5, unit="cm"))
+
 a <- 'SSP126 Mid-Century'
-pM2 <- ggplot(data = datFreq126_4070, aes(x=lon, y=lat, fill=Mu)) +
+pM4 <- ggplot(data = datFreq126_4070, aes(x=lon, y=lat, fill=Mu)) +
   theme_bw() +
   geom_tile() +
   scale_fill_viridis_c(limits = c(sFmin,sFmax), option = "rocket", na.value = 'lightblue',
@@ -526,7 +647,21 @@ pM2 <- ggplot(data = datFreq126_4070, aes(x=lon, y=lat, fill=Mu)) +
   theme(plot.margin=margin(t=0.5, r=0.5, unit="cm"))
 
 a <- 'SSP126 Late-Century'
-pM3 <- ggplot(data = datFreq126_7000, aes(x=lon, y=lat, fill=Mu)) +
+pM5 <- ggplot(data = datFreq126_7000, aes(x=lon, y=lat, fill=Mu)) +
+  theme_bw() +
+  geom_tile() +
+  scale_fill_viridis_c(limits = c(sFmin,sFmax), option = "rocket", na.value = 'lightblue',
+                       direction = -1) +
+  geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
+               colour="black", fill="NA", linewidth=0.5) +
+  coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-84,90), expand = FALSE) +
+  labs(title = a, 
+       x = 'Longitude', y = 'Latitude') +
+  theme(legend.position = "NULL") +
+  theme(plot.margin=margin(t=0.5, r=0.5, unit="cm"))
+
+a <- 'SSP585 Early-Century'
+pM6 <- ggplot(data = datFreq585_1040, aes(x=lon, y=lat, fill=Mu)) +
   theme_bw() +
   geom_tile() +
   scale_fill_viridis_c(limits = c(sFmin,sFmax), option = "rocket", na.value = 'lightblue',
@@ -540,7 +675,7 @@ pM3 <- ggplot(data = datFreq126_7000, aes(x=lon, y=lat, fill=Mu)) +
   theme(plot.margin=margin(t=0.5, r=0.5, unit="cm"))
 
 a <- 'SSP585 Mid-Century'
-pM4 <- ggplot(data = datFreq585_4070, aes(x=lon, y=lat, fill=Mu)) +
+pM7 <- ggplot(data = datFreq585_4070, aes(x=lon, y=lat, fill=Mu)) +
   theme_bw() +
   geom_tile() +
   scale_fill_viridis_c(limits = c(sFmin,sFmax), option = "rocket", na.value = 'lightblue',
@@ -554,7 +689,7 @@ pM4 <- ggplot(data = datFreq585_4070, aes(x=lon, y=lat, fill=Mu)) +
   theme(plot.margin=margin(t=0.5, r=0.5, unit="cm"))
 
 a <- 'SSP585 Late-Century'
-pM5 <- ggplot(data = datFreq585_7000, aes(x=lon, y=lat, fill=Mu)) +
+pM8 <- ggplot(data = datFreq585_7000, aes(x=lon, y=lat, fill=Mu)) +
   theme_bw() +
   geom_tile() +
   scale_fill_viridis_c(limits = c(sFmin,sFmax), option = "rocket", na.value = 'lightblue',
@@ -571,14 +706,15 @@ myLegend <- get_legend(pM1, position = 'right') %>%
   as_ggplot()
 pM1 <- pM1 + theme(legend.position = "NULL")
 
-F1A <- plot_grid(pM1, myLegend,
-                 pM2, pM3, 
-                 pM4, pM5, 
+F1A <- plot_grid(pM1, pM2, myLegend,
+                 pM3, pM4, pM5,
+                 pM6, pM7, pM8, 
                  nrow = 3,
                  # labels = c('A','B','C','D'),
                  rel_widths = c(1,1))
-rownames(sF) <- c('Historical','SSP126 Mid-Century','SSP126 Late-Century',
-                    'SSP585 Mid-Century','SSP585 Late-Century')
+rownames(sF) <- c('Historical', 'ERA5',
+                  'SSP126 Early-Century','SSP126 Mid-Century','SSP126 Late-Century',
+                  'SSP585 Early-Century','SSP585 Mid-Century','SSP585 Late-Century')
 F1B <- plot_grid(gridExtra::tableGrob(sF),
                  rel_widths = c(1),
                  nrow= 1)
@@ -596,21 +732,28 @@ ggsave(F1, filename = paste0(fileloc1,'Results/','EXCEED_', timeSpan ,'AllFreque
 
 # Part V Models Exceed #########################################################
 # . 5.1 Variables Needed -------------------------------------------------------
-dat <- c(datFreqH, datFreq126_4070, datFreq126_7000, 
-         datFreq585_4070, datFreq585_7000)
-dat <- datFreq585_7000
-loc1 <- c('CMIP6_historical/','CMIP6_SSP126/','CMIP6_SSP585/')[3]
+dat <- c(datFreqH, datFreq126_1040, datFreq126_4070, datFreq126_7000, 
+         datFreq585_1040, datFreq585_4070, datFreq585_7000)
+dat <- datFreqH
+loc1 <- c('CMIP6_historical/','CMIP6_SSP126/','CMIP6_SSP585/')[1]
 
 # . 5.2 Creating a table of values ---------------------------------------------
-sM1f <- summary(dat$`CMCC-ESM2`) %>% round(digits=4)
-sM2f <- summary(dat$`EC-Earth3`) %>% round(digits=4)
-sM3f <- summary(dat$`GFDL-ESM4`) %>% round(digits=4) 
-sM4f <- summary(dat$`INM-CM4-8`) %>% round(digits=4)
-sM5f <- summary(dat$`INM-CM5-0`) %>% round(digits=4)
-sM6f <- summary(dat$`MPI-ESM1-2-HR`) %>% round(digits=4)
-sM7f <- summary(dat$`MRI-ESM2-0`) %>% round(digits=4) 
-sM8f <- summary(dat$`NorESM2-MM`) %>% round(digits=4)
-sM1f <- rbind(sM1f,sM2f, sM3f, sM4f, sM5f, sM6f, sM7f, sM8f) %>% as.tibble()
+sM1f <- summary(dat$`CMCC-ESM2`) %>% round(digits = 4)
+sM2f <- summary(dat$`EC-Earth3`) %>% round(digits = 4)
+sM3f <- summary(dat$`GFDL-ESM4`) %>% round(digits = 4) 
+sM4f <- summary(dat$`INM-CM4-8`) %>% round(digits = 4)
+sM5f <- summary(dat$`INM-CM5-0`) %>% round(digits = 4)
+sM6f <- summary(dat$`MPI-ESM1-2-HR`) %>% round(digits = 4)
+sM7f <- summary(dat$`MRI-ESM2-0`) %>% round(digits = 4) 
+sM8f <- summary(dat$`NorESM2-MM`) %>% round(digits = 4)
+if (loc1 == 'CMIP6_historical/'){
+  sM9f <- summary(dat$ERA5) %>% round(digits = 4)
+  sM1f <- rbind(sM1f, sM2f, sM3f, sM4f, sM5f, sM6f, sM7f, sM8f, sM9f) %>%
+    as.tibble()
+} else {
+  sM1f <- rbind(sM1f, sM2f, sM3f, sM4f, sM5f, sM6f, sM7f, sM8f) %>%
+    as.tibble()
+}
 colnames(sM1f) <- c('Freq Min.','Freq 1st Qu.','Freq Median','Freq Mean',
                     'Freq 3rd Qu.','Freq Max.')
 mMinf <- min(sM1f$'Freq Min.') - 0.0001
@@ -740,12 +883,39 @@ pM8 <- ggplot(data = dat, aes(x=lon, y=lat, fill=`NorESM2-MM`)) +
 
 myLegend <- get_legend(pM1, position = 'right') %>% 
   as_ggplot()
+
 pM1 <- pM1 + theme(legend.position = "NULL")
 
-p1 <- plot_grid(pM1, pM2, pM3, pM4, pM5, pM6, pM7, pM8,
-                nrow = 2,
-                # labels = c('A','B','C','D'),
-                rel_widths = c(1,1))
+if (loc1 == 'CMIP6_historical/'){
+  a <-strsplit(loc2[9],'/') %>% unlist() 
+  rowM <- c(rowM, a)
+  pM9 <- ggplot(data = dat, aes(x=lon, y=lat, fill=ERA5)) +
+    theme_bw() +
+    geom_tile() +
+    scale_fill_viridis_c(limits = c(mMinf,mMaxf), option = "rocket", na.value = 'lightblue',
+                         direction = -1) +
+    geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
+                 colour="black", fill="NA", linewidth=0.5) +
+    coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-84,90), expand = FALSE) +
+    labs(title = a, 
+         x = 'Longitude', y = 'Latitude') +
+    theme(legend.position = "NULL") +
+    theme(plot.margin=margin(t=0.5, r=0.5, unit="cm"))
+  
+  p1 <- plot_grid(pM1, pM2, pM3,
+                  pM4, pM5, pM6, 
+                  pM7, pM8, pM9,
+                  nrow = 3,
+                  # labels = c('A','B','C','D'),
+                  rel_widths = c(1,1))
+} else {
+  p1 <- plot_grid(pM1, pM2, pM3, pM4,
+                  pM5, pM6, pM7, pM8,
+                  nrow = 2,
+                  # labels = c('A','B','C','D'),
+                  rel_widths = c(1,1))
+}
+
 F1A <- plot_grid(p1,
                  myLegend,
                  ncol=2,
@@ -759,10 +929,10 @@ F1 <- plot_grid(F1A,
                 rel_heights = c(1,.5),
                 nrow = 2)
 
-ggsave(F1, filename = paste0(fileloc1,loc1,'Results/','EXCEED_DAY_Frequency_',var, "_7000.tiff"),
+ggsave(F1, filename = paste0(fileloc1,loc1,'Results/','EXCEED_DAY_Frequency_',var, "_8010.tiff"),
        width = 14, height = 10, dpi = 350, bg='white')
 
 # rm(list=ls()[! ls() %in% c('as_ggplot','get_legend','fileloc1', 'loc1', 'loc2', 'mFile','mNum','var',
 #                            'startyr','endyr','baseData')])
 
-# END #########################################################################
+# END ##########################################################################

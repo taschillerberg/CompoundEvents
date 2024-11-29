@@ -10,10 +10,11 @@
 #
 # T. A. Schillerberg
 #               Oct. 2022
-#      Updated: Sep. 2023
+#      Updated: Jul. 2024
 
-# Office Computer
-# fileloc1 <- 'C:/Research/Data/'
+# Computer
+# setwd("Source File Location") 
+# fileloc1 <- 'Main project folder' 
 
 # HPC
 fileloc1 <- '~/CompoundEvents/Data/'
@@ -28,15 +29,16 @@ library(zoo)
 var <- c('tasmax', 'tasmin', 'pr', 'mrsos')[as.numeric('model_var')] # bash script
 mNum <- as.numeric('model_num') # bash script
 # var <- c('tasmax', 'tasmin', 'pr', 'mrsos')[4]
-# mNum <- 1 # Select a model (1-8)
-# mFile <- c('_day_CMCC-ESM2_historical_r1i1p1f1_gn_',
-#            '_day_EC-Earth3_historical_r1i1p1f1_gr_',
-#            '_day_GFDL-ESM4_esm-hist_r1i1p1f1_gr1_',
-#            '_day_INM-CM4-8_historical_r1i1p1f1_gr1_',
-#            '_day_INM-CM5-0_historical_r1i1p1f1_gr1_',
-#            '_day_MPI-ESM1-2-HR_historical_r1i1p1f1_gn_',
-#            '_day_MRI-ESM2-0_historical_r1i1p1f1_gn_',
-#            '_day_NorESM2-MM_historical_r1i1p1f1_gn_')[mNum]
+# mNum <- 1 # Select a model (1-9)
+mFile <- c('_day_CMCC-ESM2_historical_r1i1p1f1_gn_',
+           '_day_EC-Earth3_historical_r1i1p1f1_gr_',
+           '_day_GFDL-ESM4_esm-hist_r1i1p1f1_gr1_',
+           '_day_INM-CM4-8_historical_r1i1p1f1_gr1_',
+           '_day_INM-CM5-0_historical_r1i1p1f1_gr1_',
+           '_day_MPI-ESM1-2-HR_historical_r1i1p1f1_gn_',
+           '_day_MRI-ESM2-0_historical_r1i1p1f1_gn_',
+           '_day_NorESM2-MM_historical_r1i1p1f1_gn_',
+           '_day_hr_reanalysis-era5-single-levels_')[mNum]
 # mFile <- c('_day_CMCC-ESM2_ssp126_r1i1p1f1_gn_',
 #            '_day_EC-Earth3_ssp126_r1i1p1f1_gr_',
 #            '_day_GFDL-ESM4_ssp126_r1i1p1f1_gr1_',
@@ -53,14 +55,14 @@ mNum <- as.numeric('model_num') # bash script
 #            '_day_MPI-ESM1-2-HR_ssp585_r1i1p1f1_gn_',
 #            '_day_MRI-ESM2-0_ssp585_r1i1p1f1_gn_',
 #            '_day_NorESM2-MM_ssp585_r1i1p1f1_gn_')[mNum]
-mFile <- list(c('_day_CMCC-ESM2_historical_r1i1p1f1_gn_','_day_CMCC-ESM2_ssp126_r1i1p1f1_gn_'),
-              c('_day_EC-Earth3_historical_r1i1p1f1_gr_','_day_EC-Earth3_ssp126_r1i1p1f1_gr_'),
-              c('_day_GFDL-ESM4_esm-hist_r1i1p1f1_gr1_','_day_GFDL-ESM4_ssp126_r1i1p1f1_gr1_'),
-              c('_day_INM-CM4-8_historical_r1i1p1f1_gr1_','_day_INM-CM4-8_ssp126_r1i1p1f1_gr1_'),
-              c('_day_INM-CM5-0_historical_r1i1p1f1_gr1_','_day_INM-CM5-0_ssp126_r1i1p1f1_gr1_'),
-              c('_day_MPI-ESM1-2-HR_historical_r1i1p1f1_gn_','_day_MPI-ESM1-2-HR_ssp126_r1i1p1f1_gn_'),
-              c('_day_MRI-ESM2-0_historical_r1i1p1f1_gn_','_day_MRI-ESM2-0_ssp126_r1i1p1f1_gn_'),
-              c('_day_NorESM2-MM_historical_r1i1p1f1_gn_','_day_NorESM2-MM_ssp126_r1i1p1f1_gn_'))[mNum]
+# mFile <- list(c('_day_CMCC-ESM2_historical_r1i1p1f1_gn_','_day_CMCC-ESM2_ssp126_r1i1p1f1_gn_'),
+#               c('_day_EC-Earth3_historical_r1i1p1f1_gr_','_day_EC-Earth3_ssp126_r1i1p1f1_gr_'),
+#               c('_day_GFDL-ESM4_esm-hist_r1i1p1f1_gr1_','_day_GFDL-ESM4_ssp126_r1i1p1f1_gr1_'),
+#               c('_day_INM-CM4-8_historical_r1i1p1f1_gr1_','_day_INM-CM4-8_ssp126_r1i1p1f1_gr1_'),
+#               c('_day_INM-CM5-0_historical_r1i1p1f1_gr1_','_day_INM-CM5-0_ssp126_r1i1p1f1_gr1_'),
+#               c('_day_MPI-ESM1-2-HR_historical_r1i1p1f1_gn_','_day_MPI-ESM1-2-HR_ssp126_r1i1p1f1_gn_'),
+#               c('_day_MRI-ESM2-0_historical_r1i1p1f1_gn_','_day_MRI-ESM2-0_ssp126_r1i1p1f1_gn_'),
+#               c('_day_NorESM2-MM_historical_r1i1p1f1_gn_','_day_NorESM2-MM_ssp126_r1i1p1f1_gn_'))[mNum]
 # mFile <- list(c('_day_CMCC-ESM2_historical_r1i1p1f1_gn_','_day_CMCC-ESM2_ssp585_r1i1p1f1_gn_'),
 #               c('_day_EC-Earth3_historical_r1i1p1f1_gr_','_day_EC-Earth3_ssp585_r1i1p1f1_gr_'),
 #               c('_day_GFDL-ESM4_esm-hist_r1i1p1f1_gr1_','_day_GFDL-ESM4_ssp585_r1i1p1f1_gr1_'),
@@ -69,16 +71,17 @@ mFile <- list(c('_day_CMCC-ESM2_historical_r1i1p1f1_gn_','_day_CMCC-ESM2_ssp126_
 #               c('_day_MPI-ESM1-2-HR_historical_r1i1p1f1_gn_','_day_MPI-ESM1-2-HR_ssp585_r1i1p1f1_gn_'),
 #               c('_day_MRI-ESM2-0_historical_r1i1p1f1_gn_','_day_MRI-ESM2-0_ssp585_r1i1p1f1_gn_'),
 #               c('_day_NorESM2-MM_historical_r1i1p1f1_gn_','_day_NorESM2-MM_ssp585_r1i1p1f1_gn_'))[mNum]
-# loc1 <- c('CMIP6_historical/','CMIP6_SSP126/','CMIP6_SSP585/')[1]
-loc1 <- c('CMIP6_historical/','CMIP6_SSP126/')
+loc1 <- c('CMIP6_historical/','CMIP6_SSP126/','CMIP6_SSP585/', 'Historical/')[4]
+# loc1 <- c('CMIP6_historical/','CMIP6_SSP126/')
 # loc1 <- c('CMIP6_historical/','CMIP6_SSP585/')
 loc2 <- c('CMCC-ESM2/', 'EC-Earth3/',
           'GFDL-ESM4/', 'INM-CM4-8/',
           'INM-CM5-0/', 'MPI-ESM1-2-HR/',
-          'MRI-ESM2-0/', 'NorESM2-MM/')[mNum]
+          'MRI-ESM2-0/', 'NorESM2-MM/',
+          'ERA5/')[mNum]
 a <-strsplit(loc2,'/') %>% unlist() 
-startyr <- 2010
-endyr <- 2040
+startyr <- 1980
+endyr <- 2010
 
 print(paste0('Model ',loc2))
 print(paste0('Var ', var))
@@ -192,6 +195,7 @@ if (mNum == 1 & var != 'mrsos'){
                        .name_repair = 'minimal')
       if (var == 'tasmax' | var == 'tasmin'){ dat <- dat - 273.15} # Conversion to C
       if (var == 'pr'){ dat <- dat * 86400 } # Conversion to mm/day
+      if (var == 'mrsos'){ dat <- dat/1000} # Conversion to m3/m3
       datVar <- cbind(datVar,dat)
       if(j == dim(varNC)[3]){break}
       j <- j + 1
@@ -199,7 +203,7 @@ if (mNum == 1 & var != 'mrsos'){
     # # Testing via ggplot
     # ggplot(data=datVar, aes(x=Var1, y=Var2, fill=Var.3)) +
     #   geom_tile()
-        # # Open the second file 2000-2014
+    # # Open the second file 2000-2014
     datNC <- ncdf4::nc_open(paste0(fileloc1,loc1,loc2,'regrid360x180_',var,mFile,
                                    '2000','0101-','2014','1231.nc'))
     tNC <- ncdf4::ncvar_get(datNC, 'time')
@@ -215,6 +219,7 @@ if (mNum == 1 & var != 'mrsos'){
                        .name_repair = 'minimal')
       if (var == 'tasmax' | var == 'tasmin'){ dat <- dat - 273.15} # Conversion to C
       if (var == 'pr'){ dat <- dat * 86400 } # Conversion to mm/day
+      if (var == 'mrsos'){ dat <- dat/1000} # Conversion to m3/m3
       datVar <- cbind(datVar,dat)
       if(j == dim(varNC)[3]){break}
       j <- j + 1
@@ -243,6 +248,7 @@ if (mNum == 1 & var != 'mrsos'){
                        .name_repair = 'minimal')
       if (var == 'tasmax' | var == 'tasmin'){ dat <- dat - 273.15} # Conversion to C
       if (var == 'pr'){ dat <- dat * 86400 } # Conversion to mm/day
+      if (var == 'mrsos'){ dat <- dat/1000} # Conversion to m3/m3
       datVar <- cbind(datVar,dat)
       if(j == dim(varNC)[3]){break}
       j <- j + 1
@@ -263,6 +269,7 @@ if (mNum == 1 & var != 'mrsos'){
                        .name_repair = 'minimal')
       if (var == 'tasmax' | var == 'tasmin'){ dat <- dat - 273.15} # Conversion to C
       if (var == 'pr'){ dat <- dat * 86400 } # Conversion to mm/day
+      if (var == 'mrsos'){ dat <- dat/1000} # Conversion to m3/m3
       datVar <- cbind(datVar,dat)
       if(j == dim(varNC)[3]){break}
       j <- j + 1
@@ -283,6 +290,7 @@ if (mNum == 1 & var != 'mrsos'){
                        .name_repair = 'minimal')
       if (var == 'tasmax' | var == 'tasmin'){ dat <- dat - 273.15} # Conversion to C
       if (var == 'pr'){ dat <- dat * 86400 } # Conversion to mm/day
+      if (var == 'mrsos'){ dat <- dat/1000} # Conversion to m3/m3
       datVar <- cbind(datVar,dat)
       if(j == dim(varNC)[3]){break}
       j <- j + 1
@@ -311,6 +319,7 @@ if (mNum == 1 & var != 'mrsos'){
                        .name_repair = 'minimal')
       if (var == 'tasmax' | var == 'tasmin'){ dat <- dat - 273.15} # Conversion to C
       if (var == 'pr'){ dat <- dat * 86400 } # Conversion to mm/day
+      if (var == 'mrsos'){ dat <- dat/1000} # Conversion to m3/m3
       datVar <- cbind(datVar,dat)
       if(j == dim(varNC)[3]){break}
       j <- j + 1
@@ -331,6 +340,7 @@ if (mNum == 1 & var != 'mrsos'){
                        .name_repair = 'minimal')
       if (var == 'tasmax' | var == 'tasmin'){ dat <- dat - 273.15} # Conversion to C
       if (var == 'pr'){ dat <- dat * 86400 } # Conversion to mm/day
+      if (var == 'mrsos'){ dat <- dat/1000} # Conversion to m3/m3
       datVar <- cbind(datVar,dat)
       if(j == dim(varNC)[3]){break}
       j <- j + 1
@@ -359,6 +369,7 @@ if (mNum == 1 & var != 'mrsos'){
                        .name_repair = 'minimal')
       if (var == 'tasmax' | var == 'tasmin'){ dat <- dat - 273.15} # Conversion to C
       if (var == 'pr'){ dat <- dat * 86400 } # Conversion to mm/day
+      if (var == 'mrsos'){ dat <- dat/1000} # Conversion to m3/m3
       datVar <- cbind(datVar,dat)
       if(j == dim(varNC)[3]){break}
       j <- j + 1
@@ -379,6 +390,7 @@ if (mNum == 1 & var != 'mrsos'){
                        .name_repair = 'minimal')
       if (var == 'tasmax' | var == 'tasmin'){ dat <- dat - 273.15} # Conversion to C
       if (var == 'pr'){ dat <- dat * 86400 } # Conversion to mm/day
+      if (var == 'mrsos'){ dat <- dat/1000} # Conversion to m3/m3
       datVar <- cbind(datVar,dat)
       if(j == dim(varNC)[3]){break}
       j <- j + 1
@@ -412,6 +424,7 @@ if (mNum == 1 & var != 'mrsos'){
                        .name_repair = 'minimal')
       if (var == 'tasmax' | var == 'tasmin'){ dat <- dat - 273.15} # Conversion to C
       if (var == 'pr'){ dat <- dat * 86400 } # Conversion to mm/day
+      if (var == 'mrsos'){ dat <- dat/1000} # Conversion to m3/m3
       datVar <- cbind(datVar,dat)
       if(j == dim(varNC)[3]){break}
       j <- j + 1
@@ -432,6 +445,7 @@ if (mNum == 1 & var != 'mrsos'){
                        .name_repair = 'minimal')
       if (var == 'tasmax' | var == 'tasmin'){ dat <- dat - 273.15} # Conversion to C
       if (var == 'pr'){ dat <- dat * 86400 } # Conversion to mm/day
+      if (var == 'mrsos'){ dat <- dat/1000} # Conversion to m3/m3
       datVar <- cbind(datVar,dat)
       if(j == dim(varNC)[3]){break}
       j <- j + 1
@@ -464,6 +478,7 @@ if (mNum == 1 & var != 'mrsos'){
                        .name_repair = 'minimal')
       if (var == 'tasmax' | var == 'tasmin'){ dat <- dat - 273.15} # Conversion to C
       if (var == 'pr'){ dat <- dat * 86400 } # Conversion to mm/day
+      if (var == 'mrsos'){ dat <- dat/1000} # Conversion to m3/m3
       datVar <- cbind(datVar,dat)
       if(j == dim(varNC)[3]){break}
       j <- j + 1
@@ -484,6 +499,7 @@ if (mNum == 1 & var != 'mrsos'){
                        .name_repair = 'minimal')
       if (var == 'tasmax' | var == 'tasmin'){ dat <- dat - 273.15} # Conversion to C
       if (var == 'pr'){ dat <- dat * 86400 } # Conversion to mm/day
+      if (var == 'mrsos'){ dat <- dat/1000} # Conversion to m3/m3
       datVar <- cbind(datVar,dat)
       if(j == dim(varNC)[3]){break}
       j <- j + 1
@@ -516,6 +532,7 @@ if (mNum == 1 & var != 'mrsos'){
                        .name_repair = 'minimal')
       if (var == 'tasmax' | var == 'tasmin'){ dat <- dat - 273.15} # Conversion to C
       if (var == 'pr'){ dat <- dat * 86400 } # Conversion to mm/day
+      if (var == 'mrsos'){ dat <- dat/1000} # Conversion to m3/m3
       datVar <- cbind(datVar,dat)
       if(j == dim(varNC)[3]){break}
       j <- j + 1
@@ -536,6 +553,7 @@ if (mNum == 1 & var != 'mrsos'){
                        .name_repair = 'minimal')
       if (var == 'tasmax' | var == 'tasmin'){ dat <- dat - 273.15} # Conversion to C
       if (var == 'pr'){ dat <- dat * 86400 } # Conversion to mm/day
+      if (var == 'mrsos'){ dat <- dat/1000} # Conversion to m3/m3
       datVar <- cbind(datVar,dat)
       if(j == dim(varNC)[3]){break}
       j <- j + 1
@@ -593,6 +611,7 @@ if (mNum == 1 & var != 'mrsos'){
                        .name_repair = 'minimal')
       if (var == 'tasmax' | var == 'tasmin'){ dat <- dat - 273.15} # Conversion to C
       if (var == 'pr'){ dat <- dat * 86400 } # Conversion to mm/day
+      if (var == 'mrsos'){ dat <- dat/1000} # Conversion to m3/m3
       datVar <- cbind(datVar,dat)
       if(j == dim(varNC)[3]){break}
       j <- j + 1
@@ -624,6 +643,7 @@ if (mNum == 1 & var != 'mrsos'){
                        .name_repair = 'minimal')
       if (var == 'tasmax' | var == 'tasmin'){ dat <- dat - 273.15} # Conversion to C
       if (var == 'pr'){ dat <- dat * 86400 } # Conversion to mm/day
+      if (var == 'mrsos'){ dat <- dat/1000} # Conversion to m3/m3
       datVar <- cbind(datVar,dat)
       if(j == dim(varNC)[3]){break}
       j <- j + 1
@@ -644,6 +664,7 @@ if (mNum == 1 & var != 'mrsos'){
                        .name_repair = 'minimal')
       if (var == 'tasmax' | var == 'tasmin'){ dat <- dat - 273.15} # Conversion to C
       if (var == 'pr'){ dat <- dat * 86400 } # Conversion to mm/day
+      if (var == 'mrsos'){ dat <- dat/1000} # Conversion to m3/m3
       datVar <- cbind(datVar,dat)
       if(j == dim(varNC)[3]){break}
       j <- j + 1
@@ -664,6 +685,7 @@ if (mNum == 1 & var != 'mrsos'){
                        .name_repair = 'minimal')
       if (var == 'tasmax' | var == 'tasmin'){ dat <- dat - 273.15} # Conversion to C
       if (var == 'pr'){ dat <- dat * 86400 } # Conversion to mm/day
+      if (var == 'mrsos'){ dat <- dat/1000} # Conversion to m3/m3
       datVar <- cbind(datVar,dat)
       if(j == dim(varNC)[3]){break}
       j <- j + 1
@@ -692,6 +714,7 @@ if (mNum == 1 & var != 'mrsos'){
                        .name_repair = 'minimal')
       if (var == 'tasmax' | var == 'tasmin'){ dat <- dat - 273.15} # Conversion to C
       if (var == 'pr'){ dat <- dat * 86400 } # Conversion to mm/day
+      if (var == 'mrsos'){ dat <- dat/1000} # Conversion to m3/m3
       datVar <- cbind(datVar,dat)
       if(j == dim(varNC)[3]){break}
       j <- j + 1
@@ -712,6 +735,7 @@ if (mNum == 1 & var != 'mrsos'){
                        .name_repair = 'minimal')
       if (var == 'tasmax' | var == 'tasmin'){ dat <- dat - 273.15} # Conversion to C
       if (var == 'pr'){ dat <- dat * 86400 } # Conversion to mm/day
+      if (var == 'mrsos'){ dat <- dat/1000} # Conversion to m3/m3
       datVar <- cbind(datVar,dat)
       if(j == dim(varNC)[3]){break}
       j <- j + 1
@@ -732,6 +756,7 @@ if (mNum == 1 & var != 'mrsos'){
                        .name_repair = 'minimal')
       if (var == 'tasmax' | var == 'tasmin'){ dat <- dat - 273.15} # Conversion to C
       if (var == 'pr'){ dat <- dat * 86400 } # Conversion to mm/day
+      if (var == 'mrsos'){ dat <- dat/1000} # Conversion to m3/m3
       datVar <- cbind(datVar,dat)
       if(j == dim(varNC)[3]){break}
       j <- j + 1
@@ -760,6 +785,7 @@ if (mNum == 1 & var != 'mrsos'){
                        .name_repair = 'minimal')
       if (var == 'tasmax' | var == 'tasmin'){ dat <- dat - 273.15} # Conversion to C
       if (var == 'pr'){ dat <- dat * 86400 } # Conversion to mm/day
+      if (var == 'mrsos'){ dat <- dat/1000} # Conversion to m3/m3
       datVar <- cbind(datVar,dat)
       if(j == dim(varNC)[3]){break}
       j <- j + 1
@@ -780,6 +806,7 @@ if (mNum == 1 & var != 'mrsos'){
                        .name_repair = 'minimal')
       if (var == 'tasmax' | var == 'tasmin'){ dat <- dat - 273.15} # Conversion to C
       if (var == 'pr'){ dat <- dat * 86400 } # Conversion to mm/day
+      if (var == 'mrsos'){ dat <- dat/1000} # Conversion to m3/m3
       datVar <- cbind(datVar,dat)
       if(j == dim(varNC)[3]){break}
       j <- j + 1
@@ -808,6 +835,7 @@ if (mNum == 1 & var != 'mrsos'){
                        .name_repair = 'minimal')
       if (var == 'tasmax' | var == 'tasmin'){ dat <- dat - 273.15} # Conversion to C
       if (var == 'pr'){ dat <- dat * 86400 } # Conversion to mm/day
+      if (var == 'mrsos'){ dat <- dat/1000} # Conversion to m3/m3
       datVar <- cbind(datVar,dat)
       if(j == dim(varNC)[3]){break}
       j <- j + 1
@@ -828,6 +856,7 @@ if (mNum == 1 & var != 'mrsos'){
                        .name_repair = 'minimal')
       if (var == 'tasmax' | var == 'tasmin'){ dat <- dat - 273.15} # Conversion to C
       if (var == 'pr'){ dat <- dat * 86400 } # Conversion to mm/day
+      if (var == 'mrsos'){ dat <- dat/1000} # Conversion to m3/m3
       datVar <- cbind(datVar,dat)
       if(j == dim(varNC)[3]){break}
       j <- j + 1
@@ -848,6 +877,7 @@ if (mNum == 1 & var != 'mrsos'){
                        .name_repair = 'minimal')
       if (var == 'tasmax' | var == 'tasmin'){ dat <- dat - 273.15} # Conversion to C
       if (var == 'pr'){ dat <- dat * 86400 } # Conversion to mm/day
+      if (var == 'mrsos'){ dat <- dat/1000} # Conversion to m3/m3
       datVar <- cbind(datVar,dat)
       if(j == dim(varNC)[3]){break}
       j <- j + 1
@@ -896,6 +926,7 @@ if (mNum == 1 & var != 'mrsos'){
                        .name_repair = 'minimal')
       if (var == 'tasmax' | var == 'tasmin'){ dat <- dat - 273.15} # Conversion to C
       if (var == 'pr'){ dat <- dat * 86400 } # Conversion to mm/day
+      if (var == 'mrsos'){ dat <- dat/1000} # Conversion to m3/m3
       datVar <- cbind(datVar,dat)
       if(j == dim(varNC)[3]){break}
       j <- j + 1
@@ -961,6 +992,7 @@ if (mNum == 1 & var != 'mrsos'){
                        .name_repair = 'minimal')
       if (var == 'tasmax' | var == 'tasmin'){ dat <- dat - 273.15} # Conversion to C
       if (var == 'pr'){ dat <- dat * 86400 } # Conversion to mm/day
+      if (var == 'mrsos'){ dat <- dat/1000} # Conversion to m3/m3
       datVar <- cbind(datVar,dat)
       if(j == dim(varNC)[3]){break}
       j <- j + 1
@@ -972,12 +1004,52 @@ if (mNum == 1 & var != 'mrsos'){
       } else if (startyr == 2010){
         datVar <- datVar[,c('lon','lat',as.character(seq(733285.5,744599.5, by=1)))]
       } else if (startyr == 2040){
-          datVar <- datVar[,c('lon','lat',as.character(seq(744235.5,755549.5, by=1)))]
+        datVar <- datVar[,c('lon','lat',as.character(seq(744235.5,755549.5, by=1)))]
       } else if (startyr == 2070){
         datVar <- datVar[,c('lon','lat',as.character(seq(755185.5,766499.5, by=1)))]
       } else (print('Start year not reconized'))
     } 
   } # end for loop
+} else if (mNum == 9 & startyr == 1980){
+  # . . 3.1.g Model 9 ERA5 -----
+  for (i in startyr:endyr){
+    if (var == 'tasmax') {var2 <- 't2m'}
+    if (var == 'tasmin') {var2 <- 't2m'}
+    if (var == 'pr')     {var2 <- 'tp'}
+    if (var == 'mrsos')  {var2 <- 'swvl1'}
+    datNC <- ncdf4::nc_open(paste0(fileloc1, loc1,loc2,'regrid360x180',
+                                   mFile,var2,'_',i,'.nc'))
+    
+    tNC <- ncdf4::ncvar_get(datNC, 'time')
+    if (i == startyr){
+      latNC <- ncdf4::ncvar_get(datNC, 'lat')
+      lonNC <- ncdf4::ncvar_get(datNC, 'lon')
+      datVar <- expand.grid(lonNC,latNC) %>%
+        tibble()
+      time <- round(tNC/24,1)
+    } else {
+      time <- c(time, round(tNC/24,1))
+    }
+    varNC <- ncdf4::ncvar_get(datNC, var2)
+    fillvalue <- ncdf4::ncatt_get(datNC, var2, '_FillValue')
+    varNC[varNC == fillvalue$value] <- NA
+    ncdf4::nc_close(datNC)
+    # # Make into long format
+    j <- 1
+    repeat{
+      dat <- as_tibble(matrix(varNC[,,j], ncol=1, byrow=TRUE),
+                       .name_repair = 'minimal')
+      if (var == 'tasmax' | var == 'tasmin'){ dat <- dat - 273.15} # Conversion to C
+      if (var == 'pr'){ dat <- dat * 1000 } # Conversion from m/day to mm/day
+      if (var == 'mrsos') # {dat <- dat * ((997 * 7)/100)} # Conversion from m3/m3 to kg/m2 density of water and soil depth
+        datVar <- cbind(datVar,dat)
+      if(j == dim(varNC)[3]){break}
+      j <- j + 1
+    }
+    if (i == endyr){
+      colnames(datVar) <- c('lon','lat',time)
+    } 
+  } # End year loop for Model ERA5
 } else {
   print(paste0('Model Number ', mNum, ' not reconized.'))
 }
@@ -998,7 +1070,7 @@ print(paste0('Finished Part I at: ',B,' time elapsed: ', B-A))
 if (startyr == 2010){ 
   loc1 <- loc1[2]
   mFile <- mFile[[1]][2] 
-  }
+}
 
 # Part IV - TMAX ###############################################################
 # . 4.1 Thresholds -------------------------------------------------------------
@@ -1008,7 +1080,7 @@ if (var == 'tasmax'){
                                   var,mFile,startyr,'-',endyr,'.csv'), 
             row.names = FALSE)
   print(paste0('Starting to calculate or opening the Tmax thresholds at: ',B))
-  if (loc1 == 'CMIP6_historical/'){
+  if (loc1 == 'CMIP6_historical/' | loc1 == 'Historical/'){
     # . . 4.1.1 Calculating the thresholds ##
     perc <- apply(datVar[,3:ncol(datVar)], 
                   MARGIN = 1, quantile, c(0.95, 0.975, 0.99), 
@@ -1022,12 +1094,12 @@ if (var == 'tasmax'){
     # . . 4.1.2 Formating the data ##
     datThresh <- cbind(datVar[,1:2], perc, Tmean, Tmedian, Tmax, Tmin, TSd)
     colnames(datThresh) <- c('lon', 'lat', 'P95', 'P975', 'P99', 
-                              'PMean', 'PMedian', 'PMax', 'PMin', 'PSd')
+                             'PMean', 'PMedian', 'PMax', 'PMin', 'PSd')
     datThresh$PMean[is.nan(datThresh$PMean)] <- NA
     datThresh$PMax[datThresh$PMax == -Inf] <- NA
     datThresh$PMin[datThresh$PMin == Inf] <- NA
     # . . 4.1.3 Writing the Thresholds ##
-    write.csv(datThresh, file=paste0(fileloc1, 'CMIP6_historical/', loc2,
+    write.csv(datThresh, file=paste0(fileloc1, loc1, loc2,
                                      'THRESHOLD_', var, mFile, startyr, '-', 
                                      endyr, '.csv'),
               row.names = FALSE)
@@ -1046,9 +1118,9 @@ if (var == 'tasmax'){
     datThresh <- read_csv(paste0(fileloc1, 'CMIP6_historical/', loc2, 
                                  'THRESHOLD_', var, '_day_', a, x, '_', 
                                  1980,'-',2010,'.csv'),
-                           col_names = TRUE, cols(.default = col_double()))
+                          col_names = TRUE, cols(.default = col_double()))
   }
-
+  
   B <- Sys.time()
   print(paste0('Finished calculating or opening the thresholds at: ', B))
   # . 4.2 Temperature Exceed ---------------------------------------------------
@@ -1076,7 +1148,7 @@ if (var == 'tasmin'){
                                   var,mFile,startyr,'-',endyr,'.csv'), 
             row.names = FALSE)
   print(paste0('Starting to calculate or opening the Tmin thresholds at: ',B))
-  if (loc1 == 'CMIP6_historical/'){
+  if (loc1 == 'CMIP6_historical/' | loc1 == 'Historical/'){
     # . . 5.1.1 Calculating the thresholds ##
     perc <- apply(datVar[,3:ncol(datVar)], 
                   MARGIN = 1, quantile, c(0.05, 0.225, 0.01), 
@@ -1095,7 +1167,7 @@ if (var == 'tasmin'){
     datThresh$PMax[datThresh$PMax == -Inf] <- NA
     datThresh$PMin[datThresh$PMin == Inf] <- NA
     # . . 5.1.3 Writing the Thresholds ##
-    write.csv(datThresh, file=paste0(fileloc1, 'CMIP6_historical/', loc2,
+    write.csv(datThresh, file=paste0(fileloc1, loc1, loc2,
                                      'THRESHOLD_', var, mFile, startyr, '-', 
                                      endyr, '.csv'),
               row.names = FALSE)
@@ -1144,7 +1216,7 @@ if (var == 'pr'){
                                   var,mFile,startyr,'-',endyr,'.csv'), 
             row.names = FALSE)
   print(paste0('Starting to calculate or opening the Pr thresholds at: ',B))
-  if (loc1 == 'CMIP6_historical/'){
+  if (loc1 == 'CMIP6_historical/' | loc1 == 'Historical/'){
     # . . 6.1.1 Calculating the thresholds ##
     datThresh <- apply(datVar[,3:ncol(datVar)], 
                        MARGIN = 1, FUN = pr_thresholds) %>%
@@ -1160,7 +1232,7 @@ if (var == 'pr'){
     datThresh$PMin[datThresh$PMin == Inf] <- NA
     # . . 6.1.3 Writing the Thresholds ##
     
-    write.csv(datThresh, file=paste0(fileloc1, 'CMIP6_historical/', loc2,
+    write.csv(datThresh, file=paste0(fileloc1, loc1, loc2,
                                      'THRESHOLD_', var, mFile, startyr, '-', 
                                      endyr, '.csv'),
               row.names = FALSE)
@@ -1180,7 +1252,7 @@ if (var == 'pr'){
                                  1980,'-',2010,'.csv'),
                           col_names = TRUE, cols(.default = col_double()))
   }
-
+  
   B <- Sys.time()
   print(paste0('Finished calculating or opening the thresholds at: ', B))
   
@@ -1219,7 +1291,7 @@ if (var == 'mrsos'){
   datVar <- cbind(NA, NA, datVar)
   
   print(paste0('Starting to calculate or opening the Mrsos thresholds at: ',B))
-  if (loc1 == 'CMIP6_historical/'){
+  if (loc1 == 'CMIP6_historical/' | loc1 == 'Historical/'){
     # . . 7.1.2 Calculating the thresholds ##
     datThresh <- apply(datVar, MARGIN = 1, FUN = mrsos_thresholds) %>%
       t() %>%
@@ -1232,7 +1304,7 @@ if (var == 'mrsos'){
     datThresh$PMax[datThresh$PMax == -Inf] <- NA
     datThresh$PMin[datThresh$PMin == Inf] <- NA
     # . . 7.1.4 Writing the Thresholds ##
-    write.csv(datThresh, file=paste0(fileloc1, 'CMIP6_historical/', loc2,
+    write.csv(datThresh, file=paste0(fileloc1, loc1, loc2,
                                      'THRESHOLD_', var, mFile, startyr, '-', 
                                      endyr, '.csv'),
               row.names = FALSE)

@@ -9,7 +9,9 @@
 #               Jun. 2023
 #      Updated: Jan. 2024
 
-fileloc1 <- 'C:/Research/Data/'
+# Computer
+setwd("Source File Location") 
+fileloc1 <- 'Main project folder' 
 
 # HPC
 # fileloc1 <- '~/CompoundEvents/Data/'
@@ -95,9 +97,9 @@ datPopH <- read_csv(paste0(fileloc1,loc1[1],'historic_',
                            '.csv'),
                     col_names = TRUE, cols(.default = col_double()))
 datPopF <- read_csv(paste0(fileloc1,loc1[1],'future_',
-                          'popdynamics-global-pop-count-time-series-estimates-geotiff',
-                          '.csv'),
-         col_names = TRUE, cols(.default = col_double()))
+                           'popdynamics-global-pop-count-time-series-estimates-geotiff',
+                           '.csv'),
+                    col_names = TRUE, cols(.default = col_double()))
 datPop <- cbind('lon' = datPopH$lon, 
                 'lat' = datPopH$lat,
                 'Historic' = apply(datPopH[,3:5], MARGIN = 1, FUN = apMean) %>% floor(),
@@ -123,7 +125,7 @@ datPop <- cbind('lon' = datPopH$lon,
 
 # . . 3.2.2 Compound Event ####
 datComp <- read_csv(paste0(fileloc1,'Results/','MU_CHANG_COMP_',comp,'.csv'),
-                       col_names = TRUE, cols(.default = col_double()))
+                    col_names = TRUE, cols(.default = col_double()))
 
 # . 3.3 Calculating Exposure ---------------------------------------------------
 exposurePopulation <- tibble(
@@ -326,44 +328,44 @@ datLUH126_1040 <- read_csv(paste0(fileloc1,loc1[2],
                            col_names = TRUE, cols(.default = col_double()))
 datLUH126_4070 <- read_csv(paste0(fileloc1,loc1[2],
                                   'LUH2_SSP126_2040-2070_regrid360x180_mod_states',
-                                '.csv'),
-                         col_names = TRUE, cols(.default = col_double()))
+                                  '.csv'),
+                           col_names = TRUE, cols(.default = col_double()))
 datLUH126_7000 <- read_csv(paste0(fileloc1,loc1[2],
                                   'LUH2_SSP126_2070-2100_regrid360x180_mod_states',
-                                '.csv'),
-                         col_names = TRUE, cols(.default = col_double()))
+                                  '.csv'),
+                           col_names = TRUE, cols(.default = col_double()))
 datLUH585_1040 <- read_csv(paste0(fileloc1,loc1[2],
                                   'LUH2_SSP585_2010-2040_regrid360x180_mod_states',
                                   '.csv'),
                            col_names = TRUE, cols(.default = col_double()))
 datLUH585_4070 <- read_csv(paste0(fileloc1,loc1[2],
                                   'LUH2_SSP585_2040-2070_regrid360x180_mod_states',
-                                '.csv'),
-                         col_names = TRUE, cols(.default = col_double()))
+                                  '.csv'),
+                           col_names = TRUE, cols(.default = col_double()))
 datLUH585_7000 <- read_csv(paste0(fileloc1,loc1[2],
                                   'LUH2_SSP585_2070-2100_regrid360x180_mod_states',
-                                '.csv'),
-                         col_names = TRUE, cols(.default = col_double()))
+                                  '.csv'),
+                           col_names = TRUE, cols(.default = col_double()))
 
 datLUH_AG <- cbind('lon' = datLUHH$lon, 
-                'lat' = datLUHH$lat,
-                'Historic' = apply(datLUHH[,10:14], MARGIN = 1, FUN = sum) ,
-                'SSP126_1040' = apply(datLUH126_1040[,10:14], MARGIN = 1, FUN = sum),
-                'SSP126_4070' = apply(datLUH126_4070[,10:14], MARGIN = 1, FUN = sum),
-                'SSP126_7000' = apply(datLUH126_7000[,10:14], MARGIN = 1, FUN = sum),
-                'SSP585_1040' = apply(datLUH585_1040[,10:14], MARGIN = 1, FUN = sum) ,
-                'SSP585_4070' = apply(datLUH585_4070[,10:14], MARGIN = 1, FUN = sum),
-                'SSP585_7000' = apply(datLUH585_7000[,10:14], MARGIN = 1, FUN = sum)) %>% 
+                   'lat' = datLUHH$lat,
+                   'Historic' = apply(datLUHH[,10:14], MARGIN = 1, FUN = sum) ,
+                   'SSP126_1040' = apply(datLUH126_1040[,10:14], MARGIN = 1, FUN = sum),
+                   'SSP126_4070' = apply(datLUH126_4070[,10:14], MARGIN = 1, FUN = sum),
+                   'SSP126_7000' = apply(datLUH126_7000[,10:14], MARGIN = 1, FUN = sum),
+                   'SSP585_1040' = apply(datLUH585_1040[,10:14], MARGIN = 1, FUN = sum) ,
+                   'SSP585_4070' = apply(datLUH585_4070[,10:14], MARGIN = 1, FUN = sum),
+                   'SSP585_7000' = apply(datLUH585_7000[,10:14], MARGIN = 1, FUN = sum)) %>% 
   as_tibble()
 datLUH_FOR <- cbind('lon' = datLUHH$lon, 
-                   'lat' = datLUHH$lat,
-                   'Historic' = apply(datLUHH[,c(3,5)], MARGIN = 1, FUN = sum),
-                   'SSP126_1040' = apply(datLUH126_1040[,c(3,5)], MARGIN = 1, FUN = sum),
-                   'SSP126_4070' = apply(datLUH126_4070[,c(3,5)], MARGIN = 1, FUN = sum),
-                   'SSP126_7000' = apply(datLUH126_7000[,c(3,5)], MARGIN = 1, FUN = sum),
-                   'SSP585_1040' = apply(datLUH585_1040[,c(3,5)], MARGIN = 1, FUN = sum),
-                   'SSP585_4070' = apply(datLUH585_4070[,c(3,5)], MARGIN = 1, FUN = sum),
-                   'SSP585_7000' = apply(datLUH585_7000[,c(3,5)], MARGIN = 1, FUN = sum)) %>% 
+                    'lat' = datLUHH$lat,
+                    'Historic' = apply(datLUHH[,c(3,5)], MARGIN = 1, FUN = sum),
+                    'SSP126_1040' = apply(datLUH126_1040[,c(3,5)], MARGIN = 1, FUN = sum),
+                    'SSP126_4070' = apply(datLUH126_4070[,c(3,5)], MARGIN = 1, FUN = sum),
+                    'SSP126_7000' = apply(datLUH126_7000[,c(3,5)], MARGIN = 1, FUN = sum),
+                    'SSP585_1040' = apply(datLUH585_1040[,c(3,5)], MARGIN = 1, FUN = sum),
+                    'SSP585_4070' = apply(datLUH585_4070[,c(3,5)], MARGIN = 1, FUN = sum),
+                    'SSP585_7000' = apply(datLUH585_7000[,c(3,5)], MARGIN = 1, FUN = sum)) %>% 
   as_tibble()
 
 # Convert sum total to acres
@@ -856,70 +858,70 @@ datLUH_FOR$SSP585_7000 <- datLUH_FOR$SSP585_7000 * datLUH585_7000$LandAreakm2
 
 # . . 5.2.3 Climate Extremes ---------------------------------------------------
 datOccH_V1 <- read_csv(paste0(fileloc1, loc1[3], 'Results/', 
-                                'OCC_DAY_', var[1],'_Hist_8010', '.csv'),
-                         col_names = TRUE, cols(.default = col_double()))
+                              'OCC_DAY_', var[1],'_Hist_8010', '.csv'),
+                       col_names = TRUE, cols(.default = col_double()))
 datOcc126_1040_V1 <- read_csv(paste0(fileloc1, loc1[4], 'Results/',
-                                       'OCC_DAY_', var[1],'_SSP126_1040', '.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
+                                     'OCC_DAY_', var[1],'_SSP126_1040', '.csv'),
+                              col_names = TRUE, cols(.default = col_double()))
 datOcc126_4070_V1 <- read_csv(paste0(fileloc1, loc1[4], 'Results/',
-                                       'OCC_DAY_', var[1],'_SSP126_4070', '.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
+                                     'OCC_DAY_', var[1],'_SSP126_4070', '.csv'),
+                              col_names = TRUE, cols(.default = col_double()))
 datOcc126_7000_V1 <- read_csv(paste0(fileloc1, loc1[4], 'Results/',
-                                       'OCC_DAY_', var[1],'_SSP126_7000', '.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
+                                     'OCC_DAY_', var[1],'_SSP126_7000', '.csv'),
+                              col_names = TRUE, cols(.default = col_double()))
 datOcc585_1040_V1 <- read_csv(paste0(fileloc1, loc1[5], 'Results/',
-                                       'OCC_DAY_', var[1],'_SSP585_1040', '.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
+                                     'OCC_DAY_', var[1],'_SSP585_1040', '.csv'),
+                              col_names = TRUE, cols(.default = col_double()))
 datOcc585_4070_V1 <- read_csv(paste0(fileloc1, loc1[5], 'Results/',
-                                       'OCC_DAY_', var[1],'_SSP585_4070', '.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
+                                     'OCC_DAY_', var[1],'_SSP585_4070', '.csv'),
+                              col_names = TRUE, cols(.default = col_double()))
 datOcc585_7000_V1 <- read_csv(paste0(fileloc1, loc1[5], 'Results/',
-                                       'OCC_DAY_', var[1],'_SSP585_7000', '.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
+                                     'OCC_DAY_', var[1],'_SSP585_7000', '.csv'),
+                              col_names = TRUE, cols(.default = col_double()))
 # Var 3
 datOccH_V3 <- read_csv(paste0(fileloc1, loc1[3], 'Results/',
-                                'OCC_DAY_', var[3],'_Hist_8010', '.csv'),
-                         col_names = TRUE, cols(.default = col_double()))
+                              'OCC_DAY_', var[3],'_Hist_8010', '.csv'),
+                       col_names = TRUE, cols(.default = col_double()))
 datOcc126_1040_V3 <- read_csv(paste0(fileloc1, loc1[4], 'Results/',
-                                       'OCC_DAY_', var[3],'_SSP126_1040', '.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
+                                     'OCC_DAY_', var[3],'_SSP126_1040', '.csv'),
+                              col_names = TRUE, cols(.default = col_double()))
 datOcc126_4070_V3 <- read_csv(paste0(fileloc1, loc1[4], 'Results/',
-                                       'OCC_DAY_', var[3],'_SSP126_4070', '.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
+                                     'OCC_DAY_', var[3],'_SSP126_4070', '.csv'),
+                              col_names = TRUE, cols(.default = col_double()))
 datOcc126_7000_V3 <- read_csv(paste0(fileloc1, loc1[4], 'Results/',
-                                       'OCC_DAY_', var[3],'_SSP126_7000', '.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
+                                     'OCC_DAY_', var[3],'_SSP126_7000', '.csv'),
+                              col_names = TRUE, cols(.default = col_double()))
 datOcc585_1040_V3 <- read_csv(paste0(fileloc1, loc1[5], 'Results/',
-                                       'OCC_DAY_', var[3],'_SSP585_1040', '.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
+                                     'OCC_DAY_', var[3],'_SSP585_1040', '.csv'),
+                              col_names = TRUE, cols(.default = col_double()))
 datOcc585_4070_V3 <- read_csv(paste0(fileloc1, loc1[5], 'Results/',
-                                       'OCC_DAY_', var[3],'_SSP585_4070', '.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
+                                     'OCC_DAY_', var[3],'_SSP585_4070', '.csv'),
+                              col_names = TRUE, cols(.default = col_double()))
 datOcc585_7000_V3 <- read_csv(paste0(fileloc1, loc1[5], 'Results/',
-                                       'OCC_DAY_', var[3],'_SSP585_7000', '.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
+                                     'OCC_DAY_', var[3],'_SSP585_7000', '.csv'),
+                              col_names = TRUE, cols(.default = col_double()))
 # Var 4
 datOccH_V4 <- read_csv(paste0(fileloc1, loc1[3], 'Results/',
-                                'OCC_DAY_', var[4],'_Hist_8010', '.csv'),
-                         col_names = TRUE, cols(.default = col_double()))
+                              'OCC_DAY_', var[4],'_Hist_8010', '.csv'),
+                       col_names = TRUE, cols(.default = col_double()))
 datOcc126_1040_V4 <- read_csv(paste0(fileloc1, loc1[4], 'Results/', 
-                                       'OCC_DAY_', var[4],'_SSP126_1040', '.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
+                                     'OCC_DAY_', var[4],'_SSP126_1040', '.csv'),
+                              col_names = TRUE, cols(.default = col_double()))
 datOcc126_4070_V4 <- read_csv(paste0(fileloc1, loc1[4], 'Results/',
-                                       'OCC_DAY_', var[4],'_SSP126_4070', '.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
+                                     'OCC_DAY_', var[4],'_SSP126_4070', '.csv'),
+                              col_names = TRUE, cols(.default = col_double()))
 datOcc126_7000_V4 <- read_csv(paste0(fileloc1, loc1[4], 'Results/',
-                                       'OCC_DAY_', var[4],'_SSP126_7000', '.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
+                                     'OCC_DAY_', var[4],'_SSP126_7000', '.csv'),
+                              col_names = TRUE, cols(.default = col_double()))
 datOcc585_1040_V4 <- read_csv(paste0(fileloc1, loc1[5], 'Results/', 
-                                       'OCC_DAY_', var[4],'_SSP585_1040', '.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
+                                     'OCC_DAY_', var[4],'_SSP585_1040', '.csv'),
+                              col_names = TRUE, cols(.default = col_double()))
 datOcc585_4070_V4 <- read_csv(paste0(fileloc1, loc1[5], 'Results/',
-                                       'OCC_DAY_', var[4],'_SSP585_4070', '.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
+                                     'OCC_DAY_', var[4],'_SSP585_4070', '.csv'),
+                              col_names = TRUE, cols(.default = col_double()))
 datOcc585_7000_V4 <- read_csv(paste0(fileloc1, loc1[5], 'Results/',
-                                       'OCC_DAY_', var[4],'_SSP585_7000', '.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
+                                     'OCC_DAY_', var[4],'_SSP585_7000', '.csv'),
+                              col_names = TRUE, cols(.default = col_double()))
 
 # . 5.3 Calculating Exposure ---------------------------------------------------
 exposurePop_V1 <- tibble(

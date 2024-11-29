@@ -11,7 +11,9 @@
 #      Updated: Oct. 2023
 # ------------------------------------------------------------------------------
 
-fileloc1 <- 'C:/Research/Data/'
+# Computer
+setwd("Source File Location") 
+fileloc1 <- 'Main project folder' 
 
 options(show.error.locations = TRUE)
 # Libraries ####################################################################
@@ -97,11 +99,15 @@ acf2 <- function(x){
   y2 <- acf(dat, plot = FALSE)$acf
   return(c(y,y2))
 }
+splitMod <- function(dat, position){
+  dat <- as.character(dat)
+  strsplit(dat,'_')[[1]][position]
+}
 
 # Part III Period Occurrences ##################################################
 # . 3.1 Global Maps ------------------------------------------------------------
 # . . 3.1.1 Variables Needed ---------------------------------------------------
-varNum <- 4
+varNum <- 1
 var <- c('tasmax', 'tasmin', 'pr', 'mrsos') [varNum]
 varT <- c('Heatwaves','Coldwaves','Extreme Precipitation','Flash Drought')[varNum]
 relative <- tibble(
@@ -158,13 +164,13 @@ dat <- tibble(
 # . . 3.1.2 Opening Variables --------------------------------------------------
 datOccH <- read_csv(paste0(fileloc1, loc1[1], 'Results/', 
                            'OCC_DAY_', var, '_Hist_8010','.csv'),
-                col_names = TRUE, cols(.default = col_double()))
+                    col_names = TRUE, cols(.default = col_double()))
 datOcc126_1040 <- read_csv(paste0(fileloc1, loc1[2], 'Results/', 
                                   'OCC_DAY_', var, '_SSP126_1040','.csv'),
                            col_names = TRUE, cols(.default = col_double()))
 datOcc126_4070 <- read_csv(paste0(fileloc1, loc1[2], 'Results/',
                                   'OCC_DAY_', var, '_SSP126_4070','.csv'),
-                              col_names = TRUE, cols(.default = col_double()))
+                           col_names = TRUE, cols(.default = col_double()))
 datOcc126_7000 <- read_csv(paste0(fileloc1, loc1[2], 'Results/',
                                   'OCC_DAY_', var, '_SSP126_7000','.csv'),
                            col_names = TRUE, cols(.default = col_double()))
@@ -448,11 +454,11 @@ ggsave(F1, filename = paste0(fileloc1,'Results/','OCC_Mu_', timeSpan, var,
        width = 14, height = 10, dpi = 350, bg='white')
 
 # . . 3.1.6 Plotting Change Limits ---------------------------------------------
-maxLimt <- cbind(relative$SSP126_1040_Delta, relative$SSP126_4070_Delta, 
+maxLimt <- rbind(relative$SSP126_1040_Delta, relative$SSP126_4070_Delta, 
                  relative$SSP126_7000_Delta, relative$SSP585_1040_Delta, 
                  relative$SSP585_4070_Delta, relative$SSP585_7000_Delta) %>%
   max()
-minLimt <- cbind(relative$SSP126_1040_Delta, relative$SSP126_4070_Delta, 
+minLimt <- rbind(relative$SSP126_1040_Delta, relative$SSP126_4070_Delta, 
                  relative$SSP126_7000_Delta, relative$SSP585_1040_Delta, 
                  relative$SSP585_4070_Delta, relative$SSP585_7000_Delta) %>%
   min()
@@ -469,7 +475,7 @@ p1 <- ggplot(data = relative, aes(x=lon, y=lat, fill=SSP126_1040_Delta)) +
   scale_fill_viridis_c(limits = c(minLimt,maxLimt), option = "rocket", na.value = 'lightblue',
                        direction = -1, name = 'Difference of Events') +
   geom_point(alpha = 1, shape = 47,
-             aes(size=ifelse(SSP126_4070_Sig == 0,'dot', 'no_dot'))) +
+             aes(size=ifelse(SSP126_1070_Sig == 0,'dot', 'no_dot'))) +
   scale_size_manual(values=c(dot=0.5, no_dot=NA), guide="none") +
   geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
                colour="black", fill="NA", linewidth=0.5) +
@@ -604,18 +610,19 @@ F1 <- plot_grid(title,
                 rel_heights = c(0.05,1, 0.05),
                 nrow = 3)
 ggsave(F1, filename = paste0(fileloc1,'Results/','OCC_CHANGE_', timeSpan, var,
-                            ".tiff"),
+                             ".tiff"),
        width = 14, height = 13, dpi = 350, bg='white')
 # . . 3.1.7 Remove -------------------------------------------------------------
 rm(list=ls()[! ls() %in% c('fileloc1', 'loc1', 'loc2', 'lat1', 'lat2','lon1','lon2',
                            'location','locTitle','mFileH','mFile126','mFile585',
                            'var', 'varT', 'baseData', 'timeSpan',
-                           'get_legend','as_ggplot','mean_cl_quantile','acf2')])
+                           'get_legend','as_ggplot','mean_cl_quantile','acf2', 
+                           'splitMod')])
 
 # . 3.2 Regional Change p-value ------------------------------------------------
 # . . 3.2.1 Variables needed ---------------------------------------------------
-location <- 5 # 1-5
-varNum <- 4 # 1,3,4
+location <- 1 # 1-5
+varNum <- 1 # 1,3,4
 var <- c('tasmax', 'tasmin', 'pr', 'mrsos') [varNum]
 varT <- c('Heatwaves','Coldwaves','Extreme Precipitation','Flash Drought')[varNum]
 relative <- read_csv(paste0(fileloc1,'Results/','OCC_CHANG_',var,'.csv'), 
@@ -646,7 +653,7 @@ datRelative$lat[datRelative$lat > latA |
 datRelative <- na.omit(datRelative)
 
 # Testing assumptions
-  # Independence - Autocorrelation  
+# Independence - Autocorrelation  
 dat <- cbind(datRelative$Historical_Mu, datRelative$SSP126_1040_Mu, 
              datRelative$SSP126_4070_Mu, datRelative$SSP126_7000_Mu,
              datRelative$SSP585_1040_Mu, datRelative$SSP585_4070_Mu, 
@@ -667,7 +674,7 @@ stats$SSP585_4070[2] <- min(autoCorr[,7]) %>% round(digits = 4)
 stats$SSP585_7000[2] <- min(autoCorr[,8]) %>% round(digits = 4)
 rm(autoCorr)
 
-  # Normally Distributions
+# Normally Distributions
 # The null hypothesis of these tests is that “sample distribution is normal”. 
 # If the test is significant, the distribution is non-normal.
 stats$Hist_8010[3] <- shapiro.test(datRelative$Historical_Mu)$p.value
@@ -694,7 +701,7 @@ if(stats$SSP585_1040[3] <= 0.05){stats$SSP585_1040[3] <- 'Non-Normal' } else {st
 if(stats$SSP585_4070[3] <= 0.05){stats$SSP585_4070[3] <- 'Non-Normal' } else {stats$SSP585_4070[3] <- 'Normal'}
 if(stats$SSP585_7000[3] <= 0.05){stats$SSP585_7000[3] <- 'Non-Normal' } else {stats$SSP585_7000[3] <- 'Normal'}
 
-  # Similar Variance
+# Similar Variance
 # true ratio of variances is not equal to 1
 # Note that, the more this ratio deviates from 1, the stronger the evidence for 
 # unequal population variances.
@@ -872,11 +879,12 @@ ggsave(F1, filename = paste0(fileloc1,'Results/','OCC_CHANGE_', timeSpan, var,
 rm(list=ls()[! ls() %in% c('fileloc1', 'loc1', 'loc2', 'lat1', 'lat2','lon1','lon2',
                            'location','locTitle','mFileH','mFile126','mFile585',
                            'var', 'varT', 'baseData', 'timeSpan',
-                           'get_legend','as_ggplot','mean_cl_quantile','acf2')])
+                           'get_legend','as_ggplot','mean_cl_quantile','acf2', 
+                           'splitMod')])
 # Part IV Annual Occurrences ###################################################
 # . 4.1 Regional Time Series ---------------------------------------------------
 # . . 4.1.1 Variables Needed ---------------------------------------------------
-location <- 1 # 1-5
+location <- 5 # 1-5
 var <- c('tasmax', 'tasmin', 'pr', 'mrsos')
 varT <- c('Heatwaves','Coldwaves','Extreme Precipitation','Flash Drought')
 lonA <- lon1[location]
@@ -886,8 +894,8 @@ latB <- lat2[location]
 
 # . . 4.1.2 Opening Files Needed -----------------------------------------------
 datOccHYr_V1 <- read_csv(paste0(fileloc1, loc1[1], 'Results/', 
-                                  'OCCYr_DAY_', var[1],'_Hist_8010', '_full.csv'),
-                           col_names = TRUE, cols(.default = col_double()))
+                                'OCCYr_DAY_', var[1],'_Hist_8010', '_full.csv'),
+                         col_names = TRUE, cols(.default = col_double()))
 datOcc126_1040Yr_V1 <- read_csv(paste0(fileloc1, loc1[2], 'Results/',
                                        'OCCYr_DAY_', var[1],'_SSP126_1040', '_full.csv'),
                                 col_names = TRUE, cols(.default = col_double()))
@@ -1019,19 +1027,34 @@ datOcc585_4070Yr_V4 <- na.omit(datOcc585_4070Yr_V4)
 datOcc585_7000Yr_V4 <- na.omit(datOcc585_7000Yr_V4)
 
 # . . 4.1.4 Formatting ---------------------------------------------------------
-datOccHYr_V1 <- gather(datOccHYr_V1, key = Year, value = Occurrences, 3:33)
+# Var1 - GridCell
+datOccHYr_V1 <- gather(datOccHYr_V1, key = Year, value = Occurrences, 3:250)
+datOccHYr_V1$Year <- apply(datOccHYr_V1[,3], MARGIN = 1, FUN = splitMod, 
+                           position = 2 )
 datOcc126_1040Yr_V1 <- gather(datOcc126_1040Yr_V1, key = Year, 
-                              value =Occurrences, 3:33)
+                              value = Occurrences, 3:250)
+datOcc126_1040Yr_V1$Year <- apply(datOcc126_1040Yr_V1[,3], MARGIN = 1, FUN = splitMod, 
+                                  position = 2 )
 datOcc126_4070Yr_V1 <- gather(datOcc126_4070Yr_V1, key = Year, 
-                              value =Occurrences, 3:33)
+                              value = Occurrences, 3:250)
+datOcc126_4070Yr_V1$Year <- apply(datOcc126_4070Yr_V1[,3], MARGIN = 1, FUN = splitMod, 
+                                  position = 2 )
 datOcc126_7000Yr_V1 <- gather(datOcc126_7000Yr_V1, key = Year, 
-                              value =Occurrences, 3:33)
+                              value = Occurrences, 3:250)
+datOcc126_7000Yr_V1$Year <- apply(datOcc126_7000Yr_V1[,3], MARGIN = 1, FUN = splitMod, 
+                                  position = 2 )
 datOcc585_1040Yr_V1 <- gather(datOcc585_1040Yr_V1, key = Year, 
-                              value =Occurrences, 3:33)
+                              value = Occurrences, 3:250)
+datOcc585_1040Yr_V1$Year <- apply(datOcc585_1040Yr_V1[,3], MARGIN = 1, FUN = splitMod, 
+                                  position = 2 )
 datOcc585_4070Yr_V1 <- gather(datOcc585_4070Yr_V1, key = Year, 
-                              value =Occurrences, 3:33)
+                              value = Occurrences, 3:250)
+datOcc585_4070Yr_V1$Year <- apply(datOcc585_4070Yr_V1[,3], MARGIN = 1, FUN = splitMod, 
+                                  position = 2 )
 datOcc585_7000Yr_V1 <- gather(datOcc585_7000Yr_V1, key = Year, 
-                              value =Occurrences, 3:33)
+                              value = Occurrences, 3:250)
+datOcc585_7000Yr_V1$Year <- apply(datOcc585_7000Yr_V1[,3], MARGIN = 1, FUN = splitMod, 
+                                  position = 2 )
 datOccHYr_V1$Scenario <- 'Historic'
 datOcc126_1040Yr_V1$Scenario <- 'SSP126'
 datOcc126_4070Yr_V1$Scenario <- 'SSP126'
@@ -1043,20 +1066,35 @@ datOccYr_V1 <- rbind(datOccHYr_V1, datOcc126_1040Yr_V1, datOcc126_4070Yr_V1,
                      datOcc126_7000Yr_V1, datOcc585_1040Yr_V1,
                      datOcc585_4070Yr_V1, datOcc585_7000Yr_V1)
 datOccYr_V1$Year <- as.integer(datOccYr_V1$Year)
-# Var 3
-datOccHYr_V3 <- gather(datOccHYr_V3, key = Year, value = Occurrences, 3:33)
+
+# Var3 - GridCell
+datOccHYr_V3 <- gather(datOccHYr_V3, key = Year, value = Occurrences, 3:250)
+datOccHYr_V3$Year <- apply(datOccHYr_V3[,3], MARGIN = 1, FUN = splitMod, 
+                           position = 2 )
 datOcc126_1040Yr_V3 <- gather(datOcc126_1040Yr_V3, key = Year, 
-                              value =Occurrences, 3:33)
+                              value = Occurrences, 3:250)
+datOcc126_1040Yr_V3$Year <- apply(datOcc126_1040Yr_V3[,3], MARGIN = 1, FUN = splitMod, 
+                                  position = 2 )
 datOcc126_4070Yr_V3 <- gather(datOcc126_4070Yr_V3, key = Year, 
-                              value =Occurrences, 3:33)
+                              value = Occurrences, 3:250)
+datOcc126_4070Yr_V3$Year <- apply(datOcc126_4070Yr_V3[,3], MARGIN = 1, FUN = splitMod, 
+                                  position = 2 )
 datOcc126_7000Yr_V3 <- gather(datOcc126_7000Yr_V3, key = Year, 
-                              value =Occurrences, 3:33)
+                              value = Occurrences, 3:250)
+datOcc126_7000Yr_V3$Year <- apply(datOcc126_7000Yr_V3[,3], MARGIN = 1, FUN = splitMod, 
+                                  position = 2 )
 datOcc585_1040Yr_V3 <- gather(datOcc585_1040Yr_V3, key = Year, 
-                              value =Occurrences, 3:33)
+                              value = Occurrences, 3:250)
+datOcc585_1040Yr_V3$Year <- apply(datOcc585_1040Yr_V3[,3], MARGIN = 1, FUN = splitMod, 
+                                  position = 2 )
 datOcc585_4070Yr_V3 <- gather(datOcc585_4070Yr_V3, key = Year, 
-                              value =Occurrences, 3:33)
+                              value = Occurrences, 3:250)
+datOcc585_4070Yr_V3$Year <- apply(datOcc585_4070Yr_V3[,3], MARGIN = 1, FUN = splitMod, 
+                                  position = 2 )
 datOcc585_7000Yr_V3 <- gather(datOcc585_7000Yr_V3, key = Year, 
-                              value =Occurrences, 3:33)
+                              value = Occurrences, 3:250)
+datOcc585_7000Yr_V3$Year <- apply(datOcc585_7000Yr_V3[,3], MARGIN = 1, FUN = splitMod, 
+                                  position = 2 )
 datOccHYr_V3$Scenario <- 'Historic'
 datOcc126_1040Yr_V3$Scenario <- 'SSP126'
 datOcc126_4070Yr_V3$Scenario <- 'SSP126'
@@ -1068,25 +1106,35 @@ datOccYr_V3 <- rbind(datOccHYr_V3, datOcc126_1040Yr_V3, datOcc126_4070Yr_V3,
                      datOcc126_7000Yr_V3, datOcc585_1040Yr_V3,
                      datOcc585_4070Yr_V3, datOcc585_7000Yr_V3)
 datOccYr_V3$Year <- as.integer(datOccYr_V3$Year)
-# Var 4
-# Get 2010 data of future
-# datH_2010 <- cbind(datOccHYr_V4$lon, datOccHYr_V4$lat, datOccHYr_V4$`2010`)
-# dat126_2010 <- cbind(datOcc126_1040Yr_V4$lon, datOcc126_1040Yr_V4$lat,datOcc126_1040Yr_V4$`2010`)
-# dat585_2010 <- cbind(datOcc585_1040Yr_V4$lon, datOcc585_1040Yr_V4$lat,datOcc585_1040Yr_V4$`2010`)
 
-datOccHYr_V4 <- gather(datOccHYr_V4, key = Year, value = Occurrences, 3:33)
+# Var4 - GridCell
+datOccHYr_V4 <- gather(datOccHYr_V4, key = Year, value = Occurrences, 3:250)
+datOccHYr_V4$Year <- apply(datOccHYr_V4[,3], MARGIN = 1, FUN = splitMod, 
+                           position = 2 )
 datOcc126_1040Yr_V4 <- gather(datOcc126_1040Yr_V4, key = Year, 
-                              value =Occurrences, 3:33)
+                              value = Occurrences, 3:250)
+datOcc126_1040Yr_V4$Year <- apply(datOcc126_1040Yr_V4[,3], MARGIN = 1, FUN = splitMod, 
+                                  position = 2 )
 datOcc126_4070Yr_V4 <- gather(datOcc126_4070Yr_V4, key = Year, 
-                              value =Occurrences, 3:33)
+                              value = Occurrences, 3:250)
+datOcc126_4070Yr_V4$Year <- apply(datOcc126_4070Yr_V4[,3], MARGIN = 1, FUN = splitMod, 
+                                  position = 2 )
 datOcc126_7000Yr_V4 <- gather(datOcc126_7000Yr_V4, key = Year, 
-                              value =Occurrences, 3:33)
+                              value = Occurrences, 3:250)
+datOcc126_7000Yr_V4$Year <- apply(datOcc126_7000Yr_V4[,3], MARGIN = 1, FUN = splitMod, 
+                                  position = 2 )
 datOcc585_1040Yr_V4 <- gather(datOcc585_1040Yr_V4, key = Year, 
-                              value =Occurrences, 3:33)
+                              value = Occurrences, 3:250)
+datOcc585_1040Yr_V4$Year <- apply(datOcc585_1040Yr_V4[,3], MARGIN = 1, FUN = splitMod, 
+                                  position = 2 )
 datOcc585_4070Yr_V4 <- gather(datOcc585_4070Yr_V4, key = Year, 
-                              value =Occurrences, 3:33)
+                              value = Occurrences, 3:250)
+datOcc585_4070Yr_V4$Year <- apply(datOcc585_4070Yr_V4[,3], MARGIN = 1, FUN = splitMod, 
+                                  position = 2 )
 datOcc585_7000Yr_V4 <- gather(datOcc585_7000Yr_V4, key = Year, 
-                              value =Occurrences, 3:33)
+                              value = Occurrences, 3:250)
+datOcc585_7000Yr_V4$Year <- apply(datOcc585_7000Yr_V4[,3], MARGIN = 1, FUN = splitMod, 
+                                  position = 2 )
 datOccHYr_V4$Scenario <- 'Historic'
 datOcc126_1040Yr_V4$Scenario <- 'SSP126'
 datOcc126_4070Yr_V4$Scenario <- 'SSP126'
@@ -1097,21 +1145,122 @@ datOcc585_7000Yr_V4$Scenario <- 'SSP585'
 datOccYr_V4 <- rbind(datOccHYr_V4, datOcc126_1040Yr_V4, datOcc126_4070Yr_V4, 
                      datOcc126_7000Yr_V4, datOcc585_1040Yr_V4,
                      datOcc585_4070Yr_V4, datOcc585_7000Yr_V4)
-# datOccYr_V4 <- rbind(datOccYr_V4, 
-#                      cbind(lon = datH_2010[,1], lat = datH_2010[,2], Year = '2010',
-#                            Occurrences = datH_2010[,3], Scenario = 'SSP126'),
-#                      cbind(lon = datH_2010[,1], lat = datH_2010[,2], Year = '2010',
-#                            Occurrences = datH_2010[,3], Scenario = 'SSP585'),
-#                      cbind(lon = dat126_2010[,1], lat = dat126_2010[,2], Year = '2010',
-#                            Occurrences = dat126_2010[,3], Scenario = 'Historic'),
-#                      cbind(lon = dat126_2010[,1], lat = dat126_2010[,2], Year = '2010',
-#                            Occurrences = dat126_2010[,3], Scenario = 'SSP585'),
-#                      cbind(lon = dat585_2010[,1], lat = dat585_2010[,2], Year = '2010',
-#                            Occurrences = dat585_2010[,3], Scenario = 'Historic'),
-#                      cbind(lon = dat585_2010[,1], lat = dat585_2010[,2], Year = '2010',
-#                            Occurrences = dat585_2010[,3], Scenario = 'SSP126'))
 datOccYr_V4$Year <- as.integer(datOccYr_V4$Year)
-datOccYr_V4$Occurrences <- as.numeric(datOccYr_V4$Occurrences)
+
+# # . . 4.1.4 Formatting - Stand Dev ---------------------------------------------
+# dfreed <- dim(datOccHYr_V1)[1] - 1
+# TScore <- qt(p=0.05/2, df= dfreed,lower.tail=F)
+# SQn <- sqrt(dim(datOccHYr_V1)[1])
+# 
+# # Var1 - GridCell
+# datOccHYr_V1 <- gather(datOccHYr_V1, key = Year, value = Occurrences, 3:250)
+# datOccHYr_V1$Model <- apply(datOccHYr_V1[,3], MARGIN = 1, FUN = splitMod, 
+#                             position = 1 )
+# datOccHYr_V1$Year <- apply(datOccHYr_V1[,3], MARGIN = 1, FUN = splitMod, 
+#                             position = 2 )
+# dat <- datOccHYr_V1 %>%
+#   group_by(lon,lat,Year) %>%
+#   summarise(Mean = mean(Occurrences), Sd = sd(Occurrences))
+# # Var1 - Region
+# datOccYr_V1 <- dat %>%
+#   group_by(Year) %>%
+#   summarise(Sd = sd(Mean), Mean = mean(Mean)) %>%
+#   cbind(Scenario = 'Historical')
+# 
+# # . . 4.1.4 Formatting -Original -----------------------------------------------
+# datOccHYr_V1 <- gather(datOccHYr_V1, key = Year, value = Occurrences, 3:33)
+# datOcc126_1040Yr_V1 <- gather(datOcc126_1040Yr_V1, key = Year, 
+#                               value =Occurrences, 3:33)
+# datOcc126_4070Yr_V1 <- gather(datOcc126_4070Yr_V1, key = Year, 
+#                               value =Occurrences, 3:33)
+# datOcc126_7000Yr_V1 <- gather(datOcc126_7000Yr_V1, key = Year, 
+#                               value =Occurrences, 3:33)
+# datOcc585_1040Yr_V1 <- gather(datOcc585_1040Yr_V1, key = Year, 
+#                               value =Occurrences, 3:33)
+# datOcc585_4070Yr_V1 <- gather(datOcc585_4070Yr_V1, key = Year, 
+#                               value =Occurrences, 3:33)
+# datOcc585_7000Yr_V1 <- gather(datOcc585_7000Yr_V1, key = Year, 
+#                               value =Occurrences, 3:33)
+# datOccHYr_V1$Scenario <- 'Historic'
+# datOcc126_1040Yr_V1$Scenario <- 'SSP126'
+# datOcc126_4070Yr_V1$Scenario <- 'SSP126'
+# datOcc126_7000Yr_V1$Scenario <- 'SSP126'
+# datOcc585_1040Yr_V1$Scenario <- 'SSP585'
+# datOcc585_4070Yr_V1$Scenario <- 'SSP585'
+# datOcc585_7000Yr_V1$Scenario <- 'SSP585'
+# datOccYr_V1 <- rbind(datOccHYr_V1, datOcc126_1040Yr_V1, datOcc126_4070Yr_V1, 
+#                      datOcc126_7000Yr_V1, datOcc585_1040Yr_V1,
+#                      datOcc585_4070Yr_V1, datOcc585_7000Yr_V1)
+# datOccYr_V1$Year <- as.integer(datOccYr_V1$Year)
+# # Var 3
+# datOccHYr_V3 <- gather(datOccHYr_V3, key = Year, value = Occurrences, 3:33)
+# datOcc126_1040Yr_V3 <- gather(datOcc126_1040Yr_V3, key = Year, 
+#                               value =Occurrences, 3:33)
+# datOcc126_4070Yr_V3 <- gather(datOcc126_4070Yr_V3, key = Year, 
+#                               value =Occurrences, 3:33)
+# datOcc126_7000Yr_V3 <- gather(datOcc126_7000Yr_V3, key = Year, 
+#                               value =Occurrences, 3:33)
+# datOcc585_1040Yr_V3 <- gather(datOcc585_1040Yr_V3, key = Year, 
+#                               value =Occurrences, 3:33)
+# datOcc585_4070Yr_V3 <- gather(datOcc585_4070Yr_V3, key = Year, 
+#                               value =Occurrences, 3:33)
+# datOcc585_7000Yr_V3 <- gather(datOcc585_7000Yr_V3, key = Year, 
+#                               value =Occurrences, 3:33)
+# datOccHYr_V3$Scenario <- 'Historic'
+# datOcc126_1040Yr_V3$Scenario <- 'SSP126'
+# datOcc126_4070Yr_V3$Scenario <- 'SSP126'
+# datOcc126_7000Yr_V3$Scenario <- 'SSP126'
+# datOcc585_1040Yr_V3$Scenario <- 'SSP585'
+# datOcc585_4070Yr_V3$Scenario <- 'SSP585'
+# datOcc585_7000Yr_V3$Scenario <- 'SSP585'
+# datOccYr_V3 <- rbind(datOccHYr_V3, datOcc126_1040Yr_V3, datOcc126_4070Yr_V3, 
+#                      datOcc126_7000Yr_V3, datOcc585_1040Yr_V3,
+#                      datOcc585_4070Yr_V3, datOcc585_7000Yr_V3)
+# datOccYr_V3$Year <- as.integer(datOccYr_V3$Year)
+# # Var 4
+# # Get 2010 data of future
+# # datH_2010 <- cbind(datOccHYr_V4$lon, datOccHYr_V4$lat, datOccHYr_V4$`2010`)
+# # dat126_2010 <- cbind(datOcc126_1040Yr_V4$lon, datOcc126_1040Yr_V4$lat,datOcc126_1040Yr_V4$`2010`)
+# # dat585_2010 <- cbind(datOcc585_1040Yr_V4$lon, datOcc585_1040Yr_V4$lat,datOcc585_1040Yr_V4$`2010`)
+# 
+# datOccHYr_V4 <- gather(datOccHYr_V4, key = Year, value = Occurrences, 3:33)
+# datOcc126_1040Yr_V4 <- gather(datOcc126_1040Yr_V4, key = Year, 
+#                               value =Occurrences, 3:33)
+# datOcc126_4070Yr_V4 <- gather(datOcc126_4070Yr_V4, key = Year, 
+#                               value =Occurrences, 3:33)
+# datOcc126_7000Yr_V4 <- gather(datOcc126_7000Yr_V4, key = Year, 
+#                               value =Occurrences, 3:33)
+# datOcc585_1040Yr_V4 <- gather(datOcc585_1040Yr_V4, key = Year, 
+#                               value =Occurrences, 3:33)
+# datOcc585_4070Yr_V4 <- gather(datOcc585_4070Yr_V4, key = Year, 
+#                               value =Occurrences, 3:33)
+# datOcc585_7000Yr_V4 <- gather(datOcc585_7000Yr_V4, key = Year, 
+#                               value =Occurrences, 3:33)
+# datOccHYr_V4$Scenario <- 'Historic'
+# datOcc126_1040Yr_V4$Scenario <- 'SSP126'
+# datOcc126_4070Yr_V4$Scenario <- 'SSP126'
+# datOcc126_7000Yr_V4$Scenario <- 'SSP126'
+# datOcc585_1040Yr_V4$Scenario <- 'SSP585'
+# datOcc585_4070Yr_V4$Scenario <- 'SSP585'
+# datOcc585_7000Yr_V4$Scenario <- 'SSP585'
+# datOccYr_V4 <- rbind(datOccHYr_V4, datOcc126_1040Yr_V4, datOcc126_4070Yr_V4, 
+#                      datOcc126_7000Yr_V4, datOcc585_1040Yr_V4,
+#                      datOcc585_4070Yr_V4, datOcc585_7000Yr_V4)
+# # datOccYr_V4 <- rbind(datOccYr_V4, 
+# #                      cbind(lon = datH_2010[,1], lat = datH_2010[,2], Year = '2010',
+# #                            Occurrences = datH_2010[,3], Scenario = 'SSP126'),
+# #                      cbind(lon = datH_2010[,1], lat = datH_2010[,2], Year = '2010',
+# #                            Occurrences = datH_2010[,3], Scenario = 'SSP585'),
+# #                      cbind(lon = dat126_2010[,1], lat = dat126_2010[,2], Year = '2010',
+# #                            Occurrences = dat126_2010[,3], Scenario = 'Historic'),
+# #                      cbind(lon = dat126_2010[,1], lat = dat126_2010[,2], Year = '2010',
+# #                            Occurrences = dat126_2010[,3], Scenario = 'SSP585'),
+# #                      cbind(lon = dat585_2010[,1], lat = dat585_2010[,2], Year = '2010',
+# #                            Occurrences = dat585_2010[,3], Scenario = 'Historic'),
+# #                      cbind(lon = dat585_2010[,1], lat = dat585_2010[,2], Year = '2010',
+# #                            Occurrences = dat585_2010[,3], Scenario = 'SSP126'))
+# datOccYr_V4$Year <- as.integer(datOccYr_V4$Year)
+# datOccYr_V4$Occurrences <- as.numeric(datOccYr_V4$Occurrences)
 
 # . . 4.1.5 Plotting time series -----------------------------------------------
 a <- paste0('Occurrences of ', varT[1])
@@ -1173,14 +1322,15 @@ ggsave(F1, filename = paste0(fileloc1,'Results/','OCCYr_TIMESER_', timeSpan,
                              'Region', location, ".tiff"),
        width = 9, height = 6, dpi = 350, bg='white')
 
-
 # . . 4.1.6 Remove -------------------------------------------------------------
 rm(list=ls()[! ls() %in% c('fileloc1', 'loc1', 'loc2', 'lat1', 'lat2','lon1','lon2',
                            'location','locTitle','mFileH','mFile126','mFile585',
                            'var', 'varT', 'baseData', 'timeSpan',
-                           'get_legend','as_ggplot','mean_cl_quantile','acf2')])
+                           'get_legend','as_ggplot','mean_cl_quantile','acf2', 
+                           'splitMod')])
 # . 4.2 Regional Scatter Plot --------------------------------------------------
 # . . 4.2.1 Variables Needed ---------------------------------------------------
+location <- 5
 lonA <- lon1[location]
 lonB <- lon2[location]
 latA <- lat1[location]
@@ -1460,7 +1610,7 @@ dat <-
   # rbind(cbind(datOcc126_1040Yr_V1, datOcc126_1040Yr_V3[,2], datOcc126_1040Yr_V4[,2],
   #             TimePeriod = 'Early-Century', Scenario ='SSP126')) %>%
   cbind(datOcc126_1040Yr_V1, datOcc126_1040Yr_V3[,2], datOcc126_1040Yr_V4[,2],
-              TimePeriod = 'Early-Century', Scenario ='SSP126') %>%
+        TimePeriod = 'Early-Century', Scenario ='SSP126') %>%
   rbind(cbind(datOcc126_4070Yr_V1, datOcc126_4070Yr_V3[,2], datOcc126_4070Yr_V4[,2],  
               TimePeriod = 'Mid-Century', Scenario ='SSP126')) %>%
   rbind(cbind(datOcc126_7000Yr_V1, datOcc126_7000Yr_V3[,2], datOcc126_7000Yr_V4[,2],  
@@ -1473,13 +1623,13 @@ dat <-
               TimePeriod = 'Late-Century', Scenario ='SSP585'))
 colnames(dat) <- c('Year', var[1],var[3],var[4], 'TimePeriod', 'Scenario')  
 dat$TimePeriod <- factor(dat$TimePeriod,
-                            levels = c('Historic', 'Early-Century',
-                                       'Mid-Century','Late-Century'))
+                         levels = c('Historic', 'Early-Century',
+                                    'Mid-Century','Late-Century'))
 
 # . . 4.2.5 Plotting -----------------------------------------------------------
 # Var1 v Var4  SSP126
 main <- ggplot(subset(dat, Scenario != 'SSP585'), 
-       aes(x = tasmax, y = mrsos, color = TimePeriod)) +
+               aes(x = tasmax, y = mrsos, color = TimePeriod)) +
   theme_bw() +
   # geom_smooth(method = 'lm', se = FALSE)+
   geom_point(alpha = 0.7) +
@@ -1500,7 +1650,7 @@ p1 <- insert_yaxis_grob(p1, denY, grid::unit(.2, "null"), position = "right")
 
 # Var3 v Var4    SSP126
 main <- ggplot(subset(dat, Scenario != 'SSP585'), 
-             aes(x = pr, y = mrsos, color = TimePeriod)) +
+               aes(x = pr, y = mrsos, color = TimePeriod)) +
   theme_bw() +
   # geom_smooth(method = 'lm', se = FALSE)+
   geom_point(alpha = 0.7) +
@@ -1520,7 +1670,7 @@ p2 <- insert_yaxis_grob(p2, denY, grid::unit(.2, "null"), position = "right")
 
 # Var1 v Var3   SSP126
 main <- ggplot(subset(dat, Scenario != 'SSP585'), 
-             aes(x = pr, y = tasmax, color = TimePeriod)) +
+               aes(x = pr, y = tasmax, color = TimePeriod)) +
   theme_bw() +
   # geom_smooth(method = 'lm', se = FALSE)+
   geom_point(alpha = 0.7) +
@@ -1539,7 +1689,7 @@ p3 <- insert_xaxis_grob(main, denX, grid::unit(.2, "null"), position = "top")
 p3 <- insert_yaxis_grob(p3, denY, grid::unit(.2, "null"), position = "right")
 # Var1 v Var4  SSP585
 main <- ggplot(subset(dat, Scenario != 'SSP126'), 
-             aes(x = tasmax, y = mrsos, color = TimePeriod)) +
+               aes(x = tasmax, y = mrsos, color = TimePeriod)) +
   theme_bw() +
   # geom_smooth(method = 'lm', se = FALSE)+
   geom_point(alpha = 0.7) +
@@ -1560,7 +1710,7 @@ p4 <- insert_yaxis_grob(p4, denY, grid::unit(.2, "null"), position = "right")
 ggdraw(p4)
 # Var3 v Var4    SSP585
 main <- ggplot(subset(dat, Scenario != 'SSP126'), 
-             aes(x = pr, y = mrsos, color = TimePeriod)) +
+               aes(x = pr, y = mrsos, color = TimePeriod)) +
   theme_bw() +
   # geom_smooth(method = 'lm', se = FALSE)+
   geom_point(alpha = 0.7) +
@@ -1580,7 +1730,7 @@ p5 <- insert_yaxis_grob(p5, denY, grid::unit(.2, "null"), position = "right")
 
 # Var1 v Var3   SSP585
 main <- ggplot(subset(dat, Scenario != 'SSP126'), 
-             aes(x = pr, y = tasmax, color = TimePeriod)) +
+               aes(x = pr, y = tasmax, color = TimePeriod)) +
   theme_bw() +
   # geom_smooth(method = 'lm', se = FALSE)+
   geom_point(alpha = 0.7) +
@@ -1622,7 +1772,7 @@ F1 <- plot_grid(title,
                 rel_heights = c(.05,1, 0.05),
                 # rel_heights = c(0.05,1),
                 nrow = 3)
-ggsave(F1, filename = paste0(fileloc1,'Results/','OCCYr_CHANGE_', timeSpan, 
+ggsave(F1, filename = paste0(fileloc1,'Results/','OCCYr_SCATT_', timeSpan, 
                              'Region', location, ".tiff"),
        width = 9, height = 6, dpi = 350, bg='white')
 
@@ -1630,7 +1780,8 @@ ggsave(F1, filename = paste0(fileloc1,'Results/','OCCYr_CHANGE_', timeSpan,
 rm(list=ls()[! ls() %in% c('fileloc1', 'loc1', 'loc2', 'lat1', 'lat2','lon1','lon2',
                            'location','locTitle','mFileH','mFile126','mFile585',
                            'var', 'varT', 'baseData', 'timeSpan',
-                           'get_legend','as_ggplot','mean_cl_quantile','acf2')])
+                           'get_legend','as_ggplot','mean_cl_quantile','acf2',
+                           'splitMod')])
 # . 4.3 Significant Time Series ------------------------------------------------
 # . . 4.3.1 Variables Needed ---------------------------------------------------
 var <- c('tasmax', 'tasmin', 'pr', 'mrsos')
@@ -1717,13 +1868,12 @@ Occ_V1 <- Occ_V1 %>%
 Occ_V1$SSP126585 <- 0
 Occ_V1$SSP126 <- 0
 Occ_V1$SSP585 <- 0
-Occ_V1$SSP126585[sum(Occ_V1$SSP126_1040_Sig, Occ_V1$SSP126_1040_Sig, 
-                  Occ_V1$SSP126_1040_Sig, Occ_V1$SSP585_1040_Sig, 
-                  Occ_V1$SSP585_1040_Sig, Occ_V1$SSP585_1040_Sig) >= 1] <- 1
-Occ_V1$SSP126[sum(Occ_V1$SSP126_1040_Sig, Occ_V1$SSP126_1040_Sig, 
-                  Occ_V1$SSP126_1040_Sig) >= 1] <- 1
-Occ_V1$SSP585[sum(Occ_V1$SSP585_1040_Sig, Occ_V1$SSP585_1040_Sig, 
-                  Occ_V1$SSP585_1040_Sig) >= 1] <- 1
+Occ_V1$SSP126585 <- apply(X = Occ_V1[,3:8], MARGIN = 1, FUN = sum)
+Occ_V1$SSP126585[Occ_V1$SSP126585 >= 1] <- 1
+Occ_V1$SSP126 <- apply(X = Occ_V1[,3:5], MARGIN = 1, FUN = sum)
+Occ_V1$SSP126[Occ_V1$SSP126 >= 1] <- 1
+Occ_V1$SSP585 <- apply(X = Occ_V1[,6:8], MARGIN = 1, FUN = sum)
+Occ_V1$SSP585[Occ_V1$SSP585 >= 1] <- 1
 datOccHYr_V1$Sig <- Occ_V1$SSP126585
 datOcc126_1040Yr_V1$Sig <- Occ_V1$SSP126
 datOcc126_4070Yr_V1$Sig <- Occ_V1$SSP126
@@ -1739,13 +1889,12 @@ Occ_V3 <- Occ_V3 %>%
 Occ_V3$SSP126585 <- 0
 Occ_V3$SSP126 <- 0
 Occ_V3$SSP585 <- 0
-Occ_V3$SSP126585[sum(Occ_V3$SSP126_1040_Sig, Occ_V3$SSP126_1040_Sig, 
-                     Occ_V3$SSP126_1040_Sig, Occ_V3$SSP585_1040_Sig, 
-                     Occ_V3$SSP585_1040_Sig, Occ_V3$SSP585_1040_Sig) >= 1] <- 1
-Occ_V3$SSP126[sum(Occ_V3$SSP126_1040_Sig, Occ_V3$SSP126_1040_Sig, 
-                  Occ_V3$SSP126_1040_Sig) >= 1] <- 1
-Occ_V3$SSP585[sum(Occ_V3$SSP585_1040_Sig, Occ_V3$SSP585_1040_Sig, 
-                  Occ_V3$SSP585_1040_Sig) >= 1] <- 1
+Occ_V3$SSP126585 <- apply(X = Occ_V3[,3:8], MARGIN = 1, FUN = sum)
+Occ_V3$SSP126585[Occ_V3$SSP126585 >= 1] <- 1
+Occ_V3$SSP126 <- apply(X = Occ_V3[,3:5], MARGIN = 1, FUN = sum)
+Occ_V3$SSP126[Occ_V3$SSP126 >= 1] <- 1
+Occ_V3$SSP585 <- apply(X = Occ_V3[,6:8], MARGIN = 1, FUN = sum)
+Occ_V3$SSP585[Occ_V3$SSP585 >= 1] <- 1
 datOccHYr_V3$Sig <- Occ_V3$SSP126585
 datOcc126_1040Yr_V3$Sig <- Occ_V3$SSP126
 datOcc126_4070Yr_V3$Sig <- Occ_V3$SSP126
@@ -1761,13 +1910,12 @@ Occ_V4 <- Occ_V4 %>%
 Occ_V4$SSP126585 <- 0
 Occ_V4$SSP126 <- 0
 Occ_V4$SSP585 <- 0
-Occ_V4$SSP126585[sum(Occ_V4$SSP126_1040_Sig, Occ_V4$SSP126_1040_Sig, 
-                     Occ_V4$SSP126_1040_Sig, Occ_V4$SSP585_1040_Sig, 
-                     Occ_V4$SSP585_1040_Sig, Occ_V4$SSP585_1040_Sig) >= 1] <- 1
-Occ_V4$SSP126[sum(Occ_V4$SSP126_1040_Sig, Occ_V4$SSP126_1040_Sig, 
-                  Occ_V4$SSP126_1040_Sig) >= 1] <- 1
-Occ_V4$SSP585[sum(Occ_V4$SSP585_1040_Sig, Occ_V4$SSP585_1040_Sig, 
-                  Occ_V4$SSP585_1040_Sig) >= 1] <- 1
+Occ_V4$SSP126585 <- apply(X = Occ_V4[,3:8], MARGIN = 1, FUN = sum)
+Occ_V4$SSP126585[Occ_V4$SSP126585 >= 1] <- 1
+Occ_V4$SSP126 <- apply(X = Occ_V4[,3:5], MARGIN = 1, FUN = sum)
+Occ_V4$SSP126[Occ_V4$SSP126 >= 1] <- 1
+Occ_V4$SSP585 <- apply(X = Occ_V4[,6:8], MARGIN = 1, FUN = sum)
+Occ_V4$SSP585[Occ_V4$SSP585 >= 1] <- 1
 datOccHYr_V4$Sig <- Occ_V4$SSP126585
 datOcc126_1040Yr_V4$Sig <- Occ_V4$SSP126
 datOcc126_4070Yr_V4$Sig <- Occ_V4$SSP126
@@ -1946,949 +2094,560 @@ rm(list=ls()[! ls() %in% c('fileloc1', 'loc1', 'loc2', 'lat1', 'lat2','lon1','lo
                            'location','locTitle','mFileH','mFile126','mFile585',
                            'var', 'varT', 'baseData', 'timeSpan',
                            'get_legend','as_ggplot','mean_cl_quantile','acf2')])
-# . 4.4 Not Finished - Significant Scatter Plot -----------------------------------------------
+# . 4.4 Moving average Time Series ---------------------------------------------
 # . . 4.4.1 Variables Needed ---------------------------------------------------
 var <- c('tasmax', 'tasmin', 'pr', 'mrsos')
 varT <- c('Heatwaves','Coldwaves','Extreme Precipitation','Flash Drought')
+a <-strsplit(loc2,'/') %>% unlist()
+yr <- 1980:2100
+
+datOcc126_V1 <- matrix(data = 0, nrow = 8, ncol = 121)
+colnames(datOcc126_V1) <- yr
+datOcc585_V1 <- datOcc126_V1
+datOcc126_V3 <- datOcc126_V1
+datOcc585_V3 <- datOcc126_V1
+datOcc126_V4 <- datOcc126_V1
+datOcc585_V4 <- datOcc126_V1
+
 # . . 4.4.2 Opening Files Needed -----------------------------------------------
-datOccHYr_V1 <- read_csv(paste0(fileloc1, loc1[1], 'Results/', 
-                                'OCCYr_DAY_', var[1],'_Hist_8010', '.csv'),
-                         col_names = TRUE, cols(.default = col_double()))
-datOcc126_1040Yr_V1 <- read_csv(paste0(fileloc1, loc1[2], 'Results/',
-                                       'OCCYr_DAY_', var[1],'_SSP126_1040', '.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
-datOcc126_4070Yr_V1 <- read_csv(paste0(fileloc1, loc1[2], 'Results/',
-                                       'OCCYr_DAY_', var[1],'_SSP126_4070', '.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
-datOcc126_7000Yr_V1 <- read_csv(paste0(fileloc1, loc1[2], 'Results/',
-                                       'OCCYr_DAY_', var[1],'_SSP126_7000', '.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
-datOcc585_1040Yr_V1 <- read_csv(paste0(fileloc1, loc1[3], 'Results/',
-                                       'OCCYr_DAY_', var[1],'_SSP585_1040', '.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
-datOcc585_4070Yr_V1 <- read_csv(paste0(fileloc1, loc1[3], 'Results/',
-                                       'OCCYr_DAY_', var[1],'_SSP585_4070', '.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
-datOcc585_7000Yr_V1 <- read_csv(paste0(fileloc1, loc1[3], 'Results/',
-                                       'OCCYr_DAY_', var[1],'_SSP585_7000', '.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
+#Var 1
+Occ_V1 <- read_csv(paste0(fileloc1,'Results/','OCC_CHANG_',var[1],'.csv'),
+                   col_names = TRUE, cols(.default = col_double()))
+datOcc126Yr_V1 <- cbind(read_csv(paste0(fileloc1, loc1[1], 'Results/', 
+                                        'OCCYr_DAY_', var[1],'_Hist_8010', 
+                                        '_full.csv'),
+                                 col_names = TRUE, cols(.default = col_double())),
+                        read_csv(paste0(fileloc1, loc1[2], 'Results/',
+                                        'OCCYr_DAY_', var[1],'_SSP126_1040',
+                                        '_full.csv'),
+                                 col_names = TRUE, cols(.default = col_double())),
+                        read_csv(paste0(fileloc1, loc1[2], 'Results/',
+                                        'OCCYr_DAY_', var[1],'_SSP126_4070',
+                                        '_full.csv'),
+                                 col_names = TRUE, cols(.default = col_double())),
+                        read_csv(paste0(fileloc1, loc1[2], 'Results/',
+                                        'OCCYr_DAY_', var[1],'_SSP126_7000',
+                                        '_full.csv'),
+                                 col_names = TRUE, cols(.default = col_double())))
+datOcc585Yr_V1 <- cbind(read_csv(paste0(fileloc1, loc1[1], 'Results/', 
+                                        'OCCYr_DAY_', var[1],'_Hist_8010',
+                                        '_full.csv'),
+                                 col_names = TRUE, cols(.default = col_double())),
+                        read_csv(paste0(fileloc1, loc1[3], 'Results/',
+                                        'OCCYr_DAY_', var[1],'_SSP585_1040',
+                                        '_full.csv'),
+                                 col_names = TRUE, cols(.default = col_double())),
+                        read_csv(paste0(fileloc1, loc1[3], 'Results/',
+                                        'OCCYr_DAY_', var[1],'_SSP585_4070',
+                                        '_full.csv'),
+                                 col_names = TRUE, cols(.default = col_double())),
+                        read_csv(paste0(fileloc1, loc1[3], 'Results/',
+                                        'OCCYr_DAY_', var[1],'_SSP585_7000',
+                                        '_full.csv'),
+                                 col_names = TRUE, cols(.default = col_double())))
+
+#Var 3
+Occ_V3 <- read_csv(paste0(fileloc1,'Results/','OCC_CHANG_',var[3],'.csv'),
+                   col_names = TRUE, cols(.default = col_double()))
+datOcc126Yr_V3 <- cbind(read_csv(paste0(fileloc1, loc1[1], 'Results/', 
+                                        'OCCYr_DAY_', var[3],'_Hist_8010', 
+                                        '_full.csv'),
+                                 col_names = TRUE, cols(.default = col_double())),
+                        read_csv(paste0(fileloc1, loc1[2], 'Results/',
+                                        'OCCYr_DAY_', var[3],'_SSP126_1040',
+                                        '_full.csv'),
+                                 col_names = TRUE, cols(.default = col_double())),
+                        read_csv(paste0(fileloc1, loc1[2], 'Results/',
+                                        'OCCYr_DAY_', var[3],'_SSP126_4070',
+                                        '_full.csv'),
+                                 col_names = TRUE, cols(.default = col_double())),
+                        read_csv(paste0(fileloc1, loc1[2], 'Results/',
+                                        'OCCYr_DAY_', var[3],'_SSP126_7000',
+                                        '_full.csv'),
+                                 col_names = TRUE, cols(.default = col_double())))
+datOcc585Yr_V3 <- cbind(read_csv(paste0(fileloc1, loc1[1], 'Results/', 
+                                        'OCCYr_DAY_', var[3],'_Hist_8010',
+                                        '_full.csv'),
+                                 col_names = TRUE, cols(.default = col_double())),
+                        read_csv(paste0(fileloc1, loc1[3], 'Results/',
+                                        'OCCYr_DAY_', var[3],'_SSP585_1040',
+                                        '_full.csv'),
+                                 col_names = TRUE, cols(.default = col_double())),
+                        read_csv(paste0(fileloc1, loc1[3], 'Results/',
+                                        'OCCYr_DAY_', var[3],'_SSP585_4070',
+                                        '_full.csv'),
+                                 col_names = TRUE, cols(.default = col_double())),
+                        read_csv(paste0(fileloc1, loc1[3], 'Results/',
+                                        'OCCYr_DAY_', var[3],'_SSP585_7000',
+                                        '_full.csv'),
+                                 col_names = TRUE, cols(.default = col_double())))
+#Var 4
+Occ_V4 <- read_csv(paste0(fileloc1,'Results/','OCC_CHANG_',var[4],'.csv'),
+                   col_names = TRUE, cols(.default = col_double()))
+datOcc126Yr_V4 <- cbind(read_csv(paste0(fileloc1, loc1[1], 'Results/', 
+                                        'OCCYr_DAY_', var[4],'_Hist_8010', 
+                                        '_full.csv'),
+                                 col_names = TRUE, cols(.default = col_double())),
+                        read_csv(paste0(fileloc1, loc1[2], 'Results/',
+                                        'OCCYr_DAY_', var[4],'_SSP126_1040',
+                                        '_full.csv'),
+                                 col_names = TRUE, cols(.default = col_double())),
+                        read_csv(paste0(fileloc1, loc1[2], 'Results/',
+                                        'OCCYr_DAY_', var[4],'_SSP126_4070',
+                                        '_full.csv'),
+                                 col_names = TRUE, cols(.default = col_double())),
+                        read_csv(paste0(fileloc1, loc1[2], 'Results/',
+                                        'OCCYr_DAY_', var[4],'_SSP126_7000',
+                                        '_full.csv'),
+                                 col_names = TRUE, cols(.default = col_double())))
+datOcc585Yr_V4 <- cbind(read_csv(paste0(fileloc1, loc1[1], 'Results/', 
+                                        'OCCYr_DAY_', var[4],'_Hist_8010',
+                                        '_full.csv'),
+                                 col_names = TRUE, cols(.default = col_double())),
+                        read_csv(paste0(fileloc1, loc1[3], 'Results/',
+                                        'OCCYr_DAY_', var[4],'_SSP585_1040',
+                                        '_full.csv'),
+                                 col_names = TRUE, cols(.default = col_double())),
+                        read_csv(paste0(fileloc1, loc1[3], 'Results/',
+                                        'OCCYr_DAY_', var[4],'_SSP585_4070',
+                                        '_full.csv'),
+                                 col_names = TRUE, cols(.default = col_double())),
+                        read_csv(paste0(fileloc1, loc1[3], 'Results/',
+                                        'OCCYr_DAY_', var[4],'_SSP585_7000',
+                                        '_full.csv'),
+                                 col_names = TRUE, cols(.default = col_double())))
+
+# . . 4.4.3 Significance ---------------------------------------------------------
+# Var 1
+Occ_V1 <- Occ_V1 %>%
+  select(lon, lat, SSP126_1040_Sig, SSP126_4070_Sig, SSP126_7000_Sig, 
+         SSP585_1040_Sig, SSP585_4070_Sig, SSP585_7000_Sig)
+Occ_V1$SSP126 <- 0
+Occ_V1$SSP585 <- 0
+Occ_V1$SSP126 <- apply(X = Occ_V1[,3:5], MARGIN = 1, FUN = sum)
+Occ_V1$SSP126[Occ_V1$SSP126 >= 1] <- 1
+Occ_V1$SSP585 <- apply(X = Occ_V1[,6:8], MARGIN = 1, FUN = sum)
+Occ_V1$SSP585[Occ_V1$SSP585 >= 1] <- 1
+Occ_V1$SSP126[Occ_V1$SSP126 == 0] <- NA
+Occ_V1$SSP585[Occ_V1$SSP585 == 0] <- NA
+datOcc126Yr_V1 <- cbind(datOcc126Yr_V1$lon, datOcc126Yr_V1$lat, 
+                        datOcc126Yr_V1[,3:dim(datOcc126Yr_V1)[2]] * Occ_V1$SSP126)
+datOcc126Yr_V1 <- na.omit(datOcc126Yr_V1)
+datOcc585Yr_V1 <- cbind(datOcc585Yr_V1$lon, datOcc585Yr_V1$lat, 
+                        datOcc585Yr_V1[,3:dim(datOcc585Yr_V1)[2]] * Occ_V1$SSP585)
+datOcc585Yr_V1 <- na.omit(datOcc585Yr_V1)
+
 # Var 3
-datOccHYr_V3 <- read_csv(paste0(fileloc1, loc1[1], 'Results/',
-                                'OCCYr_DAY_', var[3],'_Hist_8010', '.csv'),
-                         col_names = TRUE, cols(.default = col_double()))
-datOcc126_1040Yr_V3 <- read_csv(paste0(fileloc1, loc1[2], 'Results/',
-                                       'OCCYr_DAY_', var[3],'_SSP126_1040', '.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
-datOcc126_4070Yr_V3 <- read_csv(paste0(fileloc1, loc1[2], 'Results/',
-                                       'OCCYr_DAY_', var[3],'_SSP126_4070', '.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
-datOcc126_7000Yr_V3 <- read_csv(paste0(fileloc1, loc1[2], 'Results/',
-                                       'OCCYr_DAY_', var[3],'_SSP126_7000', '.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
-datOcc585_1040Yr_V3 <- read_csv(paste0(fileloc1, loc1[3], 'Results/',
-                                       'OCCYr_DAY_', var[3],'_SSP585_1040', '.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
-datOcc585_4070Yr_V3 <- read_csv(paste0(fileloc1, loc1[3], 'Results/',
-                                       'OCCYr_DAY_', var[3],'_SSP585_4070', '.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
-datOcc585_7000Yr_V3 <- read_csv(paste0(fileloc1, loc1[3], 'Results/',
-                                       'OCCYr_DAY_', var[3],'_SSP585_7000', '.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
+Occ_V3 <- Occ_V3 %>%
+  select(lon, lat, SSP126_1040_Sig, SSP126_4070_Sig, SSP126_7000_Sig, 
+         SSP585_1040_Sig, SSP585_4070_Sig, SSP585_7000_Sig)
+Occ_V3$SSP126 <- 0
+Occ_V3$SSP585 <- 0
+Occ_V3$SSP126 <- apply(X = Occ_V3[,3:5], MARGIN = 1, FUN = sum)
+Occ_V3$SSP126[Occ_V3$SSP126 >= 1] <- 1
+Occ_V3$SSP585 <- apply(X = Occ_V3[,6:8], MARGIN = 1, FUN = sum)
+Occ_V3$SSP585[Occ_V3$SSP585 >= 1] <- 1
+Occ_V3$SSP126[Occ_V3$SSP126 == 0] <- NA
+Occ_V3$SSP585[Occ_V3$SSP585 == 0] <- NA
+datOcc126Yr_V3 <- cbind(datOcc126Yr_V3$lon, datOcc126Yr_V3$lat, 
+                        datOcc126Yr_V3[,3:dim(datOcc126Yr_V3)[2]] * Occ_V3$SSP126)
+datOcc126Yr_V3 <- na.omit(datOcc126Yr_V3)
+datOcc585Yr_V3 <- cbind(datOcc585Yr_V3$lon, datOcc585Yr_V3$lat, 
+                        datOcc585Yr_V3[,3:dim(datOcc585Yr_V3)[2]] * Occ_V3$SSP585)
+datOcc585Yr_V3 <- na.omit(datOcc585Yr_V3)
+
 # Var 4
-datOccHYr_V4 <- read_csv(paste0(fileloc1, loc1[1], 'Results/',
-                                'OCCYr_DAY_', var[4],'_Hist_8010', '.csv'),
-                         col_names = TRUE, cols(.default = col_double()))
-datOcc126_1040Yr_V4 <- read_csv(paste0(fileloc1, loc1[2], 'Results/', 
-                                       'OCCYr_DAY_', var[4],'_SSP126_1040', '.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
-datOcc126_4070Yr_V4 <- read_csv(paste0(fileloc1, loc1[2], 'Results/',
-                                       'OCCYr_DAY_', var[4],'_SSP126_4070', '.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
-datOcc126_7000Yr_V4 <- read_csv(paste0(fileloc1, loc1[2], 'Results/',
-                                       'OCCYr_DAY_', var[4],'_SSP126_7000', '.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
-datOcc585_1040Yr_V4 <- read_csv(paste0(fileloc1, loc1[3], 'Results/',  
-                                       'OCCYr_DAY_', var[4],'_SSP585_1040', '.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
-datOcc585_4070Yr_V4 <- read_csv(paste0(fileloc1, loc1[3], 'Results/',
-                                       'OCCYr_DAY_', var[4],'_SSP585_4070', '.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
-datOcc585_7000Yr_V4 <- read_csv(paste0(fileloc1, loc1[3], 'Results/',
-                                       'OCCYr_DAY_', var[4],'_SSP585_7000', '.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
-# . . 4.4.3 Defining locations -------------------------------------------------
-datOccHYr_V1$lon[datOccHYr_V1$lon < lonA | datOccHYr_V1$lon > lonB] <- NA
-datOccHYr_V1$lat[datOccHYr_V1$lat > latA | datOccHYr_V1$lat < latB] <- NA
-datOcc126_1040Yr_V1$lon[datOcc126_1040Yr_V1$lon < lonA | datOcc126_1040Yr_V1$lon > lonB] <- NA
-datOcc126_1040Yr_V1$lat[datOcc126_1040Yr_V1$lat > latA | datOcc126_1040Yr_V1$lat < latB] <- NA
-datOcc126_4070Yr_V1$lon[datOcc126_4070Yr_V1$lon < lonA | datOcc126_4070Yr_V1$lon > lonB] <- NA
-datOcc126_4070Yr_V1$lat[datOcc126_4070Yr_V1$lat > latA | datOcc126_4070Yr_V1$lat < latB] <- NA
-datOcc126_7000Yr_V1$lon[datOcc126_7000Yr_V1$lon < lonA | datOcc126_7000Yr_V1$lon > lonB] <- NA
-datOcc126_7000Yr_V1$lat[datOcc126_7000Yr_V1$lat > latA | datOcc126_7000Yr_V1$lat < latB] <- NA
-datOcc585_1040Yr_V1$lon[datOcc585_1040Yr_V1$lon < lonA | datOcc585_1040Yr_V1$lon > lonB] <- NA
-datOcc585_1040Yr_V1$lat[datOcc585_1040Yr_V1$lat > latA | datOcc585_1040Yr_V1$lat < latB] <- NA
-datOcc585_4070Yr_V1$lon[datOcc585_4070Yr_V1$lon < lonA | datOcc585_4070Yr_V1$lon > lonB] <- NA
-datOcc585_4070Yr_V1$lat[datOcc585_4070Yr_V1$lat > latA | datOcc585_4070Yr_V1$lat < latB] <- NA
-datOcc585_7000Yr_V1$lon[datOcc585_7000Yr_V1$lon < lonA | datOcc585_7000Yr_V1$lon > lonB] <- NA
-datOcc585_7000Yr_V1$lat[datOcc585_7000Yr_V1$lat > latA | datOcc585_7000Yr_V1$lat < latB] <- NA
-datOccHYr_V1 <- na.omit(datOccHYr_V1)
-datOcc126_1040Yr_V1 <- na.omit(datOcc126_1040Yr_V1)
-datOcc126_4070Yr_V1 <- na.omit(datOcc126_4070Yr_V1)
-datOcc126_7000Yr_V1 <- na.omit(datOcc126_7000Yr_V1)
-datOcc585_1040Yr_V1 <- na.omit(datOcc585_1040Yr_V1)
-datOcc585_4070Yr_V1 <- na.omit(datOcc585_4070Yr_V1)
-datOcc585_7000Yr_V1 <- na.omit(datOcc585_7000Yr_V1)
+Occ_V4 <- Occ_V4 %>%
+  select(lon, lat, SSP126_1040_Sig, SSP126_4070_Sig, SSP126_7000_Sig, 
+         SSP585_1040_Sig, SSP585_4070_Sig, SSP585_7000_Sig)
+Occ_V4$SSP126 <- 0
+Occ_V4$SSP585 <- 0
+Occ_V4$SSP126 <- apply(X = Occ_V4[,3:5], MARGIN = 1, FUN = sum)
+Occ_V4$SSP126[Occ_V4$SSP126 >= 1] <- 1
+Occ_V4$SSP585 <- apply(X = Occ_V4[,6:8], MARGIN = 1, FUN = sum)
+Occ_V4$SSP585[Occ_V4$SSP585 >= 1] <- 1
+Occ_V4$SSP126[Occ_V4$SSP126 == 0] <- NA
+Occ_V4$SSP585[Occ_V4$SSP585 == 0] <- NA
+datOcc126Yr_V4 <- cbind(datOcc126Yr_V4$lon, datOcc126Yr_V4$lat, 
+                        datOcc126Yr_V4[,3:dim(datOcc126Yr_V4)[2]] * Occ_V4$SSP126)
+datOcc126Yr_V4 <- na.omit(datOcc126Yr_V4)
+datOcc585Yr_V4 <- cbind(datOcc585Yr_V4$lon, datOcc585Yr_V4$lat, 
+                        datOcc585Yr_V4[,3:dim(datOcc585Yr_V4)[2]] * Occ_V4$SSP585)
+datOcc585Yr_V4 <- na.omit(datOcc585Yr_V4)
 
-datOccHYr_V3$lon[datOccHYr_V3$lon < lonA | datOccHYr_V3$lon > lonB] <- NA
-datOccHYr_V3$lat[datOccHYr_V3$lat > latA | datOccHYr_V3$lat < latB] <- NA
-datOcc126_1040Yr_V3$lon[datOcc126_1040Yr_V3$lon < lonA | datOcc126_1040Yr_V3$lon > lonB] <- NA
-datOcc126_1040Yr_V3$lat[datOcc126_1040Yr_V3$lat > latA | datOcc126_1040Yr_V3$lat < latB] <- NA
-datOcc126_4070Yr_V3$lon[datOcc126_4070Yr_V3$lon < lonA | datOcc126_4070Yr_V3$lon > lonB] <- NA
-datOcc126_4070Yr_V3$lat[datOcc126_4070Yr_V3$lat > latA | datOcc126_4070Yr_V3$lat < latB] <- NA
-datOcc126_7000Yr_V3$lon[datOcc126_7000Yr_V3$lon < lonA | datOcc126_7000Yr_V3$lon > lonB] <- NA
-datOcc126_7000Yr_V3$lat[datOcc126_7000Yr_V3$lat > latA | datOcc126_7000Yr_V3$lat < latB] <- NA
-datOcc585_1040Yr_V3$lon[datOcc585_1040Yr_V3$lon < lonA | datOcc585_1040Yr_V3$lon > lonB] <- NA
-datOcc585_1040Yr_V3$lat[datOcc585_1040Yr_V3$lat > latA | datOcc585_1040Yr_V3$lat < latB] <- NA
-datOcc585_4070Yr_V3$lon[datOcc585_4070Yr_V3$lon < lonA | datOcc585_4070Yr_V3$lon > lonB] <- NA
-datOcc585_4070Yr_V3$lat[datOcc585_4070Yr_V3$lat > latA | datOcc585_4070Yr_V3$lat < latB] <- NA
-datOcc585_7000Yr_V3$lon[datOcc585_7000Yr_V3$lon < lonA | datOcc585_7000Yr_V3$lon > lonB] <- NA
-datOcc585_7000Yr_V3$lat[datOcc585_7000Yr_V3$lat > latA | datOcc585_7000Yr_V3$lat < latB] <- NA
-datOccHYr_V3 <- na.omit(datOccHYr_V3)
-datOcc126_1040Yr_V3 <- na.omit(datOcc126_1040Yr_V3)
-datOcc126_4070Yr_V3 <- na.omit(datOcc126_4070Yr_V3)
-datOcc126_7000Yr_V3 <- na.omit(datOcc126_7000Yr_V3)
-datOcc585_1040Yr_V3 <- na.omit(datOcc585_1040Yr_V3)
-datOcc585_4070Yr_V3 <- na.omit(datOcc585_4070Yr_V3)
-datOcc585_7000Yr_V3 <- na.omit(datOcc585_7000Yr_V3)
+# . . 4.4.4 Statistics ---------------------------------------------------------
+# . . . 4.4.4.1 Model Mu ---
+for (i in 1:length(loc2)){
+  # Var1
+  dat <- select(datOcc126Yr_V1, c(paste0(a[i], '_', yr)))
+  datOcc126_V1[i,] <- apply(dat, MARGIN = 2, FUN = mean) %>% t() 
+  dat <- select(datOcc585Yr_V1, c(paste0(a[i], '_', yr)))
+  datOcc585_V1[i,] <- apply(dat, MARGIN = 2, FUN = mean) %>% t() 
+  
+  # Var3
+  dat <- select(datOcc126Yr_V3, c(paste0(a[i], '_', yr)))
+  datOcc126_V3[i,] <- apply(dat, MARGIN = 2, FUN = mean) %>% t() 
+  dat <- select(datOcc585Yr_V3, c(paste0(a[i], '_', yr)))
+  datOcc585_V3[i,] <- apply(dat, MARGIN = 2, FUN = mean) %>% t() 
+  
+  # Var4
+  dat <- select(datOcc126Yr_V4, c(paste0(a[i], '_', yr)))
+  datOcc126_V4[i,] <- apply(dat, MARGIN = 2, FUN = mean) %>% t() 
+  dat <- select(datOcc585Yr_V4, c(paste0(a[i], '_', yr)))
+  datOcc585_V4[i,] <- apply(dat, MARGIN = 2, FUN = mean) %>% t() 
+  
+}
 
-datOccHYr_V4$lon[datOccHYr_V4$lon < lonA | datOccHYr_V4$lon > lonB] <- NA
-datOccHYr_V4$lat[datOccHYr_V4$lat > latA | datOccHYr_V4$lat < latB] <- NA
-datOcc126_1040Yr_V4$lon[datOcc126_1040Yr_V4$lon < lonA | datOcc126_1040Yr_V4$lon > lonB] <- NA
-datOcc126_1040Yr_V4$lat[datOcc126_1040Yr_V4$lat > latA | datOcc126_1040Yr_V4$lat < latB] <- NA
-datOcc126_4070Yr_V4$lon[datOcc126_4070Yr_V4$lon < lonA | datOcc126_4070Yr_V4$lon > lonB] <- NA
-datOcc126_4070Yr_V4$lat[datOcc126_4070Yr_V4$lat > latA | datOcc126_4070Yr_V4$lat < latB] <- NA
-datOcc126_7000Yr_V4$lon[datOcc126_7000Yr_V4$lon < lonA | datOcc126_7000Yr_V4$lon > lonB] <- NA
-datOcc126_7000Yr_V4$lat[datOcc126_7000Yr_V4$lat > latA | datOcc126_7000Yr_V4$lat < latB] <- NA
-datOcc585_1040Yr_V4$lon[datOcc585_1040Yr_V4$lon < lonA | datOcc585_1040Yr_V4$lon > lonB] <- NA
-datOcc585_1040Yr_V4$lat[datOcc585_1040Yr_V4$lat > latA | datOcc585_1040Yr_V4$lat < latB] <- NA
-datOcc585_4070Yr_V4$lon[datOcc585_4070Yr_V4$lon < lonA | datOcc585_4070Yr_V4$lon > lonB] <- NA
-datOcc585_4070Yr_V4$lat[datOcc585_4070Yr_V4$lat > latA | datOcc585_4070Yr_V4$lat < latB] <- NA
-datOcc585_7000Yr_V4$lon[datOcc585_7000Yr_V4$lon < lonA | datOcc585_7000Yr_V4$lon > lonB] <- NA
-datOcc585_7000Yr_V4$lat[datOcc585_7000Yr_V4$lat > latA | datOcc585_7000Yr_V4$lat < latB] <- NA
-datOccHYr_V4 <- na.omit(datOccHYr_V4)
-datOcc126_1040Yr_V4 <- na.omit(datOcc126_1040Yr_V4)
-datOcc126_4070Yr_V4 <- na.omit(datOcc126_4070Yr_V4)
-datOcc126_7000Yr_V4 <- na.omit(datOcc126_7000Yr_V4)
-datOcc585_1040Yr_V4 <- na.omit(datOcc585_1040Yr_V4)
-datOcc585_4070Yr_V4 <- na.omit(datOcc585_4070Yr_V4)
-datOcc585_7000Yr_V4 <- na.omit(datOcc585_7000Yr_V4)
+# . . . 4.4.4.1 Model Moving average ---
+# Var 1
+datOcc126_V1 <- apply(X = datOcc126_V1, MARGIN = 1, FUN=zoo::rollmean,
+                      k = 10, align = 'center', fill = NA) %>%
+  t()
+datOcc585_V1 <- apply(X = datOcc585_V1, MARGIN = 1, FUN=zoo::rollmean,
+                      k = 10, align = 'center', fill = NA) %>%
+  t()
+# Var 3
+datOcc126_V3 <- apply(X = datOcc126_V3, MARGIN = 1, FUN=zoo::rollmean,
+                      k = 10, align = 'center', fill = NA) %>%
+  t()
+datOcc585_V3 <- apply(X = datOcc585_V3, MARGIN = 1, FUN=zoo::rollmean,
+                      k = 10, align = 'center', fill = NA) %>%
+  t()
+# Var 4
+datOcc126_V4 <- apply(X = datOcc126_V4, MARGIN = 1, FUN=zoo::rollmean,
+                      k = 10, align = 'center', fill = NA) %>%
+  t()
+datOcc585_V4 <- apply(X = datOcc585_V4, MARGIN = 1, FUN=zoo::rollmean,
+                      k = 10, align = 'center', fill = NA) %>%
+  t()
 
-# . . 4.4.4 Formatting ---------------------------------------------------------
-# Compute yearly averages
-datOccHYr_V1 <- datOccHYr_V1 %>%
-  gather(key = 'Year', value = 'Occurrences', -c(lon, lat)) %>%
-  group_by(Year) %>%
-  summarise_at(vars(Occurrences), list(name = mean)) %>%
-  arrange(Year)
-datOcc126_1040Yr_V1 <- datOcc126_1040Yr_V1 %>%
-  gather(key = 'Year', value = 'Occurrences', -c(lon, lat)) %>%
-  group_by(Year) %>%
-  summarise_at(vars(Occurrences), list(name = mean)) %>%
-  arrange(Year)
-datOcc126_4070Yr_V1 <- datOcc126_4070Yr_V1 %>%
-  gather(key = 'Year', value = 'Occurrences', -c(lon, lat)) %>%
-  group_by(Year) %>%
-  summarise_at(vars(Occurrences), list(name = mean)) %>%
-  arrange(Year)
-datOcc126_7000Yr_V1 <- datOcc126_7000Yr_V1 %>%
-  gather(key = 'Year', value = 'Occurrences', -c(lon, lat)) %>%
-  group_by(Year) %>%
-  summarise_at(vars(Occurrences), list(name = mean)) %>%
-  arrange(Year)
-datOcc585_1040Yr_V1 <- datOcc585_1040Yr_V1 %>%
-  gather(key = 'Year', value = 'Occurrences', -c(lon, lat)) %>%
-  group_by(Year) %>%
-  summarise_at(vars(Occurrences), list(name = mean)) %>%
-  arrange(Year)
-datOcc585_4070Yr_V1 <- datOcc585_4070Yr_V1 %>%
-  gather(key = 'Year', value = 'Occurrences', -c(lon, lat)) %>%
-  group_by(Year) %>%
-  summarise_at(vars(Occurrences), list(name = mean)) %>%
-  arrange(Year)
-datOcc585_7000Yr_V1 <- datOcc585_7000Yr_V1 %>%
-  gather(key = 'Year', value = 'Occurrences', -c(lon, lat)) %>%
-  group_by(Year) %>%
-  summarise_at(vars(Occurrences), list(name = mean)) %>%
-  arrange(Year)
+
+# . . . 4.4.4.3 Standard deviation & Overall Mu ---
+# Var1
+sd <- apply(X = datOcc126_V1, MARGIN = 2, FUN = sd)
+mu <- apply(X = datOcc126_V1, MARGIN = 2, FUN = mean)
+datOcc_V1 <- tibble('Year' = yr, 'Mean' = mu, 'SdPlus' = mu + sd, 'SdNeg' = mu - sd,
+                    'Scenario' = 'SSP126')
+sd <- apply(X = datOcc585_V1, MARGIN = 2, FUN = sd)
+mu <- apply(X = datOcc585_V1, MARGIN = 2, FUN = mean)
+dat <- tibble('Year' = yr, 'Mean' = mu, 'SdPlus' = mu + sd, 'SdNeg' = mu - sd,
+              'Scenario' = 'SSP585')
+datOcc_V1 <- datOcc_V1 %>%
+  rbind(dat)
+
 # Var3
-datOccHYr_V3 <- datOccHYr_V3 %>%
-  gather(key = 'Year', value = 'Occurrences', -c(lon, lat)) %>%
-  group_by(Year) %>%
-  summarise_at(vars(Occurrences), list(name = mean)) %>%
-  arrange(Year)
-datOcc126_1040Yr_V3 <- datOcc126_1040Yr_V3 %>%
-  gather(key = 'Year', value = 'Occurrences', -c(lon, lat)) %>%
-  group_by(Year) %>%
-  summarise_at(vars(Occurrences), list(name = mean)) %>%
-  arrange(Year)
-datOcc126_4070Yr_V3 <- datOcc126_4070Yr_V3 %>%
-  gather(key = 'Year', value = 'Occurrences', -c(lon, lat)) %>%
-  group_by(Year) %>%
-  summarise_at(vars(Occurrences), list(name = mean)) %>%
-  arrange(Year)
-datOcc126_7000Yr_V3 <- datOcc126_7000Yr_V3 %>%
-  gather(key = 'Year', value = 'Occurrences', -c(lon, lat)) %>%
-  group_by(Year) %>%
-  summarise_at(vars(Occurrences), list(name = mean)) %>%
-  arrange(Year)
-datOcc585_1040Yr_V3 <- datOcc585_1040Yr_V3 %>%
-  gather(key = 'Year', value = 'Occurrences', -c(lon, lat)) %>%
-  group_by(Year) %>%
-  summarise_at(vars(Occurrences), list(name = mean)) %>%
-  arrange(Year)
-datOcc585_4070Yr_V3 <- datOcc585_4070Yr_V3 %>%
-  gather(key = 'Year', value = 'Occurrences', -c(lon, lat)) %>%
-  group_by(Year) %>%
-  summarise_at(vars(Occurrences), list(name = mean)) %>%
-  arrange(Year)
-datOcc585_7000Yr_V3 <- datOcc585_7000Yr_V3 %>%
-  gather(key = 'Year', value = 'Occurrences', -c(lon, lat)) %>%
-  group_by(Year) %>%
-  summarise_at(vars(Occurrences), list(name = mean)) %>%
-  arrange(Year)
+sd <- apply(X = datOcc126_V3, MARGIN = 2, FUN = sd)
+mu <- apply(X = datOcc126_V3, MARGIN = 2, FUN = mean)
+datOcc_V3 <- tibble('Year' = yr, 'Mean' = mu, 'SdPlus' = mu + sd, 'SdNeg' = mu - sd,
+                    'Scenario' = 'SSP126')
+sd <- apply(X = datOcc585_V3, MARGIN = 2, FUN = sd)
+mu <- apply(X = datOcc585_V3, MARGIN = 2, FUN = mean)
+dat <- tibble('Year' = yr, 'Mean' = mu, 'SdPlus' = mu + sd, 'SdNeg' = mu - sd,
+              'Scenario' = 'SSP585')
+datOcc_V3 <- datOcc_V3 %>%
+  rbind(dat)
+
 # Var4
-datOccHYr_V4 <- datOccHYr_V4 %>%
-  gather(key = 'Year', value = 'Occurrences', -c(lon, lat)) %>%
-  group_by(Year) %>%
-  summarise_at(vars(Occurrences), list(name = mean)) %>%
-  arrange(Year)
-datOcc126_1040Yr_V4 <- datOcc126_1040Yr_V4 %>%
-  gather(key = 'Year', value = 'Occurrences', -c(lon, lat)) %>%
-  group_by(Year) %>%
-  summarise_at(vars(Occurrences), list(name = mean)) %>%
-  arrange(Year)
-datOcc126_4070Yr_V4 <- datOcc126_4070Yr_V4 %>%
-  gather(key = 'Year', value = 'Occurrences', -c(lon, lat)) %>%
-  group_by(Year) %>%
-  summarise_at(vars(Occurrences), list(name = mean)) %>%
-  arrange(Year)
-datOcc126_7000Yr_V4 <- datOcc126_7000Yr_V4 %>%
-  gather(key = 'Year', value = 'Occurrences', -c(lon, lat)) %>%
-  group_by(Year) %>%
-  summarise_at(vars(Occurrences), list(name = mean)) %>%
-  arrange(Year)
-datOcc585_1040Yr_V4 <- datOcc585_1040Yr_V4 %>%
-  gather(key = 'Year', value = 'Occurrences', -c(lon, lat)) %>%
-  group_by(Year) %>%
-  summarise_at(vars(Occurrences), list(name = mean)) %>%
-  arrange(Year)
-datOcc585_4070Yr_V4 <- datOcc585_4070Yr_V4 %>%
-  gather(key = 'Year', value = 'Occurrences', -c(lon, lat)) %>%
-  group_by(Year) %>%
-  summarise_at(vars(Occurrences), list(name = mean)) %>%
-  arrange(Year)
-datOcc585_7000Yr_V4 <- datOcc585_7000Yr_V4 %>%
-  gather(key = 'Year', value = 'Occurrences', -c(lon, lat)) %>%
-  group_by(Year) %>%
-  summarise_at(vars(Occurrences), list(name = mean)) %>%
-  arrange(Year)
-
-# Find the difference in time periods
-datOcc126_1040Yr_V1$name <- datOcc126_1040Yr_V1$name - datOccHYr_V1$name
-datOcc126_4070Yr_V1$name <- datOcc126_4070Yr_V1$name - datOccHYr_V1$name
-datOcc126_7000Yr_V1$name <- datOcc126_7000Yr_V1$name - datOccHYr_V1$name
-datOcc585_1040Yr_V1$name <- datOcc585_1040Yr_V1$name - datOccHYr_V1$name
-datOcc585_4070Yr_V1$name <- datOcc585_4070Yr_V1$name - datOccHYr_V1$name
-datOcc585_7000Yr_V1$name <- datOcc585_7000Yr_V1$name - datOccHYr_V1$name
-
-# Find the difference in time periods
-datOcc126_1040Yr_V3$name <- datOcc126_1040Yr_V3$name - datOccHYr_V3$name
-datOcc126_4070Yr_V3$name <- datOcc126_4070Yr_V3$name - datOccHYr_V3$name
-datOcc126_7000Yr_V3$name <- datOcc126_7000Yr_V3$name - datOccHYr_V3$name
-datOcc585_1040Yr_V3$name <- datOcc585_1040Yr_V3$name - datOccHYr_V3$name
-datOcc585_4070Yr_V3$name <- datOcc585_4070Yr_V3$name - datOccHYr_V3$name
-datOcc585_7000Yr_V3$name <- datOcc585_7000Yr_V3$name - datOccHYr_V3$name
-
-# Find the difference in time periods
-datOcc126_1040Yr_V4$name <- datOcc126_1040Yr_V4$name - datOccHYr_V4$name
-datOcc126_4070Yr_V4$name <- datOcc126_4070Yr_V4$name - datOccHYr_V4$name
-datOcc126_7000Yr_V4$name <- datOcc126_7000Yr_V4$name - datOccHYr_V4$name
-datOcc585_1040Yr_V4$name <- datOcc585_1040Yr_V4$name - datOccHYr_V4$name
-datOcc585_4070Yr_V4$name <- datOcc585_4070Yr_V4$name - datOccHYr_V4$name
-datOcc585_7000Yr_V4$name <- datOcc585_7000Yr_V4$name - datOccHYr_V4$name
-
-# Combine
-dat <- 
-  # cbind(datOccHYr_V1, datOccHYr_V3[,2], datOccHYr_V4[,2], 
-  #            TimePeriod = 'Historic', Scenario = 'Historic') %>%
-  # rbind(cbind(datOcc126_1040Yr_V1, datOcc126_1040Yr_V3[,2], datOcc126_1040Yr_V4[,2],
-  #             TimePeriod = 'Early-Century', Scenario ='SSP126')) %>%
-  cbind(datOcc126_1040Yr_V1, datOcc126_1040Yr_V3[,2], datOcc126_1040Yr_V4[,2],
-        TimePeriod = 'Early-Century', Scenario ='SSP126') %>%
-  rbind(cbind(datOcc126_4070Yr_V1, datOcc126_4070Yr_V3[,2], datOcc126_4070Yr_V4[,2],  
-              TimePeriod = 'Mid-Century', Scenario ='SSP126')) %>%
-  rbind(cbind(datOcc126_7000Yr_V1, datOcc126_7000Yr_V3[,2], datOcc126_7000Yr_V4[,2],  
-              TimePeriod = 'Late-Century', Scenario ='SSP126')) %>%
-  rbind(cbind(datOcc585_1040Yr_V1, datOcc585_1040Yr_V3[,2], datOcc585_1040Yr_V4[,2],  
-              TimePeriod = 'Early-Century', Scenario ='SSP585')) %>%
-  rbind(cbind(datOcc585_4070Yr_V1, datOcc585_4070Yr_V3[,2], datOcc585_4070Yr_V4[,2], 
-              TimePeriod = 'Mid-Century', Scenario ='SSP585')) %>%
-  rbind(cbind(datOcc585_7000Yr_V1, datOcc585_7000Yr_V3[,2], datOcc585_7000Yr_V4[,2],  
-              TimePeriod = 'Late-Century', Scenario ='SSP585'))
-colnames(dat) <- c('Year', var[1],var[3],var[4], 'TimePeriod', 'Scenario')  
-dat$TimePeriod <- factor(dat$TimePeriod,
-                         levels = c('Historic', 'Early-Century',
-                                    'Mid-Century','Late-Century'))
+sd <- apply(X = datOcc126_V4, MARGIN = 2, FUN = sd)
+mu <- apply(X = datOcc126_V4, MARGIN = 2, FUN = mean)
+datOcc_V4 <- tibble('Year' = yr, 'Mean' = mu, 'SdPlus' = mu + sd, 'SdNeg' = mu - sd,
+                    'Scenario' = 'SSP126')
+sd <- apply(X = datOcc585_V4, MARGIN = 2, FUN = sd)
+mu <- apply(X = datOcc585_V4, MARGIN = 2, FUN = mean)
+dat <- tibble('Year' = yr, 'Mean' = mu, 'SdPlus' = mu + sd, 'SdNeg' = mu - sd,
+              'Scenario' = 'SSP585')
+datOcc_V4 <- datOcc_V4 %>%
+  rbind(dat)
 
 # . . 4.4.5 Plotting -----------------------------------------------------------
-# Var1 v Var4  SSP126
-main <- ggplot(subset(dat, Scenario != 'SSP585'), 
-               aes(x = tasmax, y = mrsos, color = TimePeriod)) +
-  theme_bw() +
-  # geom_smooth(method = 'lm', se = FALSE)+
-  geom_point(alpha = 0.7) +
-  labs(title = NULL, x = 'Heatwaves', y = 'Flash Drought') +
-  theme(legend.position="NULL") +
-  scale_color_discrete(name = "Time Period")
-denX <- axis_canvas(main, axis = "x") +
-  geom_density(data = subset(dat, Scenario != 'SSP585'), 
-               aes(x = tasmax, fill = TimePeriod),
-               alpha = 0.7, size = 0.2)
-denY <- axis_canvas(main, axis = "y", coord_flip = TRUE) +
-  geom_density(data = subset(dat, Scenario != 'SSP585'), 
-               aes(x = mrsos, fill = TimePeriod),
-               alpha = 0.7, size = 0.2) +
-  coord_flip()
-p1 <- insert_xaxis_grob(main, denX, grid::unit(.2, "null"), position = "top")
-p1 <- insert_yaxis_grob(p1, denY, grid::unit(.2, "null"), position = "right")
+ggplot(data = datOcc_V1, aes(x = Year, y = Mean, ymin=SdNeg, ymax=SdPlus, fill = factor(Scenario))) +
+  geom_line() +
+  geom_ribbon(alpha=0.3)
+ggplot(data = datOcc_V3, aes(x = Year, y = Mean, ymin=SdNeg, ymax=SdPlus, fill = factor(Scenario))) +
+  geom_line() +
+  geom_ribbon(alpha=0.3)
+ggplot(data = datOcc_V4, aes(x = Year, y = Mean, ymin=SdNeg, ymax=SdPlus, fill = factor(Scenario))) +
+  geom_line() +
+  geom_ribbon(alpha=0.3)
 
-# Var3 v Var4    SSP126
-main <- ggplot(subset(dat, Scenario != 'SSP585'), 
-               aes(x = pr, y = mrsos, color = TimePeriod)) +
+a <- paste0('Occurrences of ', varT[1])
+p1 <- ggplot(data = datOcc_V1, aes(x = Year, y = Mean, ymin=SdNeg, ymax=SdPlus, 
+                                   fill = factor(Scenario))) +
   theme_bw() +
-  # geom_smooth(method = 'lm', se = FALSE)+
-  geom_point(alpha = 0.7) +
-  labs(title = NULL, x = 'Extreme Precipitation', y = 'Flash Drought') +
-  theme(legend.position='NULL') 
-denX <- axis_canvas(main, axis = "x") +
-  geom_density(data = subset(dat, Scenario != 'SSP585'), 
-               aes(x = pr, fill = TimePeriod),
-               alpha = 0.7, size = 0.2)
-denY <- axis_canvas(main, axis = "y", coord_flip = TRUE) +
-  geom_density(data = subset(dat, Scenario != 'SSP585'), 
-               aes(x = mrsos, fill = TimePeriod),
-               alpha = 0.7, size = 0.2) +
-  coord_flip()
-p2 <- insert_xaxis_grob(main, denX, grid::unit(.2, "null"), position = "top")
-p2 <- insert_yaxis_grob(p2, denY, grid::unit(.2, "null"), position = "right")
+  geom_ribbon(alpha=0.3) +
+  geom_line(aes(color =  factor(Scenario))) +
+  scale_fill_manual(values = c('Historic'='#004f00','SSP126'='#173c66',
+                               'SSP585' = '#951b1e'), name = 'Scenario') +
+  scale_color_manual(values = c('Historic'='#004f00','SSP126'='#173c66',
+                                'SSP585' = '#951b1e'), name = 'Scenario') +
+  geom_vline(aes(xintercept = 2010)) +
+  geom_vline(aes(xintercept = 2040)) +
+  geom_vline(aes(xintercept = 2070)) +
+  labs(title = a, x = NULL, y = 'Occurrences') +
+  theme(legend.position="bottom")
 
-# Var1 v Var3   SSP126
-main <- ggplot(subset(dat, Scenario != 'SSP585'), 
-               aes(x = pr, y = tasmax, color = TimePeriod)) +
+a <- paste0('Occurrences of ', varT[3])
+p2 <- ggplot(data = datOcc_V3, aes(x = Year, y = Mean, ymin=SdNeg, ymax=SdPlus, 
+                                   fill = factor(Scenario))) +
   theme_bw() +
-  # geom_smooth(method = 'lm', se = FALSE)+
-  geom_point(alpha = 0.7) +
-  labs(title = NULL, x = 'Extreme Precipitation', y = 'Heatwaves') +
-  theme(legend.position='NULL') 
-denX <- axis_canvas(main, axis = "x") +
-  geom_density(data = subset(dat, Scenario != 'SSP585'), 
-               aes(x = pr, fill = TimePeriod),
-               alpha = 0.7, size = 0.2)
-denY <- axis_canvas(main, axis = "y", coord_flip = TRUE) +
-  geom_density(data = subset(dat, Scenario != 'SSP585'), 
-               aes(x = tasmax, fill = TimePeriod),
-               alpha = 0.7, size = 0.2) +
-  coord_flip()
-p3 <- insert_xaxis_grob(main, denX, grid::unit(.2, "null"), position = "top")
-p3 <- insert_yaxis_grob(p3, denY, grid::unit(.2, "null"), position = "right")
-# Var1 v Var4  SSP585
-main <- ggplot(subset(dat, Scenario != 'SSP126'), 
-               aes(x = tasmax, y = mrsos, color = TimePeriod)) +
-  theme_bw() +
-  # geom_smooth(method = 'lm', se = FALSE)+
-  geom_point(alpha = 0.7) +
-  labs(title = NULL, x = 'Heatwaves', y = 'Flash Drought') +
-  theme(legend.position='NULL') +
-  scale_color_discrete(name = "Time Period")
-denX <- axis_canvas(main, axis = "x") +
-  geom_density(data = subset(dat, Scenario != 'SSP126'), 
-               aes(x = tasmax, fill = TimePeriod),
-               alpha = 0.7, size = 0.2)
-denY <- axis_canvas(main, axis = "y", coord_flip = TRUE) +
-  geom_density(data = subset(dat, Scenario != 'SSP126'), 
-               aes(x = mrsos, fill = TimePeriod),
-               alpha = 0.7, size = 0.2) +
-  coord_flip()
-p4 <- insert_xaxis_grob(main, denX, grid::unit(.2, "null"), position = "top")
-p4 <- insert_yaxis_grob(p4, denY, grid::unit(.2, "null"), position = "right")
-ggdraw(p4)
-# Var3 v Var4    SSP585
-main <- ggplot(subset(dat, Scenario != 'SSP126'), 
-               aes(x = pr, y = mrsos, color = TimePeriod)) +
-  theme_bw() +
-  # geom_smooth(method = 'lm', se = FALSE)+
-  geom_point(alpha = 0.7) +
-  labs(title = NULL, x = 'Extreme Precipitation', y = 'Flash Drought') +
-  theme(legend.position='NULL') 
-denX <- axis_canvas(main, axis = "x") +
-  geom_density(data = subset(dat, Scenario != 'SSP126'), 
-               aes(x = pr, fill = TimePeriod),
-               alpha = 0.7, size = 0.2)
-denY <- axis_canvas(main, axis = "y", coord_flip = TRUE) +
-  geom_density(data = subset(dat, Scenario != 'SSP126'), 
-               aes(x = mrsos, fill = TimePeriod),
-               alpha = 0.7, size = 0.2) +
-  coord_flip()
-p5 <- insert_xaxis_grob(main, denX, grid::unit(.2, "null"), position = "top")
-p5 <- insert_yaxis_grob(p5, denY, grid::unit(.2, "null"), position = "right")
+  geom_ribbon(alpha=0.3) +
+  geom_line(aes(color =  factor(Scenario))) +
+  scale_fill_manual(values = c('Historic'='#004f00','SSP126'='#173c66',
+                               'SSP585' = '#951b1e'), name = 'Scenario') +
+  scale_color_manual(values = c('Historic'='#004f00','SSP126'='#173c66',
+                                'SSP585' = '#951b1e'), name = 'Scenario') +
+  geom_vline(aes(xintercept = 2010)) +
+  geom_vline(aes(xintercept = 2040)) +
+  geom_vline(aes(xintercept = 2070)) +
+  labs(title = a, x = NULL, y = 'Occurrences') +
+  theme(legend.position="NULL")
 
-# Var1 v Var3   SSP585
-main <- ggplot(subset(dat, Scenario != 'SSP126'), 
-               aes(x = pr, y = tasmax, color = TimePeriod)) +
+a <- paste0('Occurrences of ', varT[4])
+p3 <- ggplot(data = datOcc_V4, aes(x = Year, y = Mean, ymin=SdNeg, ymax=SdPlus, 
+                                   fill = factor(Scenario))) +
   theme_bw() +
-  # geom_smooth(method = 'lm', se = FALSE)+
-  geom_point(alpha = 0.7) +
-  labs(title = NULL, x = 'Extreme Precipitation', y = 'Heatwaves') +
-  theme(legend.position='NULL') 
-denX <- axis_canvas(main, axis = "x") +
-  geom_density(data = subset(dat, Scenario != 'SSP126'), 
-               aes(x = pr, fill = TimePeriod),
-               alpha = 0.7, size = 0.2)
-denY <- axis_canvas(main, axis = "y", coord_flip = TRUE) +
-  geom_density(data = subset(dat, Scenario != 'SSP126'), 
-               aes(x = tasmax, fill = TimePeriod),
-               alpha = 0.7, size = 0.2) +
-  coord_flip()
-p6 <- insert_xaxis_grob(main, denX, grid::unit(.2, "null"), position = "top")
-p6 <- insert_yaxis_grob(p6, denY, grid::unit(.2, "null"), position = "right")
+  geom_ribbon(alpha=0.3) +
+  geom_line(aes(color =  factor(Scenario))) +
+  scale_fill_manual(values = c('Historic'='#004f00','SSP126'='#173c66',
+                               'SSP585' = '#951b1e'), name = 'Scenario') +
+  scale_color_manual(values = c('Historic'='#004f00','SSP126'='#173c66',
+                                'SSP585' = '#951b1e'), name = 'Scenario') +
+  geom_vline(aes(xintercept = 2010)) +
+  geom_vline(aes(xintercept = 2040)) +
+  geom_vline(aes(xintercept = 2070)) +
+  labs(title = a, x = NULL, y = 'Occurrences') +
+  theme(legend.position="NULL")
 
-main <- ggplot(subset(dat, Scenario != 'SSP585'), 
-               aes(x = tasmax, y = mrsos, color = TimePeriod)) +
-  theme_bw() +
-  # geom_smooth(method = 'lm', se = FALSE)+
-  geom_point(alpha = 0.7) +
-  labs(title = NULL, x = 'Heatwaves', y = 'Flash Drought') +
-  theme(legend.position="bottom") +
-  scale_color_discrete(name = "Time Period")
-myLegend <- get_legend(main, position = 'bottom') %>% 
+myLegend <- get_legend(p1, position = 'bottom') %>% 
   as_ggplot()
+p1 <- p1 + theme(legend.position = "NULL")
 
-F1 <- plot_grid(p1, p4,
-                p2, p5,
-                p3, p6,
+F1 <- plot_grid(p1,
+                p2,
+                p3,
                 nrow = 3,
-                ncol = 2,
                 rel_widths = c(1,1,1))
-title <- ggdraw() + draw_label(paste0('Significant Change in extreme global events'), fontface='bold')
+title <- ggdraw() + draw_label(paste0('Significant Global Change '), fontface='bold')
 F1 <- plot_grid(title,
                 F1,
                 myLegend,
                 rel_heights = c(.05,1, 0.05),
                 # rel_heights = c(0.05,1),
                 nrow = 3)
-ggsave(F1, filename = paste0(fileloc1,'Results/','OCCYr_CHANGE_', timeSpan, 
-                             'AllSig', ".tiff"),
+ggsave(F1, filename = paste0(fileloc1,'Results/FD/','OCCYr_TIMESER_', timeSpan, 
+                             'Significant', ".tiff"),
        width = 9, height = 6, dpi = 350, bg='white')
 
-# . . 4.4.6 Remove -------------------------------------------------------------
-rm(list=ls()[! ls() %in% c('fileloc1', 'loc1', 'loc2', 'lat1', 'lat2','lon1','lon2',
-                           'location','locTitle','mFileH','mFile126','mFile585',
-                           'var', 'varT', 'baseData', 'timeSpan',
-                           'get_legend','as_ggplot','mean_cl_quantile','acf2')])
-# Part V Month Occurrences #####################################################
-# . 5.1 Time Series ------------------------------------------------------------
-# . . 5.1.1 Variables Needed ---------------------------------------------------
-var <- c('tasmax', 'tasmin', 'pr', 'mrsos')
-varT <- c('Heatwaves','Coldwaves','Extreme Precipitation','Flash Drought')
-levelMo <- c('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-             'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec')
-lonA <- lon1[location]
-lonB <- lon2[location]
-latA <- lat1[location]
-latB <- lat2[location]
-
-# . . 5.1.2 Opening Files Needed -----------------------------------------------
-datOccHMo_V1 <- read_csv(paste0(fileloc1, loc1[1], 'Results/', 
-                                'OCCMo_DAY_', var[1],'_Hist_8010','.csv'),
-                         col_names = TRUE, cols(.default = col_double()))
-datOcc126_1040Mo_V1 <- read_csv(paste0(fileloc1, loc1[2], 'Results/',
-                                       'OCCMo_DAY_', var[1],'_SSP126_1040','.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
-datOcc126_4070Mo_V1 <- read_csv(paste0(fileloc1, loc1[2], 'Results/',
-                                       'OCCMo_DAY_', var[1],'_SSP126_4070','.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
-datOcc126_7000Mo_V1 <- read_csv(paste0(fileloc1, loc1[2], 'Results/',
-                                       'OCCMo_DAY_', var[1],'_SSP126_7000','.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
-datOcc585_1040Mo_V1 <- read_csv(paste0(fileloc1, loc1[3], 'Results/',
-                                       'OCCMo_DAY_', var[1],'_SSP585_1040','.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
-datOcc585_4070Mo_V1 <- read_csv(paste0(fileloc1, loc1[3], 'Results/',
-                                       'OCCMo_DAY_', var[1],'_SSP585_4070','.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
-datOcc585_7000Mo_V1 <- read_csv(paste0(fileloc1, loc1[3], 'Results/',
-                                       'OCCMo_DAY_', var[1],'_SSP585_7000','.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
-
-datOccHMo_V3 <- read_csv(paste0(fileloc1, loc1[1], 'Results/', 
-                                'OCCMo_DAY_', var[3],'_Hist_8010','.csv'),
-                         col_names = TRUE, cols(.default = col_double()))
-datOcc126_1040Mo_V3 <- read_csv(paste0(fileloc1, loc1[2], 'Results/',
-                                       'OCCMo_DAY_', var[3],'_SSP126_1040','.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
-datOcc126_4070Mo_V3 <- read_csv(paste0(fileloc1, loc1[2], 'Results/',
-                                       'OCCMo_DAY_', var[3],'_SSP126_4070','.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
-datOcc126_7000Mo_V3 <- read_csv(paste0(fileloc1, loc1[2], 'Results/',
-                                       'OCCMo_DAY_', var[3],'_SSP126_7000','.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
-datOcc585_1040Mo_V3 <- read_csv(paste0(fileloc1, loc1[3], 'Results/',
-                                       'OCCMo_DAY_', var[3],'_SSP585_1040','.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
-datOcc585_4070Mo_V3 <- read_csv(paste0(fileloc1, loc1[3], 'Results/',
-                                       'OCCMo_DAY_', var[3],'_SSP585_4070','.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
-datOcc585_7000Mo_V3 <- read_csv(paste0(fileloc1, loc1[3], 'Results/',
-                                       'OCCMo_DAY_', var[3],'_SSP585_7000','.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
-
-datOccHMo_V4 <- read_csv(paste0(fileloc1, loc1[1], 'Results/', 
-                                'OCCMo_DAY_', var[4],'_Hist_8010','.csv'),
-                         col_names = TRUE, cols(.default = col_double()))
-datOcc126_1040Mo_V4 <- read_csv(paste0(fileloc1, loc1[2], 'Results/',
-                                       'OCCMo_DAY_', var[4],'_SSP126_1040','.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
-datOcc126_4070Mo_V4 <- read_csv(paste0(fileloc1, loc1[2], 'Results/',
-                                       'OCCMo_DAY_', var[4],'_SSP126_4070','.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
-datOcc126_7000Mo_V4 <- read_csv(paste0(fileloc1, loc1[2], 'Results/',
-                                       'OCCMo_DAY_', var[4],'_SSP126_7000','.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
-datOcc585_1040Mo_V4 <- read_csv(paste0(fileloc1, loc1[3], 'Results/',
-                                       'OCCMo_DAY_', var[4],'_SSP585_1040','.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
-datOcc585_4070Mo_V4 <- read_csv(paste0(fileloc1, loc1[3], 'Results/',
-                                       'OCCMo_DAY_', var[4],'_SSP585_4070','.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
-datOcc585_7000Mo_V4 <- read_csv(paste0(fileloc1, loc1[3], 'Results/',
-                                       'OCCMo_DAY_', var[4],'_SSP585_7000','.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
-
-# . . 5.1.3 Defining Location --------------------------------------------------
-datOccHMo_V1$lon[datOccHMo_V1$lon < lonA | datOccHMo_V1$lon > lonB] <- NA
-datOccHMo_V1$lat[datOccHMo_V1$lat > latA | datOccHMo_V1$lat < latB] <- NA
-datOcc126_1040Mo_V1$lon[datOcc126_1040Mo_V1$lon < lonA | datOcc126_1040Mo_V1$lon > lonB] <- NA
-datOcc126_1040Mo_V1$lat[datOcc126_1040Mo_V1$lat > latA | datOcc126_1040Mo_V1$lat < latB] <- NA
-datOcc126_4070Mo_V1$lon[datOcc126_4070Mo_V1$lon < lonA | datOcc126_4070Mo_V1$lon > lonB] <- NA
-datOcc126_4070Mo_V1$lat[datOcc126_4070Mo_V1$lat > latA | datOcc126_4070Mo_V1$lat < latB] <- NA
-datOcc126_7000Mo_V1$lon[datOcc126_7000Mo_V1$lon < lonA | datOcc126_7000Mo_V1$lon > lonB] <- NA
-datOcc126_7000Mo_V1$lat[datOcc126_7000Mo_V1$lat > latA | datOcc126_7000Mo_V1$lat < latB] <- NA
-datOcc585_1040Mo_V1$lon[datOcc585_1040Mo_V1$lon < lonA | datOcc585_1040Mo_V1$lon > lonB] <- NA
-datOcc585_1040Mo_V1$lat[datOcc585_1040Mo_V1$lat > latA | datOcc585_1040Mo_V1$lat < latB] <- NA
-datOcc585_4070Mo_V1$lon[datOcc585_4070Mo_V1$lon < lonA | datOcc585_4070Mo_V1$lon > lonB] <- NA
-datOcc585_4070Mo_V1$lat[datOcc585_4070Mo_V1$lat > latA | datOcc585_4070Mo_V1$lat < latB] <- NA
-datOcc585_7000Mo_V1$lon[datOcc585_7000Mo_V1$lon < lonA | datOcc585_7000Mo_V1$lon > lonB] <- NA
-datOcc585_7000Mo_V1$lat[datOcc585_7000Mo_V1$lat > latA | datOcc585_7000Mo_V1$lat < latB] <- NA
-datOccHMo_V1 <- na.omit(datOccHMo_V1)
-datOcc126_1040Mo_V1 <- na.omit(datOcc126_1040Mo_V1)
-datOcc126_4070Mo_V1 <- na.omit(datOcc126_4070Mo_V1)
-datOcc126_7000Mo_V1 <- na.omit(datOcc126_7000Mo_V1)
-datOcc585_1040Mo_V1 <- na.omit(datOcc585_1040Mo_V1)
-datOcc585_4070Mo_V1 <- na.omit(datOcc585_4070Mo_V1)
-datOcc585_7000Mo_V1 <- na.omit(datOcc585_7000Mo_V1)
-
-datOccHMo_V3$lon[datOccHMo_V3$lon < lonA | datOccHMo_V3$lon > lonB] <- NA
-datOccHMo_V3$lat[datOccHMo_V3$lat > latA | datOccHMo_V3$lat < latB] <- NA
-datOcc126_1040Mo_V3$lon[datOcc126_1040Mo_V3$lon < lonA | datOcc126_1040Mo_V3$lon > lonB] <- NA
-datOcc126_1040Mo_V3$lat[datOcc126_1040Mo_V3$lat > latA | datOcc126_1040Mo_V3$lat < latB] <- NA
-datOcc126_4070Mo_V3$lon[datOcc126_4070Mo_V3$lon < lonA | datOcc126_4070Mo_V3$lon > lonB] <- NA
-datOcc126_4070Mo_V3$lat[datOcc126_4070Mo_V3$lat > latA | datOcc126_4070Mo_V3$lat < latB] <- NA
-datOcc126_7000Mo_V3$lon[datOcc126_7000Mo_V3$lon < lonA | datOcc126_7000Mo_V3$lon > lonB] <- NA
-datOcc126_7000Mo_V3$lat[datOcc126_7000Mo_V3$lat > latA | datOcc126_7000Mo_V3$lat < latB] <- NA
-datOcc585_1040Mo_V3$lon[datOcc585_1040Mo_V3$lon < lonA | datOcc585_1040Mo_V3$lon > lonB] <- NA
-datOcc585_1040Mo_V3$lat[datOcc585_1040Mo_V3$lat > latA | datOcc585_1040Mo_V3$lat < latB] <- NA
-datOcc585_4070Mo_V3$lon[datOcc585_4070Mo_V3$lon < lonA | datOcc585_4070Mo_V3$lon > lonB] <- NA
-datOcc585_4070Mo_V3$lat[datOcc585_4070Mo_V3$lat > latA | datOcc585_4070Mo_V3$lat < latB] <- NA
-datOcc585_7000Mo_V3$lon[datOcc585_7000Mo_V3$lon < lonA | datOcc585_7000Mo_V3$lon > lonB] <- NA
-datOcc585_7000Mo_V3$lat[datOcc585_7000Mo_V3$lat > latA | datOcc585_7000Mo_V3$lat < latB] <- NA
-datOccHMo_V3 <- na.omit(datOccHMo_V3)
-datOcc126_1040Mo_V3 <- na.omit(datOcc126_1040Mo_V3)
-datOcc126_4070Mo_V3 <- na.omit(datOcc126_4070Mo_V3)
-datOcc126_7000Mo_V3 <- na.omit(datOcc126_7000Mo_V3)
-datOcc585_1040Mo_V3 <- na.omit(datOcc585_1040Mo_V3)
-datOcc585_4070Mo_V3 <- na.omit(datOcc585_4070Mo_V3)
-datOcc585_7000Mo_V3 <- na.omit(datOcc585_7000Mo_V3)
-
-datOccHMo_V4$lon[datOccHMo_V4$lon < lonA | datOccHMo_V4$lon > lonB] <- NA
-datOccHMo_V4$lat[datOccHMo_V4$lat > latA | datOccHMo_V4$lat < latB] <- NA
-datOcc126_1040Mo_V4$lon[datOcc126_1040Mo_V4$lon < lonA | datOcc126_1040Mo_V4$lon > lonB] <- NA
-datOcc126_1040Mo_V4$lat[datOcc126_1040Mo_V4$lat > latA | datOcc126_1040Mo_V4$lat < latB] <- NA
-datOcc126_4070Mo_V4$lon[datOcc126_4070Mo_V4$lon < lonA | datOcc126_4070Mo_V4$lon > lonB] <- NA
-datOcc126_4070Mo_V4$lat[datOcc126_4070Mo_V4$lat > latA | datOcc126_4070Mo_V4$lat < latB] <- NA
-datOcc126_7000Mo_V4$lon[datOcc126_7000Mo_V4$lon < lonA | datOcc126_7000Mo_V4$lon > lonB] <- NA
-datOcc126_7000Mo_V4$lat[datOcc126_7000Mo_V4$lat > latA | datOcc126_7000Mo_V4$lat < latB] <- NA
-datOcc585_1040Mo_V4$lon[datOcc585_1040Mo_V4$lon < lonA | datOcc585_1040Mo_V4$lon > lonB] <- NA
-datOcc585_1040Mo_V4$lat[datOcc585_1040Mo_V4$lat > latA | datOcc585_1040Mo_V4$lat < latB] <- NA
-datOcc585_4070Mo_V4$lon[datOcc585_4070Mo_V4$lon < lonA | datOcc585_4070Mo_V4$lon > lonB] <- NA
-datOcc585_4070Mo_V4$lat[datOcc585_4070Mo_V4$lat > latA | datOcc585_4070Mo_V4$lat < latB] <- NA
-datOcc585_7000Mo_V4$lon[datOcc585_7000Mo_V4$lon < lonA | datOcc585_7000Mo_V4$lon > lonB] <- NA
-datOcc585_7000Mo_V4$lat[datOcc585_7000Mo_V4$lat > latA | datOcc585_7000Mo_V4$lat < latB] <- NA
-datOccHMo_V4 <- na.omit(datOccHMo_V4)
-datOcc126_1040Mo_V4 <- na.omit(datOcc126_1040Mo_V4)
-datOcc126_4070Mo_V4 <- na.omit(datOcc126_4070Mo_V4)
-datOcc126_7000Mo_V4 <- na.omit(datOcc126_7000Mo_V4)
-datOcc585_1040Mo_V4 <- na.omit(datOcc585_1040Mo_V4)
-datOcc585_4070Mo_V4 <- na.omit(datOcc585_4070Mo_V4)
-datOcc585_7000Mo_V4 <- na.omit(datOcc585_7000Mo_V4)
-# . . 5.1.4 Formatting ---------------------------------------------------------
-datOccHMo_V1 <- gather(datOccHMo_V1, key = Month, value = Occurrences, 3:14)
-datOcc126_1040Mo_V1 <- gather(datOcc126_1040Mo_V1, key = Month, 
-                              value = Occurrences, 3:14)
-datOcc126_4070Mo_V1 <- gather(datOcc126_4070Mo_V1, key = Month, 
-                              value = Occurrences, 3:14)
-datOcc126_7000Mo_V1 <- gather(datOcc126_7000Mo_V1, key = Month, 
-                              value = Occurrences, 3:14)
-datOcc585_1040Mo_V1 <- gather(datOcc585_1040Mo_V1, key = Month, 
-                              value = Occurrences, 3:14)
-datOcc585_4070Mo_V1 <- gather(datOcc585_4070Mo_V1, key = Month, 
-                              value = Occurrences, 3:14)
-datOcc585_7000Mo_V1 <- gather(datOcc585_7000Mo_V1, key = Month, 
-                              value = Occurrences, 3:14)
-datOccHMo_V1$Scenario <- 'Historic'
-datOcc126_1040Mo_V1$Scenario <- 'SSP126'
-datOcc126_4070Mo_V1$Scenario <- 'SSP126'
-datOcc126_7000Mo_V1$Scenario <- 'SSP126'
-datOcc585_1040Mo_V1$Scenario <- 'SSP585'
-datOcc585_4070Mo_V1$Scenario <- 'SSP585'
-datOcc585_7000Mo_V1$Scenario <- 'SSP585'
-
-datOccHMo_V3 <- gather(datOccHMo_V3, key = Month, value = Occurrences, 3:14)
-datOcc126_1040Mo_V3 <- gather(datOcc126_1040Mo_V3, key = Month, 
-                              value = Occurrences, 3:14)
-datOcc126_4070Mo_V3 <- gather(datOcc126_4070Mo_V3, key = Month, 
-                              value = Occurrences, 3:14)
-datOcc126_7000Mo_V3 <- gather(datOcc126_7000Mo_V3, key = Month, 
-                              value = Occurrences, 3:14)
-datOcc585_1040Mo_V3 <- gather(datOcc585_1040Mo_V3, key = Month, 
-                              value = Occurrences, 3:14)
-datOcc585_4070Mo_V3 <- gather(datOcc585_4070Mo_V3, key = Month, 
-                              value = Occurrences, 3:14)
-datOcc585_7000Mo_V3 <- gather(datOcc585_7000Mo_V3, key = Month, 
-                              value = Occurrences, 3:14)
-datOccHMo_V3$Scenario <- 'Historic'
-datOcc126_1040Mo_V3$Scenario <- 'SSP126'
-datOcc126_4070Mo_V3$Scenario <- 'SSP126'
-datOcc126_7000Mo_V3$Scenario <- 'SSP126'
-datOcc585_1040Mo_V3$Scenario <- 'SSP585'
-datOcc585_4070Mo_V3$Scenario <- 'SSP585'
-datOcc585_7000Mo_V3$Scenario <- 'SSP585'
-
-datOccHMo_V4 <- gather(datOccHMo_V4, key = Month, value = Occurrences, 3:14)
-datOcc126_1040Mo_V4 <- gather(datOcc126_1040Mo_V4, key = Month, 
-                              value = Occurrences, 3:14)
-datOcc126_4070Mo_V4 <- gather(datOcc126_4070Mo_V4, key = Month, 
-                              value = Occurrences, 3:14)
-datOcc126_7000Mo_V4 <- gather(datOcc126_7000Mo_V4, key = Month, 
-                              value = Occurrences, 3:14)
-datOcc585_1040Mo_V4 <- gather(datOcc585_1040Mo_V4, key = Month, 
-                              value = Occurrences, 3:14)
-datOcc585_4070Mo_V4 <- gather(datOcc585_4070Mo_V4, key = Month, 
-                              value = Occurrences, 3:14)
-datOcc585_7000Mo_V4 <- gather(datOcc585_7000Mo_V4, key = Month, 
-                              value = Occurrences, 3:14)
-datOccHMo_V4$Scenario <- 'Historic'
-datOcc126_1040Mo_V4$Scenario <- 'SSP126'
-datOcc126_4070Mo_V4$Scenario <- 'SSP126'
-datOcc126_7000Mo_V4$Scenario <- 'SSP126'
-datOcc585_1040Mo_V4$Scenario <- 'SSP585'
-datOcc585_4070Mo_V4$Scenario <- 'SSP585'
-datOcc585_7000Mo_V4$Scenario <- 'SSP585'
-
-# Setting factors
-datOccHMo_V1$Month <- factor(datOccHMo_V1$Month, levels = levelMo)
-datOcc126_1040Mo_V1$Month <- factor(datOcc126_1040Mo_V1$Month, levels = levelMo)
-datOcc126_4070Mo_V1$Month <- factor(datOcc126_4070Mo_V1$Month, levels = levelMo)
-datOcc126_7000Mo_V1$Month <- factor(datOcc126_7000Mo_V1$Month, levels = levelMo)
-datOcc585_1040Mo_V1$Month <- factor(datOcc585_1040Mo_V1$Month, levels = levelMo)
-datOcc585_4070Mo_V1$Month <- factor(datOcc585_4070Mo_V1$Month, levels = levelMo)
-datOcc585_7000Mo_V1$Month <- factor(datOcc585_7000Mo_V1$Month, levels = levelMo)
-
-datOccHMo_V3$Month <- factor(datOccHMo_V3$Month, levels = levelMo)
-datOcc126_1040Mo_V3$Month <- factor(datOcc126_1040Mo_V3$Month, levels = levelMo)
-datOcc126_4070Mo_V3$Month <- factor(datOcc126_4070Mo_V3$Month, levels = levelMo)
-datOcc126_7000Mo_V3$Month <- factor(datOcc126_7000Mo_V3$Month, levels = levelMo)
-datOcc585_1040Mo_V3$Month <- factor(datOcc585_1040Mo_V3$Month, levels = levelMo)
-datOcc585_4070Mo_V3$Month <- factor(datOcc585_4070Mo_V3$Month, levels = levelMo)
-datOcc585_7000Mo_V3$Month <- factor(datOcc585_7000Mo_V3$Month, levels = levelMo)
-
-datOccHMo_V4$Month <- factor(datOccHMo_V4$Month, levels = levelMo)
-datOcc126_1040Mo_V4$Month <- factor(datOcc126_1040Mo_V4$Month, levels = levelMo)
-datOcc126_4070Mo_V4$Month <- factor(datOcc126_4070Mo_V4$Month, levels = levelMo)
-datOcc126_7000Mo_V4$Month <- factor(datOcc126_7000Mo_V4$Month, levels = levelMo)
-datOcc585_1040Mo_V4$Month <- factor(datOcc585_1040Mo_V4$Month, levels = levelMo)
-datOcc585_4070Mo_V4$Month <- factor(datOcc585_4070Mo_V4$Month, levels = levelMo)
-datOcc585_7000Mo_V4$Month <- factor(datOcc585_7000Mo_V4$Month, levels = levelMo)
-
-# Make sure in correct order
-datOccHMo_V1 <- datOccHMo_V1 %>% arrange(Month)
-datOcc126_1040Mo_V1 <- datOcc126_1040Mo_V1 %>% arrange(Month)
-datOcc126_4070Mo_V1 <- datOcc126_4070Mo_V1 %>% arrange(Month)
-datOcc126_7000Mo_V1 <- datOcc126_7000Mo_V1 %>% arrange(Month)
-datOcc585_1040Mo_V1 <- datOcc585_1040Mo_V1 %>% arrange(Month)
-datOcc585_4070Mo_V1 <- datOcc585_4070Mo_V1 %>% arrange(Month)
-datOcc585_7000Mo_V1 <- datOcc585_7000Mo_V1 %>% arrange(Month)
-datOccHMo_V3 <- datOccHMo_V3 %>% arrange(Month)
-datOcc126_1040Mo_V3 <- datOcc126_1040Mo_V3 %>% arrange(Month)
-datOcc126_4070Mo_V3 <- datOcc126_4070Mo_V3 %>% arrange(Month)
-datOcc126_7000Mo_V3 <- datOcc126_7000Mo_V3 %>% arrange(Month)
-datOcc585_1040Mo_V3 <- datOcc585_1040Mo_V3 %>% arrange(Month)
-datOcc585_4070Mo_V3 <- datOcc585_4070Mo_V3 %>% arrange(Month)
-datOcc585_7000Mo_V3 <- datOcc585_7000Mo_V3 %>% arrange(Month)
-datOccHMo_V4 <- datOccHMo_V4 %>% arrange(Month)
-datOcc126_1040Mo_V4 <- datOcc126_1040Mo_V4 %>% arrange(Month)
-datOcc126_4070Mo_V4 <- datOcc126_4070Mo_V4 %>% arrange(Month)
-datOcc126_7000Mo_V4 <- datOcc126_7000Mo_V4 %>% arrange(Month)
-datOcc585_1040Mo_V4 <- datOcc585_1040Mo_V4 %>% arrange(Month)
-datOcc585_4070Mo_V4 <- datOcc585_4070Mo_V4 %>% arrange(Month)
-datOcc585_7000Mo_V4 <- datOcc585_7000Mo_V4 %>% arrange(Month)
-
-# Find the difference in time periods
-datOcc126_1040Mo_V1$Occurrences <- datOcc126_1040Mo_V1$Occurrences - datOccHMo_V1$Occurrences
-datOcc126_4070Mo_V1$Occurrences <- datOcc126_4070Mo_V1$Occurrences - datOccHMo_V1$Occurrences
-datOcc126_7000Mo_V1$Occurrences <- datOcc126_7000Mo_V1$Occurrences - datOccHMo_V1$Occurrences
-datOcc585_1040Mo_V1$Occurrences <- datOcc585_1040Mo_V1$Occurrences - datOccHMo_V1$Occurrences
-datOcc585_4070Mo_V1$Occurrences <- datOcc585_4070Mo_V1$Occurrences - datOccHMo_V1$Occurrences
-datOcc585_7000Mo_V1$Occurrences <- datOcc585_7000Mo_V1$Occurrences - datOccHMo_V1$Occurrences
-
-datOcc126_1040Mo_V3$Occurrences <- datOcc126_1040Mo_V3$Occurrences - datOccHMo_V3$Occurrences
-datOcc126_4070Mo_V3$Occurrences <- datOcc126_4070Mo_V3$Occurrences - datOccHMo_V3$Occurrences
-datOcc126_7000Mo_V3$Occurrences <- datOcc126_7000Mo_V3$Occurrences - datOccHMo_V3$Occurrences
-datOcc585_1040Mo_V3$Occurrences <- datOcc585_1040Mo_V3$Occurrences - datOccHMo_V3$Occurrences
-datOcc585_4070Mo_V3$Occurrences <- datOcc585_4070Mo_V3$Occurrences - datOccHMo_V3$Occurrences
-datOcc585_7000Mo_V3$Occurrences <- datOcc585_7000Mo_V3$Occurrences - datOccHMo_V3$Occurrences
-
-datOcc126_1040Mo_V4$Occurrences <- datOcc126_1040Mo_V4$Occurrences - datOccHMo_V4$Occurrences
-datOcc126_4070Mo_V4$Occurrences <- datOcc126_4070Mo_V4$Occurrences - datOccHMo_V4$Occurrences
-datOcc126_7000Mo_V4$Occurrences <- datOcc126_7000Mo_V4$Occurrences - datOccHMo_V4$Occurrences
-datOcc585_1040Mo_V4$Occurrences <- datOcc585_1040Mo_V4$Occurrences - datOccHMo_V4$Occurrences
-datOcc585_4070Mo_V4$Occurrences <- datOcc585_4070Mo_V4$Occurrences - datOccHMo_V4$Occurrences
-datOcc585_7000Mo_V4$Occurrences <- datOcc585_7000Mo_V4$Occurrences - datOccHMo_V4$Occurrences
-
-# Combine
-dat <-cbind(Month = datOcc126_1040Mo_V1$Month, datOcc126_1040Mo_V1[4],
-            datOcc126_1040Mo_V3[,4], datOcc126_1040Mo_V4[,4], 
-            TimePeriod = 'Early-Century', Scenario ='SSP126') %>%
-  rbind(cbind(Month = datOcc126_4070Mo_V1$Month, datOcc126_4070Mo_V1[,4], 
-              datOcc126_4070Mo_V3[,4], datOcc126_4070Mo_V4[,4], 
-              TimePeriod = 'Mid-Century', Scenario ='SSP126')) %>%
-  rbind(cbind(Month = datOcc126_7000Mo_V1$Month, datOcc126_7000Mo_V1[,4], 
-              datOcc126_7000Mo_V3[,4], datOcc126_7000Mo_V4[,4], 
-              TimePeriod = 'Late-Century', Scenario ='SSP126')) %>%
-  rbind(cbind(Month = datOcc585_1040Mo_V1$Month, datOcc585_1040Mo_V1[,4], 
-              datOcc585_1040Mo_V3[,4], datOcc585_1040Mo_V4[,4], 
-              TimePeriod = 'Early-Century', Scenario ='SSP585')) %>%
-  rbind(cbind(Month = datOcc585_4070Mo_V1$Month, datOcc585_4070Mo_V1[,4], 
-              datOcc585_4070Mo_V3[,4], datOcc585_4070Mo_V4[,4], 
-              TimePeriod = 'Mid-Century', Scenario ='SSP585')) %>%
-  rbind(cbind(Month = datOcc585_7000Mo_V1$Month, datOcc585_7000Mo_V1[,4], 
-              datOcc585_7000Mo_V3[,4], datOcc585_7000Mo_V4[,4],
-              TimePeriod = 'Late-Century', Scenario ='SSP585'))
 
 
-# Need to try initiating dat first and see if that helps
-dat <-cbind(Month = datOcc126_1040Mo_V1$Month, datOcc126_1040Mo_V1[4],NA, NA,
-            TimePeriod = 'Early-Century', Scenario ='SSP126', 
-            NewComb = paste0(var[1],'_EC')) %>%
-  rbind(cbind(Month = datOcc126_1040Mo_V1$Month, NA, datOcc126_1040Mo_V3[,4], NA, 
-              TimePeriod = 'Early-Century', Scenario ='SSP126', 
-              NewComb = paste0(var[3],'_EC'))) %>%
-  rbind(cbind(Month = datOcc126_1040Mo_V1$Month, NA, NA, datOcc126_1040Mo_V4[,4], 
-              TimePeriod = 'Early-Century', Scenario ='SSP126', 
-              NewComb = paste0(var[4],'_EC')))
+# Part V Length of Occurances ##################################################
+# . 5.1 Variables Needed -------------------------------------------------------
+varNum <- 6
+var <- c('tasmax','tasmin','pr','mrsos','SIM14','SEQ14','SEQ41','SIM13','SEQ13',
+         'SEQ31','SEQ34','SEQ43')[varNum]
+varT <- c('Heatwaves','Coldwaves','Extreme Precipitation','Flash Drought')[varNum]
+
+datLen <- tibble(
+  'lon' = numeric(length = 12476),
+  'lat' = numeric(length = 12476),
+  'Historical_Mu' = numeric(length = 12476),
+  'Historical_Var' = numeric(length = 12476),
+  'SSP126_1040_Mu' = numeric(length = 12476),
+  'SSP126_1040_Var' = numeric(length = 12476),
+  'SSP126_1040_Delta' = numeric(length = 12476),
+  'SSP126_1040_Sig' = numeric(length = 12476),
+  'SSP126_4070_Mu' = numeric(length = 12476),
+  'SSP126_4070_Var' = numeric(length = 12476),
+  'SSP126_4070_Delta' = numeric(length = 12476),
+  'SSP126_4070_Sig' = numeric(length = 12476),
+  'SSP126_7000_Mu' = numeric(length = 12476),
+  'SSP126_7000_Var' = numeric(length = 12476),
+  'SSP126_7000_Delta' = numeric(length = 12476),
+  'SSP126_7000_Sig' = numeric(length = 12476),
   
-  rbind(cbind(Month = datOcc126_4070Mo_V1$Month, datOcc126_4070Mo_V1[,4], NA, NA, 
-              TimePeriod = 'Mid-Century', Scenario ='SSP126', 
-              NewComb = paste0(var[1],'_MC'))) %>%
-  rbind(cbind(Month = datOcc126_4070Mo_V1$Month, NA, datOcc126_4070Mo_V3[,4], NA, 
-              TimePeriod = 'Mid-Century', Scenario ='SSP126', 
-              NewComb = paste0(var[3],'_MC'))) %>%
-  rbind(cbind(Month = datOcc126_4070Mo_V1$Month, NA, NA, datOcc126_4070Mo_V4[,4], 
-              TimePeriod = 'Mid-Century', Scenario ='SSP126', 
-              NewComb = paste0(var[4],'_MC'))) %>%
-  rbind(cbind(Month = datOcc126_7000Mo_V1$Month, datOcc126_7000Mo_V1[,4], NA, NA, 
-              TimePeriod = 'Late-Century', Scenario ='SSP126', 
-              NewComb = paste0(var[1],'_LC'))) %>%
-  rbind(cbind(Month = datOcc126_7000Mo_V1$Month, NA, datOcc126_7000Mo_V3[,4], NA, 
-              TimePeriod = 'Late-Century', Scenario ='SSP126', 
-              NewComb = paste0(var[3],'_LC'))) %>%
-  rbind(cbind(Month = datOcc126_7000Mo_V1$Month, NA, NA, datOcc126_7000Mo_V4[,4], 
-              TimePeriod = 'Late-Century', Scenario ='SSP126', 
-              NewComb = paste0(var[4],'_LC'))) %>%
-  rbind(cbind(Month = datOcc585_1040Mo_V1$Month, datOcc585_1040Mo_V1[,4], NA, NA, 
-              TimePeriod = 'Early-Century', Scenario ='SSP585', 
-              NewComb = paste0(var[1],'_EC'))) %>%
-  rbind(cbind(Month = datOcc585_1040Mo_V1$Month, NA, datOcc585_1040Mo_V3[,4], NA, 
-              TimePeriod = 'Early-Century', Scenario ='SSP585', 
-              NewComb = paste0(var[3],'_EC'))) %>%
-  rbind(cbind(Month = datOcc585_1040Mo_V1$Month, NA, NA, datOcc585_1040Mo_V4[,4], 
-              TimePeriod = 'Early-Century', Scenario ='SSP585', 
-              NewComb = paste0(var[4],'_EC'))) %>%
-  rbind(cbind(Month = datOcc585_4070Mo_V1$Month, datOcc585_4070Mo_V1[,4], NA, NA,
-              TimePeriod = 'Mid-Century', Scenario ='SSP585', 
-              NewComb = paste0(var[1],'_MC'))) %>%
-  rbind(cbind(Month = datOcc585_4070Mo_V1$Month, NA, datOcc585_4070Mo_V3[,4], NA, 
-              TimePeriod = 'Mid-Century', Scenario ='SSP585', 
-              NewComb = paste0(var[3],'_MC'))) %>%
-  rbind(cbind(Month = datOcc585_4070Mo_V1$Month, NA, NA, datOcc585_4070Mo_V4[,4], 
-              TimePeriod = 'Mid-Century', Scenario ='SSP585', 
-              NewComb = paste0(var[4],'_MC'))) %>%
-  rbind(cbind(Month = datOcc585_7000Mo_V1$Month, datOcc585_7000Mo_V1[,4], NA, NA,
-              TimePeriod = 'Late-Century', Scenario ='SSP585', 
-              NewComb = paste0(var[1],'_LC'))) %>%
-  rbind(cbind(Month = datOcc585_7000Mo_V1$Month, NA, datOcc585_7000Mo_V3[,4], NA,
-              TimePeriod = 'Late-Century', Scenario ='SSP585', 
-              NewComb = paste0(var[3],'_LC'))) %>%
-  rbind(cbind(Month = datOcc585_7000Mo_V1$Month, NA, NA, datOcc585_7000Mo_V4[,4],
-              TimePeriod = 'Late-Century', Scenario ='SSP585', 
-              NewComb = paste0(var[4],'_LC'))) 
+  'SSP585_1040_Mu' = numeric(length = 12476),
+  'SSP585_1040_Var' = numeric(length = 12476),
+  'SSP585_1040_Delta' = numeric(length = 12476),
+  'SSP585_1040_Sig' = numeric(length = 12476),
+  'SSP585_4070_Mu' = numeric(length = 12476),
+  'SSP585_4070_Var' = numeric(length = 12476),
+  'SSP585_4070_Delta' = numeric(length = 12476),
+  'SSP585_4070_Sig' = numeric(length = 12476),
+  'SSP585_7000_Mu' = numeric(length = 12476),
+  'SSP585_7000_Var' = numeric(length = 12476),
+  'SSP585_7000_Delta' = numeric(length = 12476),
+  'SSP585_7000_Sig' = numeric(length = 12476)
+) 
+# Mu : average/mean   
+# Var : variance
+# Delta : difference with historic period  
+# Sig : Significance
+dat <- tibble(
+  'lon' = numeric(length = 12476),
+  'lat' = numeric(length = 12476),
+  'CMCC-ESM2'  = numeric(length = 12476), 
+  'EC-Earth3'  = numeric(length = 12476),
+  'GFDL-ESM4' = numeric(length = 12476),
+  'INM-CM4-8' = numeric(length = 12476),
+  'INM-CM5-0' = numeric(length = 12476),
+  'MPI-ESM1-2-HR' = numeric(length = 12476),
+  'MRI-ESM2-0' = numeric(length = 12476), 
+  'NorESM2-MM'  = numeric(length = 12476),
+  'Mu' = numeric(length = 12476),
+  "Positive" = numeric(length = 12476),
+  "Negative" = numeric(length = 12476)
+)
+# . 5.2 Opening Files ----------------------------------------------------------
+datLenH <- read_csv(paste0(fileloc1, loc1[1], 'Results/', 
+                           'OCC_DAY_', var, '_Hist_8010','_length.csv'),
+                    col_names = TRUE, cols(.default = col_double()))
+datLen126_1040 <- read_csv(paste0(fileloc1, loc1[2], 'Results/',
+                                  'OCC_DAY_', var, '_SSP126_1040','_length.csv'),
+                           col_names = TRUE, cols(.default = col_double()))
+datLen126_4070 <- read_csv(paste0(fileloc1, loc1[2], 'Results/',
+                                  'OCC_DAY_', var, '_SSP126_4070','_length.csv'),
+                           col_names = TRUE, cols(.default = col_double()))
+datLen126_7000 <- read_csv(paste0(fileloc1, loc1[2], 'Results/',
+                                  'OCC_DAY_', var, '_SSP126_7000','_length.csv'),
+                           col_names = TRUE, cols(.default = col_double()))
+datLen585_1040 <- read_csv(paste0(fileloc1, loc1[3], 'Results/',
+                                  'OCC_DAY_', var, '_SSP585_1040','_length.csv'),
+                           col_names = TRUE, cols(.default = col_double()))
+datLen585_4070 <- read_csv(paste0(fileloc1, loc1[3], 'Results/',
+                                  'OCC_DAY_', var, '_SSP585_4070','_length.csv'),
+                           col_names = TRUE, cols(.default = col_double()))
+datLen585_7000 <- read_csv(paste0(fileloc1, loc1[3], 'Results/',
+                                  'OCC_DAY_', var, '_SSP585_7000','_length.csv'),
+                           col_names = TRUE, cols(.default = col_double()))
+
+# . . 5.2.1 Calculate the Significance of Change -------------------------------
+# . . . 5.2.1.1 Historical - - - - - - - - - - - - - - - - - - - - - - - - - - -
+datLen$lon <- datLenH$lon
+datLen$lat <- datLenH$lat
+datLen$Historical_Mu <- datLenH$Mu
+datLen$Historical_Var <- apply(datLenH[,3:10], MARGIN = 1, FUN=stats::var)
+# . . . 5.2.1.2 SSP126_1040 - - - - - - - - - - - - - - - - - - - - - - - - -
+# . . . . 5.2.1.2.a Difference ---
+for (i in 1:length(loc2)){
+  dat[,2+i] <- datLen126_1040[,2+i] - datLenH[,2+i]
+}
+dat$Mu <- apply(dat[,3:10], MARGIN = 1, function(x){
+  sum(x)/length(x)
+})
+datLen$SSP126_1040_Delta <- dat$Mu
+datLen$SSP126_1040_Mu <- datLen126_1040$Mu
+datLen$SSP126_1040_Var <- apply(datLen126_1040[,3:10], MARGIN = 1, FUN=stats::var)
+# . . . . 5.2.1.2.b Significance ---
+dat$Positive <- apply(dat[,3:10], MARGIN = 1, function(x){
+  length(which(x > 0))
+})
+dat$Negative <- apply(dat[,3:10], MARGIN = 1, function(x){
+  length(which(x < 0))
+})
+datLen$SSP126_1040_Sig[dat$Positive >= 6 | dat$Negative >= 6] <- 1
+
+# . . . 5.2.1.3 SSP126_4070 - - - - - - - - - - - - - - - - - - - - - - - - - - 
+# . . . . 5.2.1.3.a Difference ---
+for (i in 1:length(loc2)){
+  dat[,2+i] <- datLen126_4070[,2+i] - datLenH[,2+i]
+}
+dat$Mu <- apply(dat[,3:10], MARGIN = 1, function(x){
+  sum(x)/length(x)
+})
+datLen$SSP126_4070_Delta <- dat$Mu
+datLen$SSP126_4070_Mu <- datLen126_4070$Mu
+datLen$SSP126_4070_Var <- apply(datLen126_4070[,3:10], MARGIN = 1, FUN=stats::var)
+# . . . . 5.2.1.3.b Significance ---
+dat$Positive <- apply(dat[,3:10], MARGIN = 1, function(x){
+  length(which(x > 0))
+})
+dat$Negative <- apply(dat[,3:10], MARGIN = 1, function(x){
+  length(which(x < 0))
+})
+datLen$SSP126_4070_Sig[dat$Positive >= 6 | dat$Negative >= 6] <- 1
+# . . . 5.2.1.4 SSP126_7000 - - - - - - - - - - - - - - - - - - - - - - - - - - 
+# . . . . 5.2.1.4.a Difference ---
+for (i in 1:length(loc2)){
+  dat[,2+i] <- datLen126_7000[,2+i] - datLenH[,2+i]
+}
+dat$Mu <- apply(dat[,3:10], MARGIN = 1, function(x){
+  sum(x)/length(x)
+})
+datLen$SSP126_7000_Delta <- dat$Mu
+datLen$SSP126_7000_Mu <- datLen126_7000$Mu
+datLen$SSP126_7000_Var <- apply(datLen126_7000[,3:10], MARGIN = 1, FUN=stats::var)
+# . . . . 5.2.1.4.b Significance ---
+dat$Positive <- apply(dat[,3:10], MARGIN = 1, function(x){
+  length(which(x > 0))
+})
+dat$Negative <- apply(dat[,3:10], MARGIN = 1, function(x){
+  length(which(x < 0))
+})
+datLen$SSP126_7000_Sig[dat$Positive >= 6 | dat$Negative >= 6] <- 1
+
+# . . . 5.2.1.5 SSP585_1040 - - - - - - - - - - - - - - - - - - - - - - - - -
+# . . . . 5.2.1.5.a Difference ---
+for (i in 1:length(loc2)){
+  dat[,2+i] <- datLen585_1040[,2+i] - datLenH[,2+i]
+}
+dat$Mu <- apply(dat[,3:10], MARGIN = 1, function(x){
+  sum(x)/length(x)
+})
+datLen$SSP585_1040_Delta <- dat$Mu
+datLen$SSP585_1040_Mu <- datLen585_1040$Mu
+datLen$SSP585_1040_Var <- apply(datLen585_1040[,3:10], MARGIN = 1, FUN=stats::var)
+# . . . . 5.2.1.5.b Significance ---
+dat$Positive <- apply(dat[,3:10], MARGIN = 1, function(x){
+  length(which(x > 0))
+})
+dat$Negative <- apply(dat[,3:10], MARGIN = 1, function(x){
+  length(which(x < 0))
+})
+datLen$SSP585_1040_Sig[dat$Positive >= 6 | dat$Negative >= 6] <- 1
+
+# . . . 5.2.1.6 SSP585_4070 - - - - - - - - - - - - - - - - - - - - - - - - - - 
+# . . . . 5.2.1.6.a Difference ---
+for (i in 1:length(loc2)){
+  dat[,2+i] <- datLen585_4070[,2+i] - datLenH[,2+i]
+}
+dat$Mu <- apply(dat[,3:10], MARGIN = 1, function(x){
+  sum(x)/length(x)
+})
+datLen$SSP585_4070_Delta <- dat$Mu
+datLen$SSP585_4070_Mu <- datLen585_4070$Mu
+datLen$SSP585_4070_Var <- apply(datLen585_4070[,3:10], MARGIN = 1, FUN=stats::var)
+# . . . . 6.2.1.6.b Significance ---
+dat$Positive <- apply(dat[,3:10], MARGIN = 1, function(x){
+  length(which(x > 0))
+})
+dat$Negative <- apply(dat[,3:10], MARGIN = 1, function(x){
+  length(which(x < 0))
+})
+datLen$SSP585_4070_Sig[dat$Positive >= 6 | dat$Negative >= 6] <- 1
+
+# . . . 5.2.1.7 SSP585_7000 - - - - - - - - - - - - - - - - - - - - - - - - - - 
+# . . . . 5.2.1.7.a Difference ---
+for (i in 1:length(loc2)){
+  dat[,2+i] <- datLen585_7000[,2+i] - datLenH[,2+i]
+}
+dat$Mu <- apply(dat[,3:10], MARGIN = 1, function(x){
+  sum(x)/length(x)
+})
+datLen$SSP585_7000_Delta <- dat$Mu
+datLen$SSP585_7000_Mu <- datLen585_7000$Mu
+datLen$SSP585_7000_Var <- apply(datLen585_7000[,3:10], MARGIN = 1, FUN=stats::var)
+# . . . . 5.2.1.7.b Significance ---
+dat$Positive <- apply(dat[,3:10], MARGIN = 1, function(x){
+  length(which(x > 0))
+})
+dat$Negative <- apply(dat[,3:10], MARGIN = 1, function(x){
+  length(which(x < 0))
+})
+datLen$SSP585_7000_Sig[dat$Positive >= 6 | dat$Negative >= 6] <- 1
+
+# . . 5.2.1.8 Saving - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+write.csv(datLen,file=paste0(fileloc1,'Results/','OCC_CHANG_',var,'_length.csv'),
+          row.names = FALSE)
 
 
-colnames(dat) <- c('Month', var[1],var[3],var[4], 'TimePeriod', 'Scenario')  
-dat$TimePeriod <- factor(dat$TimePeriod,
-                         levels = c('Historic', 'Early-Century',
-                                    'Mid-Century','Late-Century'))
-
-# . . 5.1.5 Plotting -----------------------------------------------------------
-colorY1 <- 'red'
-colorY2 <- "brown"
-colorY3 <- "#69b3a2"
-
-dat126 <- subset(dat, Scenario != 'SSP585')
-dat126$NewTime <- paste0(dat126$TimePeriod,'_', dat126$Scenario)
-
-ggplot(data = dat126,
-       aes(x = Month, y = tasmax, fill = NewTime)) +
-  theme_bw() +
-  stat_summary(data = subset(dat126, TimePeriod == 'Early-Century'),
-               geom = "line", fun = mean, size = 0.5, color = 'pink', aes(y=tasmax, group=TimePeriod)) +
-  stat_summary(data = subset(dat126, TimePeriod == 'Early-Century'),
-               geom = "ribbon", fun.data = mean_cl_normal, alpha = 0.3,
-               aes(y=tasmax)) 
-
-
-  
-ggplot(data = dat126,
-       aes(x = Month, y = tasmax, fill = factor(TimePeriod))) +
-  theme_bw() +
-  stat_summary(geom = "line", fun = mean, size = 0.5, aes(y=tasmax, group=TimePeriod)) +
-  stat_summary(geom = "ribbon", fun.data = mean_cl_normal, alpha = 0.3,
-               aes(y=tasmax, group = TimePeriod)) +
-  stat_summary(geom = "line", fun = mean, size = 0.5, aes(y=mrsos, group=TimePeriod)) +
-  stat_summary(geom = "ribbon", fun.data = mean_cl_normal, alpha = 0.3,
-               aes(y=mrsos, group = TimePeriod)) +
-  scale_y_continuous(name = 'Heatwaves', 
-                     sec.axis = sec_axis(~., name = 'Flash Drought')) + 
-  labs(title = NULL, x = 'Month', y = NULL) +
-  theme(
-    # axis.title.y = element_text(color = colorY1),
-    # axis.title.y.right = element_text(color = colorY2)
-  ) +
-  theme(legend.position="bottom")
-
-color = c('pink', 'pink3', 'maroon')
-
-
-subset(dat, Scenario != 'SSP585')
-
-
-# . . 5.1.6 Remove -------------------------------------------------------------
-rm(list=ls()[! ls() %in% c('fileloc1', 'loc1', 'loc2', 'lat1', 'lat2','lon1','lon2',
-                           'location','locTitle','mFileH','mFile126','mFile585',
-                           'var', 'varT', 'baseData', 'timeSpan',
-                           'get_legend','as_ggplot','mean_cl_quantile','acf2')])
-# . 5.2 Bar Plot ---------------------------------------------------------------
-# . . 5.2.1 Variables Needed ---------------------------------------------------
-location <- 1 
-var <- c('tasmax', 'tasmin', 'pr', 'mrsos')
-varT <- c('Heatwaves','Coldwaves','Extreme Precipitation','Flash Drought')
-# . . 5.2.2 Opening Files Needed -----------------------------------------------
-datOccHMo_V1 <- read_csv(paste0(fileloc1, loc1[1], 'Results/', 
-                                'OCCMo_DAY_', var[1],'_Hist_8010','.csv'),
-                         col_names = TRUE, cols(.default = col_double()))
-datOcc126_1040Mo_V1 <- read_csv(paste0(fileloc1, loc1[2], 'Results/',
-                                       'OCCMo_DAY_', var[1],'_SSP126_1040','.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
-datOcc126_4070Mo_V1 <- read_csv(paste0(fileloc1, loc1[2], 'Results/',
-                                       'OCCMo_DAY_', var[1],'_SSP126_4070','.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
-datOcc126_7000Mo_V1 <- read_csv(paste0(fileloc1, loc1[2], 'Results/',
-                                       'OCCMo_DAY_', var[1],'_SSP126_7000','.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
-datOcc126_1040Mo_V1 <- read_csv(paste0(fileloc1, loc1[3], 'Results/',
-                                       'OCCMo_DAY_', var[1],'_SSP585_1040','.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
-datOcc585_4070Mo_V1 <- read_csv(paste0(fileloc1, loc1[3], 'Results/',
-                                       'OCCMo_DAY_', var[1],'_SSP585_4070','.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
-datOcc585_7000Mo_V1 <- read_csv(paste0(fileloc1, loc1[3], 'Results/',
-                                       'OCCMo_DAY_', var[1],'_SSP585_7000','.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
-
-datOccHMo_V3 <- read_csv(paste0(fileloc1, loc1[1], 'Results/', 
-                                'OCCMo_DAY_', var[3],'_Hist_8010','.csv'),
-                         col_names = TRUE, cols(.default = col_double()))
-datOcc126_1040Mo_V3 <- read_csv(paste0(fileloc1, loc1[2], 'Results/',
-                                       'OCCMo_DAY_', var[3],'_SSP126_1040','.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
-datOcc126_4070Mo_V3 <- read_csv(paste0(fileloc1, loc1[2], 'Results/',
-                                       'OCCMo_DAY_', var[3],'_SSP126_4070','.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
-datOcc126_7000Mo_V3 <- read_csv(paste0(fileloc1, loc1[2], 'Results/',
-                                       'OCCMo_DAY_', var[3],'_SSP126_7000','.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
-datOcc126_1040Mo_V3 <- read_csv(paste0(fileloc1, loc1[3], 'Results/',
-                                       'OCCMo_DAY_', var[3],'_SSP585_1040','.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
-datOcc585_4070Mo_V3 <- read_csv(paste0(fileloc1, loc1[3], 'Results/',
-                                       'OCCMo_DAY_', var[3],'_SSP585_4070','.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
-datOcc585_7000Mo_V3 <- read_csv(paste0(fileloc1, loc1[3], 'Results/',
-                                       'OCCMo_DAY_', var[3],'_SSP585_7000','.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
-
-datOccHMo_V4 <- read_csv(paste0(fileloc1, loc1[1], 'Results/', 
-                                'OCCMo_DAY_', var[4],'_Hist_8010','.csv'),
-                         col_names = TRUE, cols(.default = col_double()))
-datOcc126_1040Mo_V4 <- read_csv(paste0(fileloc1, loc1[2], 'Results/',
-                                       'OCCMo_DAY_', var[4],'_SSP126_1040','.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
-datOcc126_4070Mo_V4 <- read_csv(paste0(fileloc1, loc1[2], 'Results/',
-                                       'OCCMo_DAY_', var[4],'_SSP126_4070','.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
-datOcc126_7000Mo_V4 <- read_csv(paste0(fileloc1, loc1[2], 'Results/',
-                                       'OCCMo_DAY_', var[4],'_SSP126_7000','.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
-datOcc126_1040Mo_V4 <- read_csv(paste0(fileloc1, loc1[3], 'Results/',
-                                       'OCCMo_DAY_', var[4],'_SSP585_1040','.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
-datOcc585_4070Mo_V4 <- read_csv(paste0(fileloc1, loc1[3], 'Results/',
-                                       'OCCMo_DAY_', var[4],'_SSP585_4070','.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
-datOcc585_7000Mo_V4 <- read_csv(paste0(fileloc1, loc1[3], 'Results/',
-                                       'OCCMo_DAY_', var[4],'_SSP585_7000','.csv'),
-                                col_names = TRUE, cols(.default = col_double()))
-# . . 5.2.4 Formatting ---------------------------------------------------------
-
-# . . 5.2.5 Plotting -----------------------------------------------------------
-
-
-
-
-
-
-# . . 5.2.6 Remove -------------------------------------------------------------
-rm(list=ls()[! ls() %in% c('fileloc1', 'loc1', 'loc2', 'lat1', 'lat2','lon1','lon2',
-                           'location','locTitle','mFileH','mFile126','mFile585',
-                           'var', 'varT', 'baseData', 'timeSpan',
-                           'get_legend','as_ggplot','mean_cl_quantile','acf2')])
 # END ##########################################################################

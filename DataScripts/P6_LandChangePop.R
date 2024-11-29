@@ -7,9 +7,11 @@
 #
 # T. A. Schillerberg
 #               Jun. 2023
-#      Updated: Nov. 2023
+#      Updated: Jul. 2023
 
-fileloc1 <- 'C:/Research/Data/'
+# Computer
+setwd("Source File Location") 
+fileloc1 <- 'Main project folder' 
 
 # HPC
 # fileloc1 <- '~/CompoundEvents/Data/'
@@ -67,13 +69,13 @@ var <- c('primf','primn','secdf','secdn','pastr','range','urban',
 for (i in 1:3){
   if (i == 1){
     datNC <- ncdf4::nc_open(paste0(fileloc1,loc1[1],
-                                'regrid360x180_mod_states.nc'))
+                                   'regrid360x180_mod_states.nc'))
     time <- 850:2015
     datNCH <- NULL
     timeH <- NULL
   } else if (i == 2){
     datNCH <- ncdf4::nc_open(paste0(fileloc1,loc1[1],
-                                   'regrid360x180_mod_states.nc'))
+                                    'regrid360x180_mod_states.nc'))
     timeH <- 850:2015
     datNC <- ncdf4::nc_open(paste0(fileloc1,loc1[1],
                                    'regrid360x180_mod_multiple-states_',
@@ -409,26 +411,26 @@ rm(list=ls()[! ls() %in% c('apMean','as_ggplot','get_legend','fileloc1',
 # . 3.4 Change in Crop ---------------------------------------------------------
 # . . 3.4.1 Opening the files ---
 datLUHH <- read_csv(paste0(fileloc1,loc1[1],'LUH2_historical_regrid360x180_',
-                        'mod_states','.csv'),
-                 col_names = TRUE, cols(.default = col_double()))
+                           'mod_states','.csv'),
+                    col_names = TRUE, cols(.default = col_double()))
 datLUH126_1040 <- read_csv(paste0(fileloc1,loc1[1],'LUH2_SSP126_2010-2040_',
-                               'regrid360x180_','mod_states','.csv'),
-                        col_names = TRUE, cols(.default = col_double()))
+                                  'regrid360x180_','mod_states','.csv'),
+                           col_names = TRUE, cols(.default = col_double()))
 datLUH126_4070 <- read_csv(paste0(fileloc1,loc1[1],'LUH2_SSP126_2040-2070_',
-                               'regrid360x180_','mod_states','.csv'),
-                        col_names = TRUE, cols(.default = col_double()))
+                                  'regrid360x180_','mod_states','.csv'),
+                           col_names = TRUE, cols(.default = col_double()))
 datLUH126_7000 <- read_csv(paste0(fileloc1,loc1[1],'LUH2_SSP126_2070-2100_',
-                               'regrid360x180_','mod_states','.csv'),
-                        col_names = TRUE, cols(.default = col_double()))
+                                  'regrid360x180_','mod_states','.csv'),
+                           col_names = TRUE, cols(.default = col_double()))
 datLUH585_1040 <- read_csv(paste0(fileloc1,loc1[1],'LUH2_SSP585_2010-2040_',
-                               'regrid360x180_','mod_states','.csv'),
-                        col_names = TRUE, cols(.default = col_double()))
+                                  'regrid360x180_','mod_states','.csv'),
+                           col_names = TRUE, cols(.default = col_double()))
 datLUH585_4070 <- read_csv(paste0(fileloc1,loc1[1],'LUH2_SSP585_2040-2070_',
-                               'regrid360x180_','mod_states','.csv'),
-                        col_names = TRUE, cols(.default = col_double()))
+                                  'regrid360x180_','mod_states','.csv'),
+                           col_names = TRUE, cols(.default = col_double()))
 datLUH585_7000 <- read_csv(paste0(fileloc1,loc1[1],'LUH2_SSP585_2070-2100_',
-                               'regrid360x180_','mod_states','.csv'),
-                        col_names = TRUE, cols(.default = col_double()))
+                                  'regrid360x180_','mod_states','.csv'),
+                           col_names = TRUE, cols(.default = col_double()))
 
 # . . 3.4.2 Formatting ---
 datLUH_AG <- cbind('lon' = datLUHH$lon, 
@@ -443,8 +445,8 @@ datLUH_AG <- cbind('lon' = datLUHH$lon,
   as_tibble()
 print('Change in Ag summary')
 c((datLUH_AG$SSP126_1040 - datLUH_AG$Historic), (datLUH_AG$SSP585_1040 - datLUH_AG$Historic),
-          (datLUH_AG$SSP126_4070 - datLUH_AG$Historic), (datLUH_AG$SSP585_4070 - datLUH_AG$Historic),
-          (datLUH_AG$SSP126_7000 - datLUH_AG$Historic), (datLUH_AG$SSP585_7000 - datLUH_AG$Historic)) %>%
+  (datLUH_AG$SSP126_4070 - datLUH_AG$Historic), (datLUH_AG$SSP585_4070 - datLUH_AG$Historic),
+  (datLUH_AG$SSP126_7000 - datLUH_AG$Historic), (datLUH_AG$SSP585_7000 - datLUH_AG$Historic)) %>%
   summary()
 
 datLUH_FOR <- cbind('lon' = datLUHH$lon, 
@@ -684,8 +686,8 @@ colnames(datFin2) <- c('lon','lat')
 # . 4.2 Past population Files --------------------------------------------------
 for (i in 1:3){
   dat <- raster::raster(paste0(fileloc1, loc1[2], loc2[i], 
-                              'popdynamics-global-pop-count-time-series-estimates_',
-                              yr[i],'.tif'))
+                               'popdynamics-global-pop-count-time-series-estimates_',
+                               yr[i],'.tif'))
   dat
   dat <- raster::setMinMax(dat)
   plot(dat)
@@ -709,21 +711,6 @@ for (i in 1:3){
     as_tibble()
   dat <- na.omit(dat)
   colnames(dat) <- c('lon', 'lat', 'V3')
-  # # Testing 
-  # legendTitle <- paste0("Population ", yr[i])
-  # ggplot(data = datFin, aes(x=lon, y=lat, fill=`2000`)) +
-  #   theme_bw() +
-  #   geom_tile() +
-  #   scale_fill_viridis_c(option = "rocket", 
-  #                        na.value = 'lightblue', direction = -1, 
-  #                        name = legendTitle) +
-  #   geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
-  #                colour="black", fill="NA", linewidth=0.2) +
-  #   coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-84,90), expand = FALSE) +
-  #   labs(title = "Historical", 
-  #        x = 'Longitude', y = 'Latitude') +
-  #   theme(legend.position = "right") +
-  #   theme(plot.margin=margin(t=0.5, r=0.5, unit="cm"))
   if (i == 1){
     datFin <- dat
   } else {
@@ -733,7 +720,7 @@ for (i in 1:3){
 colnames(datFin) <- c('lon','lat', yr)
 write.csv(datFin, file = paste0(fileloc1,loc1[2],'historic_',
                                 'popdynamics-global-pop-count-time-series-estimates-geotiff',
-                              '.csv'), 
+                                '.csv'), 
           row.names = FALSE)
 
 rm(list=ls()[! ls() %in% c('apMean','as_ggplot','get_legend','fileloc1', 'loc1', 'loc2',
@@ -767,7 +754,7 @@ for (i in 1:length(scenario)){
     dat.resize.matrix$x2 <- ceiling(dat.resize.matrix$x) 
     dat.resize.matrix$y2 <- dat.resize.matrix$y * 100 + 25
     dat.resize.matrix$y2 <- round(dat.resize.matrix$y2, digits = 0)
-
+    
     dat <- cbind(dat.resize.matrix$x2, dat.resize.matrix$y2, dat.resize.matrix$V3) %>% 
       as_tibble()
     colnames(dat) <- c('lon','lat','V3')
@@ -778,21 +765,6 @@ for (i in 1:length(scenario)){
     }
     datFin2 <- cbind(datFin2, dat2$V3) %>% as_tibble()
     colnames(datFin2) <- c(colnames(datFin2[1:ncol(datFin2)-1]), paste0('SSP',i,'_',j) )
-    # # TEST PLOTTING
-    # legendTitle <- paste0("Population ", 'SSP', scenario[i],'_20',j,'0')
-    # ggplot(data = datFin2, aes(x=V1, y=V2, fill=V3)) +
-    #   theme_bw() +
-    #   geom_tile() +
-    #   scale_fill_viridis_c(option = "rocket",
-    #                        na.value = 'lightblue', direction = -1,
-    #                        name = legendTitle) +
-    #   geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
-    #                colour="black", fill="NA", linewidth=0.2) +
-    #   coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-84,90), expand = FALSE) +
-    #   labs(title = "Historical",
-    #        x = 'Longitude', y = 'Latitude') +
-    #   theme(legend.position = "right") +
-    #   theme(plot.margin=margin(t=0.5, r=0.5, unit="cm"))
   } #j 
   
 } #i 
@@ -808,8 +780,8 @@ colnames(datFin2) <- c('lon', 'lat',
                        'SSP585_30', 'SSP585_40', 'SSP585_50', 'SSP585_60', 
                        'SSP585_70', 'SSP585_80', 'SSP585_90', 'SSP585_00')
 write.csv(datFin2, file = paste0(fileloc1,loc1[2],'future_',
-                                'popdynamics-global-pop-count-time-series-estimates-geotiff',
-                                '.csv'), 
+                                 'popdynamics-global-pop-count-time-series-estimates-geotiff',
+                                 '.csv'), 
           row.names = FALSE)
 # . . 4.3.2 Remove -------------------------------------------------------------
 rm(list=ls()[! ls() %in% c('apMean','as_ggplot','get_legend','fileloc1', 
@@ -838,7 +810,7 @@ pop <- tibble(
 popH <- read_csv(paste0(fileloc1,loc1[2],'historic_',
                         'popdynamics-global-pop-count-time-series-estimates-geotiff',
                         '.csv'),
-                    col_names = TRUE, cols(.default = col_double()))
+                 col_names = TRUE, cols(.default = col_double()))
 popF <- read_csv(paste0(fileloc1,loc1[2],'future_',
                         'popdynamics-global-pop-count-time-series-estimates-geotiff',
                         '.csv'),
@@ -846,8 +818,8 @@ popF <- read_csv(paste0(fileloc1,loc1[2],'future_',
 pop$lon <- popH$lon
 pop$lat <- popH$lat
 # . . 4.1.3 Historical Average -------------------------------------------------
+# Only using historical population data
 pop$Historic_8010_mu <- apply(popH[,3:5], MARGIN = 1, FUN = mean, na.rm=TRUE)
-   # Only using historical population data
 
 # Using 2010 future data 
 # dat <- cbind(popF$SSP126_10, popF$SSP585_10) %>%
@@ -885,7 +857,7 @@ pop$SSP585_4070_delta <- pop$SSP585_4070_mu - pop$Historic_8010_mu
 pop$SSP585_7000_delta <- pop$SSP585_7000_mu - pop$Historic_8010_mu
 
 write.csv(pop, file = paste0(fileloc1,loc1[2],'PopDynamics_hist_future',
-                                 '.csv'), 
+                             '.csv'), 
           row.names = FALSE)
 # . . 4.1.6 Remove -------------------------------------------------------------
 rm(list=ls()[! ls() %in% c('apMean','as_ggplot','get_legend','fileloc1', 
@@ -893,8 +865,8 @@ rm(list=ls()[! ls() %in% c('apMean','as_ggplot','get_legend','fileloc1',
 
 # . 4.5 Plotting ---------------------------------------------------------------
 datPop <- read_csv(paste0(fileloc1,loc1[2],'PopDynamics_hist_future',
-                                  '.csv'),
-                    col_names = TRUE, cols(.default = col_double()))
+                          '.csv'),
+                   col_names = TRUE, cols(.default = col_double()))
 
 p1 <- ggplot(data = datPop, aes(x=lon, y=lat, fill=Historic_8010_mu)) +
   theme_bw() +
@@ -1013,7 +985,7 @@ p1 <- ggplot(data = datPop, aes(x=lon, y=lat, fill=(SSP126_1040_delta))) +
   theme_bw() +
   geom_tile() +
   scale_fill_viridis_c(limits=c(-5000000, 20000000), option = "turbo", 
-                        na.value = 'lightblue', direction = 1) +
+                       na.value = 'lightblue', direction = 1) +
   geom_polygon(data=baseData, aes(x=long, y=lat, group=group),
                colour="black", fill="NA", linewidth=0.2) +
   coord_fixed(ratio=1, xlim=c(-180,180), ylim=c(-84,90), expand = FALSE) +
